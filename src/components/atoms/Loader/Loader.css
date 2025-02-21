@@ -1,0 +1,8 @@
+.gearLoader {
+    background-image: url("./../../../assets/icons/gear-spinner.svg");
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 2.4rem;
+    height: 2.4rem;
+}

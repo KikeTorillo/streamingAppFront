@@ -1,0 +1,36 @@
+.createTodoButton {
+    background-image: url("./../../../assets/icons/New.svg");
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 6.7rem;
+    height: 6.3rem;
+    cursor: pointer;
+}
+
+.trashButton{
+    background-image: url("./../../../assets/icons/delete_forever.svg");
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 2.4rem;
+    height: 2.4rem;
+}
+
+.checkedButton {
+    background-image: url("./../../../assets/icons/checked.svg");
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 2.4rem;
+    height: 2.4rem;
+}
+
+.uncheckButton{
+    background-image: url("./../../../assets/icons/uncheck.svg");
+    display: inline-block;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 2.4rem;
+    height: 2.4rem;
+}

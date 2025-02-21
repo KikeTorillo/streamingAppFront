@@ -1,0 +1,37 @@
+.button {
+    font-family: inherit;
+    border-radius: 5px;
+    border: 2px solid #323232;
+    background-color: #FFFFFF;
+    box-shadow: 4px 4px #323232;
+    font-size: 1.6rem;
+    line-height: 1.5;
+    color: #323232;
+    cursor: pointer;
+    padding: .5rem 2rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
+}
+
+.sm {
+    height: auto;
+    padding: 0 2rem;
+}
+
+.md {
+    height: 3.5rem;
+}
+
+.link{
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    font-family: inherit;
+    padding: 0;
+    color: #323232;
+}
+
+.button:hover {
+    box-shadow: 0rem 0rem 0rem 0rem #323232;
+}

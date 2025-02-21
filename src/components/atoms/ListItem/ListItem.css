@@ -1,0 +1,14 @@
+.ListItem {
+    list-style: none;
+    display: flex;
+    column-gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #F7D6E0;
+    color: #5C677D;
+    width: 26rem;
+    border-radius: .5rem;
+    outline: none;
+    border: .2rem solid #323232;
+    padding: .5rem 2rem;
+}

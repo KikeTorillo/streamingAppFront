@@ -1,0 +1,15 @@
+.textInput {
+    box-shadow: .4rem .4rem #323232;
+    padding-left: 1rem;
+    width: 100%;
+    max-width: 20rem;
+    height: 3.5rem;
+    border-radius: .5rem;
+    outline: none;
+    border: .2rem solid  #323232;
+    background-color: #D9D9D9;
+    color: #5C677D;
+    transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
+    font-family: inherit;
+    font-size: 1.7rem;
+}
