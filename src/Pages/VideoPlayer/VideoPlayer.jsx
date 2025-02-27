@@ -1,73 +1,150 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import Hls from "hls.js";
 
 const VideoPlayer = () => {
-  // Estado para almacenar la URL del video
-  const [videoUrl, setVideoUrl] = useState(null);
-  // Estado para manejar errores
-  const [error, setError] = useState(null);
-  // Estado para indicar si la solicitud está en progreso
-  const [loading, setLoading] = useState(false);
+  // Estado para almacenar la resolución seleccionada
+  const [resolution, setResolution] = useState("auto"); // 'auto' para usar la lista maestra
+  // Estado para almacenar las pistas de audio disponibles
+  const [audioTracks, setAudioTracks] = useState([]);
+  // Referencia al elemento de video
+  const videoRef = useRef(null);
+  // Referencia a la instancia de Hls.js
+  const hlsRef = useRef(null);
+  // URL base del servidor HLS
+  const baseUrl = "http://localhost:8082/vod/hls/Mr-Robot-1x01/";
 
-  // Función para hacer la solicitud GET
-  const fetchVideoUrl = async () => {
-    setLoading(true); // Indicar que la solicitud está en progreso
-    setError(null); // Limpiar errores previos
+  // Función para obtener la URL de la playlist maestra
+  const getPlaylistUrl = () => {
+    return `${baseUrl}_,72,48,0p.mp4.play/master.m3u8`; // Siempre usamos la lista maestra
+  };
 
-    try {
-      // Simula una solicitud GET a un servicio
-      const response = await fetch("http://192.168.0.177:3000/api/v1/videos/top", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
+  // Función para cargar la fuente del video
+  const loadVideoSource = (url) => {
+    const video = videoRef.current;
+    if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      // Si el navegador soporta HLS nativamente
+      video.src = url;
+    } else if (Hls.isSupported()) {
+      // Si el navegador no soporta HLS pero Hls.js está disponible
+      if (hlsRef.current) {
+        hlsRef.current.destroy(); // Destruir la instancia anterior de Hls.js
+      }
+      const hls = new Hls();
+      hls.loadSource(url);
+      hls.attachMedia(video);
+      hlsRef.current = hls; // Guardar la referencia para futuras operaciones
+
+      // Detectar las pistas de audio disponibles
+      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+        const tracks = data.audioTracks.map((track, index) => ({
+          id: index,
+          name: track.name || `Track ${index + 1}`,
+          language: track.lang || "unknown",
+        }));
+        setAudioTracks(tracks); // Actualizar el estado con las pistas de audio
       });
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.status}`);
+      // Establecer la resolución deseada
+      hls.on(Hls.Events.LEVEL_LOADED, (event, data) => {
+        if (resolution !== "auto") {
+          const levelIndex = data.levels.findIndex(
+            (level) => level.height === parseInt(resolution)
+          );
+          if (levelIndex !== -1) {
+            hlsRef.current.currentLevel = levelIndex; // Cambiar a la resolución seleccionada
+          }
+        }
+      });
+    } else {
+      console.error("Tu navegador no soporta HLS ni Hls.js.");
+    }
+  };
+
+  // Efecto para cargar la fuente inicial cuando el componente se monta
+  useEffect(() => {
+    const initialUrl = getPlaylistUrl(); // Obtener la URL inicial
+    loadVideoSource(initialUrl);
+
+    // Limpiar la instancia de Hls.js cuando el componente se desmonta
+    return () => {
+      if (hlsRef.current) {
+        hlsRef.current.destroy();
       }
+    };
+  }, []); // Se ejecuta solo una vez al montar el componente
 
-      // Parsear la respuesta JSON
-      const data = await response.json();
-
-      // Supongamos que la respuesta tiene una propiedad `url` con la URL del video
-      const { url } = data;
-
-      if (!url) {
-        throw new Error("La respuesta no contiene una URL válida");
+  // Función para cambiar la resolución
+  const changeResolution = (res) => {
+    setResolution(res); // Actualizar el estado de la resolución
+    if (hlsRef.current) {
+      if (res === "auto") {
+        hlsRef.current.currentLevel = -1; // Usar la resolución automática
+      } else {
+        const levelIndex = hlsRef.current.levels.findIndex(
+          (level) => level.height === parseInt(res)
+        );
+        if (levelIndex !== -1) {
+          hlsRef.current.currentLevel = levelIndex; // Cambiar a la resolución seleccionada
+        }
       }
+    }
+  };
 
-      // Actualizar el estado con la URL del video
-      setVideoUrl(url);
-    } catch (err) {
-      // Manejar errores
-      setError(err.message || "Ocurrió un error al obtener la URL del video");
-    } finally {
-      setLoading(false); // Finalizar la carga
+  // Función para cambiar la pista de audio
+  const changeAudioTrack = (trackId) => {
+    if (hlsRef.current) {
+      hlsRef.current.subtitleTrack = -1; // Desactivar subtítulos si están habilitados
+      hlsRef.current.audioTrack = trackId; // Cambiar la pista de audio activa
     }
   };
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {/* Botón para hacer la solicitud */}
-      <button onClick={fetchVideoUrl} disabled={loading}>
-        {loading ? "Cargando..." : "Obtener video"}
-      </button>
+      {/* Botones para cambiar la resolución */}
+      <div style={{ marginBottom: "20px" }}>
+        <button onClick={() => changeResolution("auto")}>Auto</button>
+        <button onClick={() => changeResolution("1080")}>1080p</button>
+        <button onClick={() => changeResolution("720")}>720p</button>
+        <button onClick={() => changeResolution("480")}>480p</button>
+      </div>
 
-      {/* Mostrar mensaje de error si ocurre uno */}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {/* Selector de pistas de audio */}
+      <div style={{ marginBottom: "20px" }}>
+        <strong>Selecciona una pista de audio:</strong>
+        {audioTracks.length > 0 ? (
+          audioTracks.map((track) => (
+            <button
+              key={track.id}
+              onClick={() => changeAudioTrack(track.id)}
+              style={{
+                marginLeft: "10px",
+                padding: "5px 10px",
+                backgroundColor: "#f0f0f0",
+                border: "1px solid #ccc",
+                borderRadius: "5px",
+                cursor: "pointer",
+              }}
+            >
+              {track.name} ({track.language})
+            </button>
+          ))
+        ) : (
+          <span>Cargando pistas de audio...</span>
+        )}
+      </div>
 
-      {/* Mostrar el video si la URL está disponible */}
-      {videoUrl && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Reproduciendo video:</h3>
-          <video controls width="640" height="360">
-            <source src={videoUrl} type="video/mp4" />
-            Tu navegador no soporta el elemento de video.
-          </video>
-        </div>
-      )}
+      {/* Elemento de video */}
+      <video
+        ref={videoRef}
+        controls
+        width="640"
+        height="360"
+        style={{ maxWidth: "100%" }}
+      >
+        Tu navegador no soporta el elemento de video.
+      </video>
     </div>
   );
 };
 
-export {VideoPlayer};
+export { VideoPlayer };
