@@ -2,24 +2,22 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios'; // Biblioteca para realizar solicitudes HTTP
 
 const UploadVideo = () => {
-  const [category, setCategory] = useState(''); // Estado para almacenar la categoría seleccionada
-  const [categories, setCategories] = useState([]); // Estado para almacenar las categorías disponibles
-  const [selectedFile, setSelectedFile] = useState(null); // Estado para almacenar el archivo seleccionado
-  const [uploading, setUploading] = useState(false); // Estado para indicar si se está subiendo el archivo
-  const [progress, setProgress] = useState(0); // Estado para rastrear el progreso de la subida/transcodificación
-  const [message, setMessage] = useState(''); // Estado para mostrar mensajes al usuario
-  const [taskId, setTaskId] = useState(null); // Estado para almacenar el ID de la tarea de transcodificación
-  const [contentType, setContentType] = useState('movie'); // Estado para seleccionar el tipo de contenido (movie o series)
+  const [category, setCategory] = useState('');
+  const [categories, setCategories] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [coverImage, setCoverImage] = useState(null); // Estado para la imagen de portada
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [message, setMessage] = useState('');
+  const [taskId, setTaskId] = useState(null);
+  const [contentType, setContentType] = useState('movie');
+  const [videoName, setVideoName] = useState(''); // Estado para el nombre del video
 
-  /**
-   * Obtener las categorías disponibles desde el backend:
-   * - Se ejecuta cuando el componente se monta.
-   */
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get('http://192.168.0.177:3000/api/v1/videos/categories');
-        setCategories(response.data); // Almacena las categorías en el estado
+        setCategories(response.data);
       } catch (error) {
         console.error('Error al obtener las categorías:', error);
         setMessage('Error al cargar las categorías.');
@@ -28,92 +26,75 @@ const UploadVideo = () => {
     fetchCategories();
   }, []);
 
-  /**
-   * Manejar la selección de archivos:
-   * - Actualiza el estado cuando el usuario selecciona un archivo.
-   */
   const handleFileChange = (event) => {
-    const file = event.target.files[0]; // Obtiene el primer archivo seleccionado
-    if (!file) return; // Si no se seleccionó ningún archivo, no hacer nada
-    setSelectedFile(file); // Actualiza el estado con el archivo seleccionado
-    setMessage(`Archivo seleccionado: ${file.name}`); // Muestra el nombre del archivo seleccionado
+    const file = event.target.files[0];
+    if (!file) return;
+    setSelectedFile(file);
+    setMessage(`Archivo seleccionado: ${file.name}`);
   };
 
-  /**
-   * Manejar la carga del archivo:
-   * - Esta función maneja la subida del archivo al backend.
-   * - Usa `axios` para enviar una solicitud POST con el archivo y los datos adicionales.
-   */
+  const handleCoverImageChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    setCoverImage(file);
+    setMessage(`Imagen de portada seleccionada: ${file.name}`);
+  };
+
   const handleUpload = async () => {
-    if (!selectedFile || !category || contentType === '') {
-      setMessage('Por favor, selecciona un archivo, una categoría y un tipo de contenido.');
+    if (!selectedFile || !category || contentType === '' || !videoName) {
+      setMessage('Por favor, completa todos los campos.');
       return;
     }
-
-    setUploading(true); // Indica que se está subiendo el archivo
-    setProgress(0); // Reinicia el progreso a 0%
-
+    setUploading(true);
+    setProgress(0);
     try {
-      const formData = new FormData(); // Crea un objeto FormData para enviar el archivo
-      formData.append('video', selectedFile); // Agrega el archivo al FormData
-      formData.append('name', selectedFile.name); // Agrega el nombre del archivo
-      formData.append('category', category); // Agrega la categoría seleccionada
-      formData.append('contentType', contentType); // Agrega el tipo de contenido (movie o series)
+      const formData = new FormData();
+      formData.append('video', selectedFile);
+      formData.append('name', videoName); // Agregamos el nombre del video
+      formData.append('category', category);
+      formData.append('contentType', contentType);
+      formData.append('coverImage', coverImage); // Agregamos la imagen de portada
 
-      /**
-       * Subir el archivo y obtener el ID de la tarea:
-       * - Usamos `axios.post` para enviar el archivo al backend.
-       */
       const response = await axios.post(
         'http://192.168.0.177:3000/api/v1/videos/upload',
         formData,
         {
-          headers: { 'Content-Type': 'multipart/form-data' }, // Especifica el tipo de contenido
-          withCredentials: true, // Envía cookies para autenticación basada en sesiones
+          headers: { 'Content-Type': 'multipart/form-data' },
+          withCredentials: true,
         }
       );
-
-      const { taskId } = response.data; // Extrae el ID de la tarea del backend
-      setTaskId(taskId); // Almacena el ID de la tarea en el estado
-
-      // Monitorear el progreso de la tarea
+      const { taskId } = response.data;
+      setTaskId(taskId);
       monitorProgress(taskId);
     } catch (error) {
-      console.error(error); // Registra el error en la consola
-      setMessage('Error al subir el video.'); // Muestra un mensaje de error al usuario
-      setUploading(false); // Desactiva el estado de subida
+      console.error(error);
+      setMessage('Error al subir el video.');
+      setUploading(false);
     }
   };
 
-  /**
-   * Monitorear el progreso de la tarea:
-   * - Consulta periódicamente el estado de la tarea en el backend.
-   * - Actualiza el progreso en tiempo real y muestra mensajes cuando la tarea termina.
-   */
   const monitorProgress = async (taskId) => {
     try {
       while (true) {
         const response = await axios.get(
           `http://192.168.0.177:3000/api/v1/videos/progress/${taskId}`
         );
-        const { status, progress, error } = response.data; // Extrae el estado, progreso y mensaje de error
-        setProgress(progress); // Actualiza el progreso en el estado
-
+        const { status, progress, error } = response.data;
+        setProgress(progress);
         if (status === 'completed') {
-          setMessage('Video procesado y subido exitosamente.'); // Muestra un mensaje de éxito
-          break; // Sale del bucle cuando la tarea está completada
+          setMessage('Video procesado y subido exitosamente.');
+          break;
         } else if (status === 'failed') {
-          setMessage(`Error: ${error}`); // Muestra un mensaje de error
-          break; // Sale del bucle si la tarea falla
+          setMessage(`Error: ${error}`);
+          break;
         }
-
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Espera 1 segundo antes de la próxima consulta
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     } catch (error) {
-      console.error(error); // Registra el error en la consola
-      setMessage('Error al monitorear el progreso.'); // Muestra un mensaje de error al usuario
+      console.error(error);
+      setMessage('Error al monitorear el progreso.');
     } finally {
-      setUploading(false); // Desactiva el estado de subida
+      setUploading(false);
     }
   };
 
@@ -121,6 +102,20 @@ const UploadVideo = () => {
     <div style={{ maxWidth: '600px', margin: 'auto', padding: '20px' }}>
       <h2>Subir Video</h2>
       <form>
+        {/* Campo para el nombre del video */}
+        <div style={{ marginBottom: '15px' }}>
+          <label htmlFor="video-name" style={{ display: 'block', marginBottom: '5px' }}>
+            Nombre del Video:
+          </label>
+          <input
+            id="video-name"
+            type="text"
+            value={videoName}
+            onChange={(e) => setVideoName(e.target.value)}
+            style={{ width: '100%', padding: '8px', boxSizing: 'border-box' }}
+          />
+        </div>
+
         {/* Campo para seleccionar la categoría */}
         <div style={{ marginBottom: '15px' }}>
           <label htmlFor="category" style={{ display: 'block', marginBottom: '5px' }}>
@@ -172,6 +167,20 @@ const UploadVideo = () => {
           />
         </div>
 
+        {/* Botón para seleccionar una imagen de portada */}
+        <div style={fileInputStyle}>
+          <label htmlFor="cover-image-upload" style={fileInputLabel}>
+            Seleccionar Imagen de Portada
+          </label>
+          <input
+            id="cover-image-upload"
+            type="file"
+            accept="image/*"
+            onChange={handleCoverImageChange}
+            style={{ display: 'none' }}
+          />
+        </div>
+
         {/* Muestra el nombre del archivo seleccionado */}
         {selectedFile && (
           <p style={{ marginTop: '10px' }}>Archivo seleccionado: {selectedFile.name}</p>
@@ -188,7 +197,7 @@ const UploadVideo = () => {
         <button
           type="button"
           onClick={handleUpload}
-          disabled={uploading || !selectedFile || !category || contentType === ''}
+          disabled={uploading || !selectedFile || !category || contentType === '' || !videoName}
           style={{
             marginTop: '15px',
             padding: '10px 15px',

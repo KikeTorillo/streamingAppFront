@@ -1,148 +1,112 @@
-import React, { useState, useRef, useEffect } from "react";
-import Hls from "hls.js";
+import React, { useEffect, useRef } from "react";
+import videojs from "video.js";
+import "video.js/dist/video-js.css";
+import "videojs-contrib-quality-levels";
+import "videojs-hls-quality-selector/dist/videojs-hls-quality-selector.css";
+import hlsQualitySelector from "videojs-hls-quality-selector";
+import "./VideoPlayer.css";
+
+// Registra los plugins si aún no están registrados
+if (typeof videojs.getPlugin("hlsQualitySelector") !== "function") {
+  videojs.registerPlugin("hlsQualitySelector", hlsQualitySelector);
+}
 
 const VideoPlayer = () => {
-  // Estado para almacenar la resolución seleccionada
-  const [resolution, setResolution] = useState("auto"); // 'auto' para usar la lista maestra
-  // Estado para almacenar las pistas de audio disponibles
-  const [audioTracks, setAudioTracks] = useState([]);
-  // Referencia al elemento de video
   const videoRef = useRef(null);
-  // Referencia a la instancia de Hls.js
-  const hlsRef = useRef(null);
-  // URL base del servidor HLS
-  const baseUrl = "http://localhost:8082/vod/hls/Mr-Robot-1x01/";
+  const playerRef = useRef(null);
+  const baseUrl = "http://192.168.0.177:8082/hls/prueba/";
 
-  // Función para obtener la URL de la playlist maestra
-  const getPlaylistUrl = () => {
-    return `${baseUrl}_,72,48,0p.mp4.play/master.m3u8`; // Siempre usamos la lista maestra
-  };
-
-  // Función para cargar la fuente del video
-  const loadVideoSource = (url) => {
-    const video = videoRef.current;
-    if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      // Si el navegador soporta HLS nativamente
-      video.src = url;
-    } else if (Hls.isSupported()) {
-      // Si el navegador no soporta HLS pero Hls.js está disponible
-      if (hlsRef.current) {
-        hlsRef.current.destroy(); // Destruir la instancia anterior de Hls.js
-      }
-      const hls = new Hls();
-      hls.loadSource(url);
-      hls.attachMedia(video);
-      hlsRef.current = hls; // Guardar la referencia para futuras operaciones
-
-      // Detectar las pistas de audio disponibles
-      hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-        const tracks = data.audioTracks.map((track, index) => ({
-          id: index,
-          name: track.name || `Track ${index + 1}`,
-          language: track.lang || "unknown",
-        }));
-        setAudioTracks(tracks); // Actualizar el estado con las pistas de audio
-      });
-
-      // Establecer la resolución deseada
-      hls.on(Hls.Events.LEVEL_LOADED, (event, data) => {
-        if (resolution !== "auto") {
-          const levelIndex = data.levels.findIndex(
-            (level) => level.height === parseInt(resolution)
-          );
-          if (levelIndex !== -1) {
-            hlsRef.current.currentLevel = levelIndex; // Cambiar a la resolución seleccionada
-          }
-        }
-      });
-    } else {
-      console.error("Tu navegador no soporta HLS ni Hls.js.");
-    }
-  };
-
-  // Efecto para cargar la fuente inicial cuando el componente se monta
   useEffect(() => {
-    const initialUrl = getPlaylistUrl(); // Obtener la URL inicial
-    loadVideoSource(initialUrl);
+    const initializePlayer = async () => {
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        if (!videoRef.current) {
+          console.error("El elemento <video> no está disponible en el DOM.");
+          return;
+        }
+        if (playerRef.current) {
+          playerRef.current.dispose();
+        }
 
-    // Limpiar la instancia de Hls.js cuando el componente se desmonta
-    return () => {
-      if (hlsRef.current) {
-        hlsRef.current.destroy();
+        const player = videojs(videoRef.current, {
+          controls: true,
+          autoplay: false,
+          preload: "auto",
+          fluid: true,
+          sources: [
+            {
+              src: `${baseUrl}_,48,0p.mp4.play/master.m3u8`,
+              type: "application/x-mpegURL",
+            },
+          ],
+          html5: {
+            vhs: {
+              overrideNative: true,
+            },
+            nativeControlsForTouch: false,
+            playsinline: true,
+          },
+          pip: true,
+          controlBar: {
+            children: [
+              "playToggle",
+              "volumePanel",
+              "currentTimeDisplay",
+              "timeDivider",
+              "durationDisplay",
+              "progressControl",
+              "remainingTimeDisplay",
+              "audioTrackButton", // Botón de selección de audio
+              "pictureInPictureToggle",
+              "fullscreenToggle",
+            ],
+          },
+        });
+
+        // Habilita selección de calidad
+        player.hlsQualitySelector({
+          displayCurrentQuality: true,
+        });
+
+        // Habilita selección de pistas de audio
+        player.on("loadedmetadata", () => {
+          const audioTracks = player.audioTracks();
+          if (audioTracks.length > 0) {
+            console.log("Pistas de audio detectadas:", audioTracks);
+          }
+        });
+
+        playerRef.current = player;
+      } catch (error) {
+        console.error("Error al inicializar el reproductor:", error);
       }
     };
-  }, []); // Se ejecuta solo una vez al montar el componente
 
-  // Función para cambiar la resolución
-  const changeResolution = (res) => {
-    setResolution(res); // Actualizar el estado de la resolución
-    if (hlsRef.current) {
-      if (res === "auto") {
-        hlsRef.current.currentLevel = -1; // Usar la resolución automática
-      } else {
-        const levelIndex = hlsRef.current.levels.findIndex(
-          (level) => level.height === parseInt(res)
-        );
-        if (levelIndex !== -1) {
-          hlsRef.current.currentLevel = levelIndex; // Cambiar a la resolución seleccionada
-        }
+    initializePlayer();
+    return () => {
+      if (playerRef.current) {
+        playerRef.current.dispose();
       }
-    }
-  };
-
-  // Función para cambiar la pista de audio
-  const changeAudioTrack = (trackId) => {
-    if (hlsRef.current) {
-      hlsRef.current.subtitleTrack = -1; // Desactivar subtítulos si están habilitados
-      hlsRef.current.audioTrack = trackId; // Cambiar la pista de audio activa
-    }
-  };
+    };
+  }, []);
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      {/* Botones para cambiar la resolución */}
-      <div style={{ marginBottom: "20px" }}>
-        <button onClick={() => changeResolution("auto")}>Auto</button>
-        <button onClick={() => changeResolution("1080")}>1080p</button>
-        <button onClick={() => changeResolution("720")}>720p</button>
-        <button onClick={() => changeResolution("480")}>480p</button>
+      <div data-vjs-player>
+        <video
+          ref={videoRef}
+          className="video-js vjs-default-skin vjs-big-play-centered"
+          controls
+          width="640"
+          height="360"
+          style={{ maxWidth: "100%", height: "auto" }}
+          playsInline
+          webkit-playsinline="true"
+          x5-playsinline="true"
+        >
+          Tu navegador no soporta el elemento de video.
+        </video>
       </div>
-
-      {/* Selector de pistas de audio */}
-      <div style={{ marginBottom: "20px" }}>
-        <strong>Selecciona una pista de audio:</strong>
-        {audioTracks.length > 0 ? (
-          audioTracks.map((track) => (
-            <button
-              key={track.id}
-              onClick={() => changeAudioTrack(track.id)}
-              style={{
-                marginLeft: "10px",
-                padding: "5px 10px",
-                backgroundColor: "#f0f0f0",
-                border: "1px solid #ccc",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              {track.name} ({track.language})
-            </button>
-          ))
-        ) : (
-          <span>Cargando pistas de audio...</span>
-        )}
-      </div>
-
-      {/* Elemento de video */}
-      <video
-        ref={videoRef}
-        controls
-        width="640"
-        height="360"
-        style={{ maxWidth: "100%" }}
-      >
-        Tu navegador no soporta el elemento de video.
-      </video>
     </div>
   );
 };
