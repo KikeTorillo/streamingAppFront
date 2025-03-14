@@ -1,22 +1,26 @@
+// LoginRegister.jsx
+
 import React from "react";
 import { useState, useContext, useEffect } from "react";
-
 import { useNavigate } from 'react-router-dom';
 
+// Servicios de autenticación
 import { loginService } from "../../services/Auth/loginService";
 import { registrationService } from "../../services/Auth/registrationService";
 import { recoveryService } from "../../services/Auth/recoveryService";
 
+// Componente de presentación
 import { LoginRegisterCard } from "../../components/organism/LoginRegisterCard/LoginRegisterCard";
-
-import './LoginRegister.css'
+import './LoginRegister.css';
 
 function LoginRegister() {
-  const [error, setError] = useState(null);
-  const [isLogin, setIsLogin] = useState(false);
-  const [isRecovering, setIsRecovering] = useState(false);
-  const [isRegistering, setIsRegistering] = useState(false);
+  // Estados de la UI y formulario
+  const [error, setError] = useState(null); // Mensajes de error
+  const [isLogin, setIsLogin] = useState(false); // Estado de carga para login
+  const [isRecovering, setIsRecovering] = useState(false); // Estado para recuperación
+  const [isRegistering, setIsRegistering] = useState(false); // Estado para registro
 
+  // Estado compuesto para valores y validaciones del formulario
   const [formStatus, setFormStatus] = useState({
     values: {
       email: '',
@@ -30,42 +34,38 @@ function LoginRegister() {
     },
   });
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Para navegación programática
 
+  // Validación de email
   const validateEmail = (value) => {
-    if (!value) {
-      return 'Email obligatorio';
-    }
+    if (!value) return 'Email obligatorio';
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(value)) {
-      return 'Email inválido';
-    } else {
-      return '';
-    }
+    return emailRegex.test(value) ? '' : 'Email inválido';
   };
 
+  // Validación de contraseña
   const validatePassword = (value) => {
-    if (!value) {
-      return 'Contraseña obligatoria';
-    }
-    return null;
+    return !value ? 'Contraseña obligatoria' : '';
   };
 
+  // Validación de confirmación de contraseña
   const validateConfirmPassword = (value) => {
-    if (!value) {
-      return 'Confirma contraseña obligatorio';
-    }
-    if (formStatus.values.password !== value) {
-      return 'Confirmacion de contraseña y contraseña deben ser iguales ';
-    }
-    return null;
+    if (!value) return 'Confirma contraseña obligatorio';
+    return formStatus.values.password === value 
+      ? '' 
+      : 'Las contraseñas no coinciden';
   };
 
+  /**
+   * Validación individual de campos al perder foco
+   * @param {Event} e - Evento de blur
+   */
   const validateOne = (e) => {
-    const { name } = e.target
+    const { name } = e.target;
     const value = formStatus.values[name];
     let message = '';
 
+    // Validación según el campo
     switch (name) {
       case 'email':
         message = validateEmail(value);
@@ -80,137 +80,145 @@ function LoginRegister() {
         break;
     }
 
-    const newFormStatus = { ...formStatus };
-    newFormStatus.validations[name] = message;
-    setFormStatus(newFormStatus)
+    // Actualiza el estado de validaciones
+    setFormStatus(prev => ({
+      ...prev,
+      validations: {
+        ...prev.validations,
+        [name]: message
+      }
+    }));
   };
 
+  /**
+   * Maneja cambios en los inputs
+   * @param {Event} e - Evento de cambio
+   */
   const handleChange = (e) => {
-    const { name, value } = e.target
-    const newFormStatus = { ...formStatus };
-    newFormStatus.values[name] = value;
-    setFormStatus(newFormStatus)
+    const { name, value } = e.target;
+    setFormStatus(prev => ({
+      ...prev,
+      values: {
+        ...prev.values,
+        [name]: value
+      }
+    }));
   };
 
+  /**
+   * Validación completa del formulario
+   * @param {'login'|'register'} action - Acción a realizar
+   */
   const validateAll = (action) => {
     const { email, password } = formStatus.values;
     const validations = { email: '', password: '' };
 
-    validations.email = validateEmail(email)
-    validations.password = validatePassword(password)
+    // Validaciones básicas
+    validations.email = validateEmail(email);
+    validations.password = validatePassword(password);
 
+    // Validación adicional para registro
     if (action !== 'login') {
-      validations.confirmPassword = validateConfirmPassword(password)
+      validations.confirmPassword = validateConfirmPassword(password);
     }
 
-    const validationMesages = Object.values(validations).filter(
-      (validationMessage) => {
-        if (validationMessage) {
-          return validationMessage.length > 0;
-        }
-      }
-    )
-
-    const isValid = !validationMesages.length;
+    // Verifica si hay errores
+    const validationMessages = Object.values(validations).filter(msg => msg);
+    const isValid = validationMessages.length === 0;
 
     if (!isValid) {
-      const newFormStatus = { ...formStatus };
-      newFormStatus.validations = validations;
-      setFormStatus(newFormStatus);
+      setFormStatus(prev => ({
+        ...prev,
+        validations: {
+          ...prev.validations,
+          ...validations
+        }
+      }));
       return;
     }
 
+    // Acciones según el formulario
     if (isValid && action === 'login') {
       setIsLogin(true);
-    } else if (isValid && action !== 'login') {
+    } else if (isValid) {
       setIsRegistering(true);
     }
-
   };
 
+  /**
+   * Maneja el envío de recuperación de contraseña
+   */
   const sendRecovery = () => {
-    const { email } = formStatus.values;
-    const validations = { email: ''};
+    const validations = { email: validateEmail(formStatus.values.email) };
+    const isValid = !validations.email;
 
-    validations.email = validateEmail(email);
-
-    const validationMesages = Object.values(validations).filter(
-      (validationMessage) => {
-        if (validationMessage) {
-          return validationMessage.length > 0;
+    if (isValid) {
+      setIsRecovering(true);
+    } else {
+      setFormStatus(prev => ({
+        ...prev,
+        validations: {
+          ...prev.validations,
+          ...validations
         }
-      }
-    )
-
-    const isValid = !validationMesages.length;
-
-    if (!isValid) {
-      const newFormStatus = { ...formStatus };
-      newFormStatus.validations = validations;
-      setFormStatus(newFormStatus);
-      return;
+      }));
     }
-
-    setIsRecovering(true);
-
   };
 
+  // Efecto para login
   useEffect(() => {
-    async function loginUser() {
-      const data = await loginService(formStatus.values.email, formStatus.values.password);
-      if (data) {
-        if (data.sub) {
-          const sessionUser = JSON.stringify(data);
-          sessionStorage.setItem('sessionUser', sessionUser);
-          setError(null);
-          setIsLogin(false);
-          navigate('/main-page');
-        } else {
-          setIsLogin(false);
-          setError('Error en correo o contraseña');
-        }
+    const loginUser = async () => {
+      const data = await loginService(
+        formStatus.values.email,
+        formStatus.values.password
+      );
+      
+      if (data?.sub) {
+        sessionStorage.setItem('sessionUser', JSON.stringify(data));
+        setError(null);
+        navigate('/main-page');
+      } else {
+        setError('Credenciales incorrectas');
       }
-    }
-    if (isLogin) {
-      loginUser();
-    }
+      setIsLogin(false);
+    };
+
+    if (isLogin) loginUser();
   }, [isLogin]);
 
+  // Efecto para recuperación
   useEffect(() => {
-    async function recoveryUser() {
-      const data = await recoveryService(formStatus.values.email);
+    const recoveryUser = async () => {
+      await recoveryService(formStatus.values.email);
       setIsRecovering(false);
-    }
-    if (isRecovering) {
-      recoveryUser();
-    }
+    };
+    if (isRecovering) recoveryUser();
   }, [isRecovering]);
 
+  // Efecto para registro
   useEffect(() => {
-    async function fetchRegister() {
-      const data = await registrationService(formStatus.values.email, formStatus.values.password);
-      if (data) {
-        if (data.message === 'user created') {
-          setError(data.message);
-          setIsRegistering(false);
-          setIsLogin(true);
-        } else {
-          setError("No se pudo realizar el registro");
-          setIsRegistering(false);
-        }
+    const registerUser = async () => {
+      const data = await registrationService(
+        formStatus.values.email,
+        formStatus.values.password
+      );
+      
+      if (data?.message === 'user created') {
+        setError('Usuario creado. Inicia sesión');
+        setIsRegistering(false);
+        setIsLogin(true);
+      } else {
+        setError('Error en el registro');
+        setIsRegistering(false);
       }
-    }
-    if (isRegistering) {
-      fetchRegister();
-    }
+    };
+    
+    if (isRegistering) registerUser();
   }, [isRegistering]);
 
+  // Renderizado condicional durante login
   if (isLogin) {
-    return (
-      <div>
-        <h1>Iniciando Sesion...</h1>
-      </div>
-    );
+    return <div><h1>Iniciando Sesión...</h1></div>;
   }
 
   return (

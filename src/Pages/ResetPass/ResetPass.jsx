@@ -1,19 +1,18 @@
+// ResetPass.jsx
+
 import React, { useState, useEffect } from "react";
-
 import { useNavigate } from 'react-router-dom';
-
-import { resetPassService } from "../../services/Auth/resetPassService";
-
-import { ResetPassCard } from "../../components/organism/ResetPassCard/ResetPassCard";
-
-import { useQueryParams } from "../../hooks/useQueryParams";
-
-import './ResetPass.css'
-
+import { resetPassService } from "../../services/Auth/resetPassService"; // Servicio para resetear contraseña
+import { ResetPassCard } from "../../components/organism/ResetPassCard/ResetPassCard"; // Componente de UI
+import { useQueryParams } from "../../hooks/useQueryParams"; // Hook para leer parámetros URL
+import './ResetPass.css';
 
 function ResetPass() {
-  const queryParmas = useQueryParams();
-  const [error, setError] = useState(null);
+  // 1. Obtención de parámetros URL (token de reset)
+  const queryParams = useQueryParams();
+  
+  // 2. Estados del componente
+  const [error, setError] = useState(null); // Mensajes de error
   const [formStatus, setFormStatus] = useState({
     values: {
       password: '',
@@ -24,29 +23,26 @@ function ResetPass() {
       confirmPassword: '',
     },
   });
-  const [isReseting, setIsReseting] = useState(false);
+  const [isReseting, setIsReseting] = useState(false); // Estado de carga
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Para redirecciones
 
+  // 3. Validación de contraseña
   const validatePassword = (value) => {
-    if (!value) {
-      return 'Contraseña obligatoria';
-    }
-    return null;
+    return !value ? 'Contraseña obligatoria' : '';
   };
 
+  // 4. Validación de confirmación de contraseña
   const validateConfirmPassword = (value) => {
-    if (!value) {
-      return 'Confirma contraseña obligatorio';
-    }
-    if (formStatus.values.password !== value) {
-      return 'Confirmacion de contraseña y contraseña deben ser iguales ';
-    }
-    return null;
+    if (!value) return 'Confirma contraseña obligatorio';
+    return formStatus.values.password === value 
+      ? '' 
+      : 'Las contraseñas no coinciden';
   };
 
+  // 5. Validación individual de campos (al perder foco)
   const validateOne = (e) => {
-    const { name } = e.target
+    const { name } = e.target;
     const value = formStatus.values[name];
     let message = '';
 
@@ -61,65 +57,73 @@ function ResetPass() {
         break;
     }
 
-    const newFormStatus = { ...formStatus };
-    newFormStatus.validations[name] = message;
-    setFormStatus(newFormStatus)
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    const newFormStatus = { ...formStatus };
-    newFormStatus.values[name] = value;
-    setFormStatus(newFormStatus)
-  };
-
-  const validateAll = () => {
-    const { password } = formStatus.values;
-    const validations = { password: '' };
-
-    validations.password = validatePassword(password)
-    validations.confirmPassword = validateConfirmPassword(password)
-
-    const validationMesages = Object.values(validations).filter(
-      (validationMessage) => {
-        if (validationMessage) {
-          return validationMessage.length > 0;
-        }
+    setFormStatus(prev => ({
+      ...prev,
+      validations: {
+        ...prev.validations,
+        [name]: message
       }
-    )
+    }));
+  };
 
-    const isValid = !validationMesages.length;
+  // 6. Manejo de cambios en inputs
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormStatus(prev => ({
+      ...prev,
+      values: {
+        ...prev.values,
+        [name]: value
+      }
+    }));
+  };
+
+  // 7. Validación completa del formulario
+  const validateAll = () => {
+    const validations = {
+      password: validatePassword(formStatus.values.password),
+      confirmPassword: validateConfirmPassword(formStatus.values.confirmPassword)
+    };
+
+    const validationMessages = Object.values(validations).filter(msg => msg);
+    const isValid = validationMessages.length === 0;
 
     if (!isValid) {
-      const newFormStatus = { ...formStatus };
-      newFormStatus.validations = validations;
-      setFormStatus(newFormStatus);
+      setFormStatus(prev => ({
+        ...prev,
+        validations: {
+          ...prev.validations,
+          ...validations
+        }
+      }));
       return;
     }
 
-    if (isValid) {
-      setIsReseting(true);
-    }
-
+    setIsReseting(true); // Activa el proceso de reset
   };
 
+  // 8. Efecto para ejecutar el reset
   useEffect(() => {
     async function resetPassword() {
-      const data = await resetPassService(queryParmas.token,formStatus.values.password);
-      if (data) {
-        if (data.message === 'password changed') {
-          setError(null);
-          setIsReseting(false);
-          navigate('/login');
+      try {
+        const data = await resetPassService(
+          queryParams.token, // Token obtenido de la URL
+          formStatus.values.password
+        );
+        
+        if (data?.message === 'password changed') {
+          navigate('/login'); // Redirección exitosa
         } else {
-          setIsReseting(false);
-          setError('No se pudo cambiar la contrasena');
+          setError('Error al cambiar la contraseña');
         }
+      } catch (error) {
+        setError('Ocurrió un error inesperado');
+      } finally {
+        setIsReseting(false);
       }
     }
-    if (isReseting) {
-      resetPassword();
-    }
+
+    if (isReseting) resetPassword();
   }, [isReseting]);
 
   return (

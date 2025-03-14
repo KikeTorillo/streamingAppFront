@@ -5,6 +5,7 @@ import "videojs-contrib-quality-levels";
 import "videojs-hls-quality-selector/dist/videojs-hls-quality-selector.css";
 import hlsQualitySelector from "videojs-hls-quality-selector";
 import "./VideoPlayer.css";
+import { useParams, useSearchParams } from 'react-router-dom';
 
 // Registra los plugins si aún no están registrados
 if (typeof videojs.getPlugin("hlsQualitySelector") !== "function") {
@@ -12,10 +13,15 @@ if (typeof videojs.getPlugin("hlsQualitySelector") !== "function") {
 }
 
 const VideoPlayer = () => {
+
+  const {id} = useParams();
+  const [searchParams] = useSearchParams();
+  const resolutions = searchParams.get('resolutions');
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const baseUrl = "http://192.168.0.177:8082/hls/prueba/";
-
+  const baseUrl = `http://192.168.0.177:8082/hls/${id}/`;
+  const subsUrl = `http://192.168.0.177:8082/subs/${id}/`;
+  const urlComplete = `${baseUrl}_,${resolutions},p.mp4.play/master.m3u8`
   useEffect(() => {
     const initializePlayer = async () => {
       try {
@@ -35,7 +41,7 @@ const VideoPlayer = () => {
           fluid: true,
           sources: [
             {
-              src: `${baseUrl}_,48,0p.mp4.play/master.m3u8`,
+              src: `${urlComplete}`,
               type: "application/x-mpegURL",
             },
           ],
@@ -56,7 +62,8 @@ const VideoPlayer = () => {
               "durationDisplay",
               "progressControl",
               "remainingTimeDisplay",
-              "audioTrackButton", // Botón de selección de audio
+              "audioTrackButton",
+              "subsCapsButton", // Botón de subtítulos añadido
               "pictureInPictureToggle",
               "fullscreenToggle",
             ],
@@ -75,6 +82,34 @@ const VideoPlayer = () => {
             console.log("Pistas de audio detectadas:", audioTracks);
           }
         });
+
+        // Configuración de subtítulos
+        /*player.ready(() => {
+          // Añadir pistas de subtítulos
+          const subtitles = [
+            {
+              src: `${subsUrl}subtitles_track0.vtt`, // Ruta a archivo VTT
+              label: "Español",
+              srclang: "es",
+              default: true,
+            },
+            //{
+            //  src: `${subsUrl}subtitles-en.vtt`,
+            //  label: "English",
+            //  srclang: "en",
+            //},
+          ];
+
+          subtitles.forEach((trackConfig) => {
+            player.addRemoteTextTrack({
+              kind: "subtitles",
+              src: trackConfig.src,
+              label: trackConfig.label,
+              language: trackConfig.srclang,
+              default: trackConfig.default,
+            });
+          });
+        });*/
 
         playerRef.current = player;
       } catch (error) {
