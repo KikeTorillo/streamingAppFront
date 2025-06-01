@@ -15,23 +15,28 @@
   font-size: 1.6rem;
 }
 
+#root {
+  font-family: itim, Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+:root {
+  --color-primario: #09422d;    /* Verde */
+  --color-secundario: #02362b;  /* Azul */
+  --color-texto: #fefae0;       /* Azul oscuro */
+  --color-fondo: #031911;       /* Gris claro */
+  --color-focus: #206d46;
+}
+
 html {
   font-size: 62.5%;
 }
 
 body {
   margin: 0;
-  background: #666663;
-}
-
-#root {
-  max-width: 128rem;
-  padding: 2rem;
-  margin: 0 auto;
-  font-family: itim, Arial, Helvetica, sans-serif;
-  line-height: 1.6;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+  background: var(--color-primario);
 }
 
 #modal {

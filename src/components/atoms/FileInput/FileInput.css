@@ -1,0 +1,153 @@
+/* upload */
+/*.FileInput {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 7rem;
+  height: 7rem;
+  background: var(--color-primario);
+  border-radius: 15px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.folder {
+  position: relative;
+  top: .3rem;
+  animation: float 2.5s infinite ease-in-out;
+  transition: transform 0.3s ease;
+}
+
+.folder:hover {
+  transform: scale(1.05);
+}
+
+.folder .top {
+  background: #ff6d00;
+  width: 3rem;
+  height: 1.5rem;
+  border-radius: .4rem 1.2rem .5rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.folder .container-icon {
+  position: absolute;
+  bottom: .6rem;
+  left: 1.3rem;
+  z-index: 2;
+}
+
+.folder .bottom {
+  background: #ff9e00;
+  width: 5rem;
+  height: 3rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-radius: .5rem .5rem .5rem .5rem;
+  position: relative;
+  bottom: 1rem;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-2px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}*/
+
+/* From Uiverse.io by Ma7moud344 */ 
+.FileInput {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--color-primario);
+  border-radius: 15px;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.folder {
+  position: relative;
+  animation: float 2.5s infinite ease-in-out;
+  transition: transform 0.3s ease;
+}
+
+.folder:hover {
+  transform: scale(1.05);
+}
+
+.folder .top {
+  background: #ff6d00;
+  width: 3rem;
+  height: 1.5rem;
+  border-radius: .4rem 1.2rem .5rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.folder .container-icon {
+  position: absolute;
+  bottom: .6rem;
+  left: 1.3rem;
+  z-index: 2;
+}
+
+.folder .bottom {
+  background: #ff9e00;
+  width: 5rem;
+  height: 3rem;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  border-radius: .5rem .5rem .5rem .5rem;
+  position: relative;
+  bottom: 1rem;
+}
+
+.custom-file-upload {
+  --color: #00a97f;
+  --color2: rgb(10, 25, 30);
+  padding: 0.5rem 2rem;
+  background-color: transparent;
+  border-radius: .5rem;
+  border: 0.3px solid var(--color);
+  transition: 0.5s;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  font-size: 1.6rem;
+  color: var(--color);
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  height: 4.4rem;
+}
+
+.custom-file-upload:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.custom-file-upload input[type="file"] {
+  display: none;
+}
+
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+

@@ -1,15 +1,24 @@
 .textInput {
-    box-shadow: .4rem .4rem #323232;
-    padding-left: 1rem;
-    width: 100%;
-    max-width: 20rem;
-    height: 3.5rem;
-    border-radius: .5rem;
-    outline: none;
-    border: .2rem solid  #323232;
-    background-color: #D9D9D9;
-    color: #5C677D;
-    transition: all 0.3s cubic-bezier(0.15, 0.83, 0.66, 1);
-    font-family: inherit;
-    font-size: 1.7rem;
+  border-radius: 0.8rem;
+  background: #23272f;
+  box-shadow: 
+  inset 5px 5px 10px #0e1013, 
+  inset -5px -5px 10px #383e4b;
+  width: 100%;
+  padding: 1rem;
+  border: none;
+  border: 1px solid transparent;
+  color: var(--color-texto);
+  transition: all 0.2s ease-in-out;
+}
+
+.textInput:focus {
+  border: 1px solid var(--color-focus);
+  outline: none;
+  box-shadow: inset 0px 0px 10px var(--color-focus),
+    0px 0px 20px var(--color-focus);
+}
+
+.textInput::placeholder{
+  color: var(--color-texto);
 }

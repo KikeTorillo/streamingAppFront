@@ -18,7 +18,8 @@ function Button({
     onClick, 
     className = '', // Clases adicionales (default: cadena vacía)
     size = 'sm', // Tamaño del botón (sm/md/lg)
-    type = 'button' // Tipo de botón HTML (button/submit/reset)
+    type = 'button', // Tipo de botón HTML (button/submit/reset)
+    disabled
 }) {
     return (
         // Elemento botón con clases dinámicas
@@ -26,6 +27,7 @@ function Button({
             type={type} // Tipo de botón HTML
             className={`${type} ${size} ${className}`} // Combinación de clases
             onClick={onClick} // Manejador de clic
+            disabled={disabled}
         >
             {text} {/* Texto del botón */}
         </button>

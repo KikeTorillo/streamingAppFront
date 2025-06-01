@@ -4,6 +4,7 @@ import Slider from "react-slick"; // Para el carrusel
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./MainPage.css"; // Archivo CSS para estilos
+import { Header } from "../../components/atoms/Header/Header";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -14,19 +15,19 @@ function MainPage() {
 
   useEffect(() => {
     // Obtener películas desde la ruta /movies
-    fetch("http://192.168.0.177:3000/api/v1/videos/movies")
+    fetch("http://192.168.0.177:3000/api/v1/movies",{ credentials: 'include'})
       .then((res) => res.json())
       .then((data) => {
         const moviesWithThumb = data.map((movie) => ({
           ...movie,
-          cover: `http://192.168.0.177:8082/covers/${movie.file_hash}/cover.jpg`,
+          //cover: `http://192.168.0.177:8082/covers/${movie.file_hash}/cover.jpg`,
         }));
         setMovies(moviesWithThumb);
       })
       .catch((err) => console.error("Error fetching movies:", err));
 
     // Obtener series desde la ruta /series
-    fetch("http://192.168.0.177:3000/api/v1/videos/series")
+    fetch("http://192.168.0.177:3000/api/v1/series",{ credentials: 'include'})
       .then((res) => res.json())
       .then((data) => {
         const seriesWithThumb = data.map((serie) => ({
@@ -68,7 +69,7 @@ function MainPage() {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
+    slidesToShow: 2,
     slidesToScroll: 1,
     responsive: [
       { breakpoint: 1024, settings: { slidesToShow: 3, slidesToScroll: 1 } },
@@ -79,14 +80,7 @@ function MainPage() {
 
   return (
     <div className="main-page-container">
-      {/* Encabezado */}
-      <header className="main-header">
-        <div className="logo">MiNetflix</div>
-        <nav className="main-nav">
-          <button onClick={() => navigate("/upload-video")}>Subir Video</button>
-        </nav>
-      </header>
-
+      <Header />
       {/* Contenido principal */}
       <main className="main-content">
         <section>
@@ -143,11 +137,6 @@ function MainPage() {
           </div>
         </section>
       </main>
-
-      {/* Pie de página */}
-      <footer className="main-footer">
-        <p>&copy; 2023 MiNetflix. Todos los derechos reservados.</p>
-      </footer>
     </div>
   );
 }

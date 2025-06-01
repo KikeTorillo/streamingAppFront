@@ -4,14 +4,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    background: #F7D6E0;
+    background: var(--color-primario);
     justify-content: center;
     row-gap: 3rem;
     border-radius: .5rem;
-    border: .2rem solid #323232;
-    box-shadow: .4rem .4rem #323232;
-    perspective: 1000px;
-    transition: transform 0.8s;
-    backface-visibility: hidden;
-    transform-style: preserve-3d;
+    border: .7rem solid #f7ba2b;
 }
+
+.upload {
+    padding: 4rem;
+    row-gap: 4rem;
+    width: 50rem;
+  }

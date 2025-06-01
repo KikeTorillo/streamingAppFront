@@ -10,7 +10,7 @@ import './Card.css';
  * @param {string} [props.className=''] - Clases CSS adicionales
  * @param {React.ReactNode} props.children - Contenido interno de la tarjeta
  */
-function Card({ className, children }) {
+function Card({ className='', children }) {
     return (
         // Contenedor con clases combinadas: 'card' + clases adicionales
         <div className={`card ${className}`}>
