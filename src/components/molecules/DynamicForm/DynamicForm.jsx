@@ -1,60 +1,67 @@
-// molecules/DynamicForm.jsx
-import { useState, useEffect } from 'react';
-import { Button } from '../../atoms/Button/Button';
+// molecules/DynamicForm/DynamicForm.jsx
+import React, { useState, useEffect } from 'react';
 import { TextInput } from '../TextInput/TextInput';
+import { TextSelect } from '../TextSelect/TextSelect'; // ← NUEVA IMPORTACIÓN
+import { Button } from '../../atoms/Button/Button';
 import './DynamicForm.css';
 
 /**
- * Formulario dinámico integrado con el sistema de diseño
- * Molécula que genera campos automáticamente usando TextInput y Button del sistema
+ * Componente DynamicForm mejorado - Usa TextSelect del sistema de diseño
+ * Integración completa con TextInput y TextSelect para máxima consistencia
  * 
  * @param {Object} props - Propiedades del componente
- * @param {Array} [props.fields=[]] - Array de configuración de campos
- * @param {function} [props.onSubmit] - Función a ejecutar al enviar
- * @param {function} [props.onChange] - Función a ejecutar cuando cambian los datos
- * @param {number} [props.columnsPerRow=1] - Columnas en desktop
- * @param {boolean} [props.responsive=true] - Si es responsive
- * @param {number} [props.mobileColumns=1] - Columnas en móvil
- * @param {number} [props.tabletColumns=2] - Columnas en tablet
- * @param {string} [props.className=''] - Clases CSS adicionales
- * @param {boolean} [props.showSubmitButton=true] - Mostrar botón enviar
- * @param {string} [props.submitText='Enviar'] - Texto del botón
- * @param {'primary'|'secondary'|'success'|'danger'|'outline'|'ghost'|'warning'} [props.submitVariant='primary'] - Variante del botón
- * @param {'xs'|'sm'|'md'|'lg'|'xl'} [props.submitSize='lg'] - Tamaño del botón
- * @param {'sm'|'md'|'lg'|'xl'|'full'} [props.submitRounded='lg'] - Border radius del botón
- * @param {string|React.ReactNode} [props.submitIcon] - Icono del botón de envío
- * @param {boolean} [props.loading=false] - Estado de carga
- * @param {boolean} [props.disabled=false] - Deshabilitar todo el formulario
+ * @param {Array} props.fields - Array de configuración de campos
+ * @param {function} props.onSubmit - Función llamada al enviar el formulario
+ * @param {function} [props.onChange] - Función llamada cuando cambian los datos
  * @param {Object} [props.initialData={}] - Datos iniciales del formulario
- * @param {boolean} [props.validateOnChange=false] - Validar en tiempo real
+ * @param {number} [props.columnsPerRow=1] - Número de columnas en desktop
+ * @param {number} [props.tabletColumns=2] - Columnas en tablet
+ * @param {number} [props.mobileColumns=1] - Columnas en móvil
+ * @param {boolean} [props.responsive=true] - Si adapta columnas según pantalla
+ * @param {boolean} [props.validateOnChange=false] - Validar al cambiar
+ * @param {boolean} [props.validateOnBlur=true] - Validar al perder foco
+ * @param {boolean} [props.loading=false] - Estado de carga
+ * @param {boolean} [props.disabled=false] - Si todo el formulario está deshabilitado
  * @param {boolean} [props.compact=false] - Versión compacta
- * @param {'xs'|'sm'|'md'|'lg'|'xl'} [props.fieldSize='md'] - Tamaño de campos
- * @param {'sm'|'md'|'lg'|'xl'|'full'} [props.fieldRounded='md'] - Border radius de campos
+ * @param {string} [props.className=''] - Clases CSS adicionales
+ * 
+ * // Props heredadas para componentes del sistema
+ * @param {'xs'|'sm'|'md'|'lg'|'xl'} [props.fieldSize='md'] - Tamaño para TextInput y TextSelect
+ * @param {'sm'|'md'|'lg'|'xl'|'full'} [props.fieldRounded='md'] - Border radius para campos
+ * @param {'primary'|'secondary'|'success'|'danger'|'outline'|'ghost'|'warning'} [props.submitVariant='primary'] - Variante del botón
+ * @param {'xs'|'sm'|'md'|'lg'|'xl'} [props.submitSize='md'] - Tamaño del botón
+ * @param {'sm'|'md'|'lg'|'xl'|'full'} [props.submitRounded='md'] - Border radius del botón
+ * @param {string} [props.submitText='Enviar'] - Texto del botón
+ * @param {string|React.ReactNode} [props.submitIcon] - Icono del botón
+ * @param {boolean} [props.submitFullWidth=false] - Botón ancho completo
  */
-const DynamicForm = ({ 
-  fields = [], 
-  onSubmit = () => {},
+const DynamicForm = ({
+  fields = [],
+  onSubmit,
   onChange = () => {},
+  initialData = {},
   columnsPerRow = 1,
-  responsive = true,
-  mobileColumns = 1,
   tabletColumns = 2,
-  className = '',
-  showSubmitButton = true,
-  submitText = 'Enviar',
-  submitVariant = 'primary',
-  submitSize = 'lg',
-  submitRounded = 'lg',
-  submitIcon,
+  mobileColumns = 1,
+  responsive = true,
+  validateOnChange = false,
+  validateOnBlur = true,
   loading = false,
   disabled = false,
-  initialData = {},
-  validateOnChange = false,
   compact = false,
+  className = '',
+  
+  // Props para componentes del sistema
   fieldSize = 'md',
-  fieldRounded = 'md'
+  fieldRounded = 'md',
+  submitVariant = 'primary',
+  submitSize = 'md',
+  submitRounded = 'md',
+  submitText = 'Enviar',
+  submitIcon,
+  submitFullWidth = false
 }) => {
-  // Estado para almacenar los valores de todos los campos
+  // Estado del formulario con datos iniciales
   const [formData, setFormData] = useState(() => {
     const initialFormData = { ...initialData };
     
@@ -140,19 +147,24 @@ const DynamicForm = ({
       switch (fieldType) {
         case 'email':
           if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
-            return 'Ingresa un email válido';
+            return 'Por favor ingresa un email válido';
           }
           break;
         case 'tel':
-          if (!/^[\d\s\-\+\(\)]+$/.test(value)) {
-            return 'Ingresa un número de teléfono válido';
+          if (!/^[\+]?[1-9][\d]{0,15}$/.test(value.replace(/[\s\-\(\)]/g, ''))) {
+            return 'Por favor ingresa un teléfono válido';
           }
           break;
         case 'url':
           try {
             new URL(value);
           } catch {
-            return 'Ingresa una URL válida';
+            return 'Por favor ingresa una URL válida';
+          }
+          break;
+        case 'number':
+          if (isNaN(Number(value))) {
+            return 'Por favor ingresa un número válido';
           }
           break;
       }
@@ -160,64 +172,60 @@ const DynamicForm = ({
     
     // Validación personalizada
     if (fieldValidation && typeof fieldValidation === 'function') {
-      const result = fieldValidation(value);
-      if (result !== true) return result;
+      const customError = fieldValidation(value);
+      if (customError !== true) {
+        return customError;
+      }
     }
     
     return null;
   };
 
-  // Función para manejar cambios en los campos
+  // Manejar cambios en los campos
   const handleFieldChange = (fieldName, value) => {
     setFormData(prev => ({
       ...prev,
       [fieldName]: value
     }));
 
-    // Validación en tiempo real si está habilitada
-    if (validateOnChange || touched[fieldName]) {
+    // Validar si está habilitado
+    if (validateOnChange) {
       const field = fields.find(f => (typeof f === 'string' ? f : f.name) === fieldName);
       const error = validateField(field, value);
       
-      setErrors(prev => {
-        const newErrors = { ...prev };
-        if (error) {
-          newErrors[fieldName] = error;
-        } else {
-          delete newErrors[fieldName];
-        }
-        return newErrors;
-      });
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: error
+      }));
     }
   };
 
-  // Función para manejar blur de campos
+  // Manejar pérdida de foco
   const handleFieldBlur = (fieldName) => {
-    setTouched(prev => ({ ...prev, [fieldName]: true }));
-    
-    const field = fields.find(f => (typeof f === 'string' ? f : f.name) === fieldName);
-    const value = formData[fieldName];
-    const error = validateField(field, value);
-    
-    setErrors(prev => {
-      const newErrors = { ...prev };
-      if (error) {
-        newErrors[fieldName] = error;
-      } else {
-        delete newErrors[fieldName];
-      }
-      return newErrors;
-    });
+    setTouched(prev => ({
+      ...prev,
+      [fieldName]: true
+    }));
+
+    if (validateOnBlur) {
+      const field = fields.find(f => (typeof f === 'string' ? f : f.name) === fieldName);
+      const error = validateField(field, formData[fieldName]);
+      
+      setErrors(prev => ({
+        ...prev,
+        [fieldName]: error
+      }));
+    }
   };
 
-  // Función para manejar el envío del formulario
-  const handleSubmit = () => {
-    if (loading || disabled) return;
-
-    // Validar todos los campos
+  // Manejar envío del formulario
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
     const newErrors = {};
     const allTouched = {};
-    
+
+    // Validar todos los campos
     fields.forEach(field => {
       const fieldName = typeof field === 'string' ? field : field.name;
       const value = formData[fieldName];
@@ -254,6 +262,38 @@ const DynamicForm = ({
     }
     
     return classes;
+  };
+
+  // Función para normalizar opciones (compatible con TextSelect)
+  const normalizeOptions = (options) => {
+    if (!options || !Array.isArray(options)) return [];
+    
+    return options.map(option => {
+      if (typeof option === 'string') {
+        return { value: option, label: option };
+      }
+      
+      // Si tiene 'id' y 'name' (formato actual), convertir a 'value' y 'label'
+      if (option.id && option.name) {
+        return { 
+          value: option.id, 
+          label: option.name,
+          disabled: option.disabled 
+        };
+      }
+      
+      // Si ya tiene 'value' y 'label', mantener como está
+      if (option.value && option.label) {
+        return option;
+      }
+      
+      // Fallback
+      return { 
+        value: option.value || option.id || option, 
+        label: option.label || option.name || option.toString(),
+        disabled: option.disabled
+      };
+    });
   };
 
   // Función para renderizar cada campo
@@ -303,6 +343,35 @@ const DynamicForm = ({
             fullWidth
             variant={hasError ? 'error' : 'default'}
             autoComplete={fieldType === 'email' ? 'email' : fieldType === 'tel' ? 'tel' : undefined}
+          />
+        </div>
+      );
+    }
+
+    // ✨ NUEVO: Para campos select - USAR TEXTSELECT
+    if (fieldType === 'select') {
+      const normalizedOptions = normalizeOptions(fieldOptions);
+      
+      return (
+        <div key={index} className={fieldClasses.join(' ')}>
+          <TextSelect
+            name={fieldName}
+            label={fieldLabel}
+            placeholder={fieldPlaceholder || 'Selecciona una opción'}
+            options={normalizedOptions}
+            value={formData[fieldName] || ''}
+            onChange={(e) => handleFieldChange(fieldName, e.target.value)}
+            onBlur={() => handleFieldBlur(fieldName)}
+            required={fieldRequired}
+            disabled={fieldDisabled}
+            errorText={hasError ? fieldError : ''}
+            helperText={!hasError ? fieldHelperText : ''}
+            leftIcon={fieldLeftIcon}
+            size={fieldSize}
+            rounded={fieldRounded}
+            compact={compact}
+            fullWidth
+            variant={hasError ? 'error' : 'default'}
           />
         </div>
       );
@@ -391,48 +460,7 @@ const DynamicForm = ({
       );
     }
 
-    // Para campos select
-    if (fieldType === 'select') {
-      return (
-        <div key={index} className={fieldClasses.join(' ')}>
-          <label htmlFor={fieldName} className="dynamic-form__label">
-            {fieldLabel}
-            {fieldRequired && <span style={{ color: 'var(--color-danger)' }}> *</span>}
-          </label>
-          <select
-            id={fieldName}
-            className="dynamic-form__select"
-            value={formData[fieldName] || ''}
-            onChange={(e) => handleFieldChange(fieldName, e.target.value)}
-            onBlur={() => handleFieldBlur(fieldName)}
-            required={fieldRequired}
-            disabled={fieldDisabled}
-          >
-            <option value="">{fieldPlaceholder || 'Selecciona una opción'}</option>
-            {fieldOptions.map((option, optIndex) => (
-              <option 
-                key={optIndex} 
-                value={typeof option === 'string' ? option : option.value}
-              >
-                {typeof option === 'string' ? option : option.label}
-              </option>
-            ))}
-          </select>
-          {hasError && (
-            <span className="dynamic-form__error-message" role="alert">
-              {fieldError}
-            </span>
-          )}
-          {!hasError && fieldHelperText && (
-            <span className="dynamic-form__helper-text">
-              {fieldHelperText}
-            </span>
-          )}
-        </div>
-      );
-    }
-
-    // Para campos textarea - usar TextInput si es compatible o crear uno custom
+    // Para campos textarea - mantener como está por ahora
     if (fieldType === 'textarea') {
       return (
         <div key={index} className={fieldClasses.join(' ')}>
@@ -491,36 +519,35 @@ const DynamicForm = ({
   return (
     <div className={formClasses}>      
       {fields.length === 0 ? (
-        <p className="dynamic-form__empty-message">
-          No hay campos para mostrar
-        </p>
+        <div className="dynamic-form__empty-message">
+          No hay campos definidos para este formulario.
+        </div>
       ) : (
-        <>
+        <form onSubmit={handleSubmit} noValidate>
           <div 
             className={gridClasses}
             style={{
               gridTemplateColumns: `repeat(${currentColumns}, 1fr)`
             }}
           >
-            {fields.map((field, index) => renderField(field, index))}
+            {fields.map(renderField)}
           </div>
           
-          {showSubmitButton && (
+          <div className="dynamic-form__submit-container">
             <Button
               type="submit"
-              onClick={handleSubmit}
-              loading={loading}
-              disabled={disabled || Object.keys(errors).length > 0}
-              fullWidth
               variant={submitVariant}
               size={submitSize}
               rounded={submitRounded}
               icon={submitIcon}
+              loading={loading}
+              disabled={disabled}
+              fullWidth={submitFullWidth}
             >
               {submitText}
             </Button>
-          )}
-        </>
+          </div>
+        </form>
       )}
     </div>
   );
