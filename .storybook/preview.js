@@ -3,7 +3,7 @@
 import '../src/app/App.css'; // o el path donde defines tus :root variables
 const preview = {
   parameters: {
-    actions: { argTypesRegex: "^on[A-Z].*" },
+    actions: { },
     controls: {
       matchers: {
         color: /(background|color)$/i,

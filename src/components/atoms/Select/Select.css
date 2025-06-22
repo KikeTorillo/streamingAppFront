@@ -1,23 +1,314 @@
-.Select{
+/* ===== SELECT COMPONENT - CONSISTENTE CON INPUT ATOM ===== */
+/* Select.css */
+/* Átomo que mantiene total consistencia con el sistema de diseño */
+
+/* ===== WRAPPER BASE ===== */
+.select-wrapper {
+    position: relative;
+    display: inline-block;
     width: 100%;
 }
-.Select select {
-    border-radius: 0.8rem;
-    background: #23272f;
-    box-shadow: 
-    inset 5px 5px 10px #0e1013, 
-    inset -5px -5px 10px #383e4b;
+
+/* ===== SELECT BASE (HEREDA ESTILOS DE INPUT) ===== */
+.select-base {
+    /* Base styles - Idénticos a input-base */
+    font-family: var(--font-family-base);
     width: 100%;
-    padding: 1rem;
-    border: none;
-    border: 1px solid transparent;
-    color: var(--color-texto);
-    transition: all 0.2s ease-in-out;
-  }
-  
-  .Select select:focus {
-    border: 1px solid var(--color-focus);
+    border: 0.1rem solid var(--border-default);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-weight: var(--font-weight-normal);
+    transition: all var(--transition-normal);
     outline: none;
-    box-shadow: inset 0px 0px 10px var(--color-focus),
-      0px 0px 20px var(--color-focus);
-  }
+    appearance: none; /* Quitar estilos nativos del select */
+    
+    /* Padding específico para el select (considerando la flecha) */
+    padding: var(--space-md) calc(var(--space-lg) * 2) var(--space-md) var(--space-md);
+    
+    /* Tipografía consistente */
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-normal);
+    
+    /* Cursor específico para select */
+    cursor: pointer;
+}
+
+/* ===== ESTADOS INTERACTIVOS (IDÉNTICOS A INPUT) ===== */
+.select-base:hover:not(:disabled):not(:focus) {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.select-base:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.1rem;
+}
+
+.select-base:disabled {
+    background-color: var(--bg-disabled);
+    color: var(--text-disabled);
+    border-color: var(--border-primary);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* ===== TAMAÑOS (IDÉNTICOS A INPUT) ===== */
+.select-base--xs {
+    padding: var(--space-xs) calc(var(--space-md) * 2) var(--space-xs) var(--space-xs);
+    font-size: var(--font-size-xs);
+    border-radius: var(--radius-sm);
+    min-height: 2.8rem; /* 28px */
+}
+
+.select-base--sm {
+    padding: var(--space-sm) calc(var(--space-lg) * 1.5) var(--space-sm) var(--space-sm);
+    font-size: var(--font-size-sm);
+    min-height: 3.2rem; /* 32px */
+}
+
+.select-base--md {
+    padding: var(--space-md) calc(var(--space-lg) * 2) var(--space-md) var(--space-md);
+    font-size: var(--font-size-base);
+    min-height: 4.0rem; /* 40px */
+}
+
+.select-base--lg {
+    padding: var(--space-lg) calc(var(--space-xl) * 1.5) var(--space-lg) var(--space-lg);
+    font-size: var(--font-size-lg);
+    min-height: 4.8rem; /* 48px */
+}
+
+.select-base--xl {
+    padding: var(--space-lg) calc(var(--space-xl) * 1.8) var(--space-lg) var(--space-lg);
+    font-size: var(--font-size-xl);
+    min-height: 5.6rem; /* 56px */
+}
+
+/* ===== VARIANTES SEMÁNTICAS (IDÉNTICAS A INPUT) ===== */
+.select-base--error {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-light);
+}
+
+.select-base--error:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+    outline-color: var(--color-danger);
+}
+
+.select-base--error:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-danger-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.select-base--success {
+    border-color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.select-base--success:focus {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 0.3rem rgba(34, 197, 94, 0.1);
+    outline-color: var(--color-success);
+}
+
+.select-base--success:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-success-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+.select-base--warning {
+    border-color: var(--color-warning);
+    background-color: var(--color-warning-light);
+}
+
+.select-base--warning:focus {
+    border-color: var(--color-warning);
+    box-shadow: 0 0 0 0.3rem rgba(245, 158, 11, 0.1);
+    outline-color: var(--color-warning);
+}
+
+.select-base--warning:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-warning-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== BORDER RADIUS (IDÉNTICO A INPUT) ===== */
+.select-base--rounded-sm {
+    border-radius: var(--radius-sm);
+}
+
+.select-base--rounded-lg {
+    border-radius: var(--radius-lg);
+}
+
+.select-base--rounded-xl {
+    border-radius: var(--radius-xl);
+}
+
+.select-base--rounded-full {
+    border-radius: var(--radius-full);
+}
+
+/* ===== VERSIÓN COMPACTA ===== */
+.select-base--compact {
+    padding-left: var(--space-sm);
+    padding-right: calc(var(--space-lg) * 1.5);
+}
+
+/* ===== ICONO DE FLECHA PERSONALIZADA ===== */
+.select-base__arrow {
+    position: absolute;
+    top: 50%;
+    right: var(--space-md);
+    transform: translateY(-50%);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: all var(--transition-normal);
+    z-index: 1;
+}
+
+.select-base__arrow-icon {
+    width: 2rem;
+    height: 2rem;
+    transition: transform var(--transition-normal);
+}
+
+/* Estados de la flecha según el wrapper */
+.select-wrapper:hover .select-base__arrow {
+    color: var(--text-secondary);
+}
+
+.select-base:focus + .select-base__arrow {
+    color: var(--border-focus);
+}
+
+.select-base:focus + .select-base__arrow .select-base__arrow-icon {
+    transform: rotate(180deg);
+}
+
+.select-base:disabled + .select-base__arrow {
+    color: var(--text-disabled);
+    opacity: 0.6;
+}
+
+/* Ajustes de flecha por tamaño */
+.select-base--xs + .select-base__arrow {
+    right: var(--space-xs);
+}
+
+.select-base--xs + .select-base__arrow .select-base__arrow-icon {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.select-base--sm + .select-base__arrow {
+    right: var(--space-sm);
+}
+
+.select-base--sm + .select-base__arrow .select-base__arrow-icon {
+    width: 1.8rem;
+    height: 1.8rem;
+}
+
+.select-base--lg + .select-base__arrow,
+.select-base--xl + .select-base__arrow {
+    right: var(--space-lg);
+}
+
+.select-base--lg + .select-base__arrow .select-base__arrow-icon,
+.select-base--xl + .select-base__arrow .select-base__arrow-icon {
+    width: 2.4rem;
+    height: 2.4rem;
+}
+
+/* Flecha en variantes semánticas */
+.select-base--error + .select-base__arrow {
+    color: var(--color-danger);
+}
+
+.select-base--success + .select-base__arrow {
+    color: var(--color-success);
+}
+
+.select-base--warning + .select-base__arrow {
+    color: var(--color-warning);
+}
+
+/* ===== ESTILOS PARA OPCIONES ===== */
+.select-base option {
+    padding: var(--space-sm) var(--space-md);
+    font-size: inherit;
+    font-family: inherit;
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+}
+
+.select-base option:disabled {
+    color: var(--text-disabled);
+    background-color: var(--bg-disabled);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    /* Área táctil mínima en móviles */
+    .select-base {
+        min-height: 4.4rem; /* 44px mínimo para táctil */
+    }
+    
+    .select-base--xs {
+        min-height: 4.4rem;
+        font-size: var(--font-size-sm); /* Legible en móvil */
+    }
+    
+    .select-base--sm {
+        min-height: 4.4rem;
+        font-size: var(--font-size-base);
+    }
+}
+
+/* ===== MODO OSCURO ===== */
+.dark .select-base {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border-color: var(--border-default);
+}
+
+.dark .select-base option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+/* ===== ANIMACIONES SUAVES ===== */
+@media (prefers-reduced-motion: no-preference) {
+    .select-base {
+        transition: all var(--transition-normal);
+    }
+    
+    .select-base__arrow-icon {
+        transition: transform var(--transition-normal);
+    }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+.select-base:focus-visible {
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.2rem;
+}
+
+/* Para usuarios con preferencias de contraste alto */
+@media (prefers-contrast: high) {
+    .select-base {
+        border-width: 0.2rem;
+    }
+    
+    .select-base:focus {
+        outline-width: 0.3rem;
+    }
+}

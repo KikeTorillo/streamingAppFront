@@ -1,0 +1,535 @@
+/* ===== TEXTSELECT COMPONENT - IDÉNTICO A TEXTINPUT ===== */
+/* TextSelect.css */
+/* Molécula que extiende el átomo Select con funcionalidades adicionales */
+
+/* ===== WRAPPER BASE ===== */
+.text-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    font-family: var(--font-family-base);
+    gap: var(--space-xs); /* Espaciado consistente */
+}
+
+.text-select-wrapper--full-width {
+    width: 100%;
+}
+
+.text-select-wrapper--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ===== LABEL (IDÉNTICO A TEXTINPUT) ===== */
+.text-select__label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-tight);
+    margin: 0; /* Usar gap del wrapper */
+}
+
+.text-select__label--required::after {
+    content: ' *';
+    color: var(--color-danger);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Estados del label */
+.text-select-wrapper--focused .text-select__label {
+    color: var(--border-focus);
+}
+
+.text-select-wrapper--error .text-select__label {
+    color: var(--color-danger);
+}
+
+.text-select-wrapper--success .text-select__label {
+    color: var(--color-success);
+}
+
+.text-select-wrapper--warning .text-select__label {
+    color: var(--color-warning);
+}
+
+/* ===== CONTAINER ===== */
+.text-select__container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* ===== VARIANTES - Extendiendo el átomo Select ===== */
+
+/* Success - extiende las variantes del átomo Select */
+.select-base.text-select--success {
+    border-color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.select-base.text-select--success:focus {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 0.3rem rgba(34, 197, 94, 0.1);
+    outline-color: var(--color-success);
+}
+
+.select-base.text-select--success:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-success-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Warning - extiende las variantes del átomo Select */
+.select-base.text-select--warning {
+    border-color: var(--color-warning);
+    background-color: var(--color-warning-light);
+}
+
+.select-base.text-select--warning:focus {
+    border-color: var(--color-warning);
+    box-shadow: 0 0 0 0.3rem rgba(245, 158, 11, 0.1);
+    outline-color: var(--color-warning);
+}
+
+.select-base.text-select--warning:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-warning-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Error - extiende las variantes del átomo Select */
+.select-base.text-select--error {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-light);
+}
+
+.select-base.text-select--error:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+    outline-color: var(--color-danger);
+}
+
+.select-base.text-select--error:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-danger-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== AJUSTES PARA ICONOS ===== */
+.select-base.text-select--with-left-icon {
+    padding-left: calc(var(--space-md) * 2.5); /* 40px para md */
+}
+
+/* Ajustes por tamaño usando variables del sistema */
+.select-base--xs.text-select--with-left-icon {
+    padding-left: calc(var(--space-sm) * 3.5); /* 28px */
+}
+
+.select-base--sm.text-select--with-left-icon {
+    padding-left: calc(var(--space-md) * 2); /* 32px */
+}
+
+.select-base--lg.text-select--with-left-icon,
+.select-base--xl.text-select--with-left-icon {
+    padding-left: calc(var(--space-lg) * 2); /* 48px */
+}
+
+/* ===== ICONOS (SOLO IZQUIERDO PARA SELECT) ===== */
+.text-select__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    pointer-events: none;
+    z-index: 2; /* Sobre el select */
+    transition: color var(--transition-normal);
+}
+
+.text-select__icon--left {
+    left: var(--space-md);
+}
+
+.text-select__icon--clickable {
+    pointer-events: auto;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    transition: all var(--transition-normal);
+    background-color: transparent;
+}
+
+.text-select__icon--clickable:hover {
+    background-color: var(--bg-hover);
+    color: var(--color-primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.text-select__icon--clickable:focus {
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.2rem;
+    background-color: var(--bg-hover);
+}
+
+.text-select__icon--clickable:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Estados de iconos según variante */
+.text-select-wrapper--error .text-select__icon:not(.text-select__icon--clickable) {
+    color: var(--color-danger);
+}
+
+.text-select-wrapper--success .text-select__icon:not(.text-select__icon--clickable) {
+    color: var(--color-success);
+}
+
+.text-select-wrapper--warning .text-select__icon:not(.text-select__icon--clickable) {
+    color: var(--color-warning);
+}
+
+.text-select-wrapper--focused .text-select__icon:not(.text-select__icon--clickable) {
+    color: var(--border-focus);
+}
+
+/* Ajustes de iconos por tamaño del wrapper */
+.text-select-wrapper--xs .text-select__icon {
+    font-size: var(--font-size-xs);
+}
+
+.text-select-wrapper--xs .text-select__icon--left {
+    left: var(--space-sm);
+}
+
+.text-select-wrapper--sm .text-select__icon {
+    font-size: var(--font-size-sm);
+}
+
+.text-select-wrapper--md .text-select__icon {
+    font-size: var(--font-size-base);
+}
+
+.text-select-wrapper--lg .text-select__icon,
+.text-select-wrapper--xl .text-select__icon {
+    font-size: var(--font-size-lg);
+}
+
+.text-select-wrapper--lg .text-select__icon--left,
+.text-select-wrapper--xl .text-select__icon--left {
+    left: var(--space-lg);
+}
+
+/* ===== FOOTER (IDÉNTICO A TEXTINPUT) ===== */
+.text-select__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+    min-height: 2rem; /* Espacio reservado */
+}
+
+.text-select__messages {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.text-select__message {
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+    margin: 0;
+}
+
+.text-select__message--error {
+    color: var(--color-danger);
+    font-weight: var(--font-weight-medium);
+}
+
+.text-select__message--helper {
+    color: var(--text-muted);
+}
+
+/* ===== ESTADOS DE CARGA ===== */
+.text-select-wrapper--loading {
+    position: relative;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.text-select-wrapper--loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.4),
+        transparent
+    );
+    animation: shimmer 1.5s infinite;
+    pointer-events: none;
+    border-radius: inherit;
+    z-index: 1;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* ===== VARIANTE COMPACTA ===== */
+.text-select-wrapper--compact .text-select__label {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--space-xs);
+}
+
+.text-select-wrapper--compact .text-select__footer {
+    gap: var(--space-sm);
+    min-height: 1.8rem;
+}
+
+.text-select-wrapper--compact .text-select__message {
+    font-size: var(--font-size-xs);
+}
+
+/* ===== ESTADOS DE VALIDACIÓN ADICIONALES ===== */
+.text-select-wrapper--validating {
+    position: relative;
+}
+
+.text-select-wrapper--validating .text-select__icon--left {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* ===== MEJORAS DE PERFORMANCE ===== */
+.text-select__icon--clickable:hover {
+    will-change: transform, background-color;
+}
+
+.text-select__icon--clickable:not(:hover) {
+    will-change: auto;
+}
+
+/* ===== MEJORAS DE ACCESIBILIDAD ===== */
+.text-select__icon--clickable:focus-visible {
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.2rem;
+    z-index: 3;
+}
+
+/* Focus visible mejorado para el wrapper */
+.text-select-wrapper:focus-within .text-select__label {
+    color: var(--border-focus);
+}
+
+/* ===== ANIMACIONES CONDICIONALES ===== */
+@media (prefers-reduced-motion: reduce) {
+    .text-select__icon,
+    .text-select__label,
+    .text-select__message,
+    .select-base__arrow-icon {
+        transition: none;
+    }
+    
+    .text-select-wrapper--loading::after,
+    .text-select__icon--clickable {
+        animation: none;
+    }
+}
+
+/* ===== ESTADOS DE FOCO ESPECIALES ===== */
+.text-select-wrapper--focused .text-select__container {
+    z-index: 1; /* Elevar sobre otros elementos */
+}
+
+/* ===== UTILIDADES ADICIONALES ===== */
+.text-select-wrapper--required .text-select__label::after {
+    content: ' *';
+    color: var(--color-danger);
+    font-weight: var(--font-weight-bold);
+}
+
+/* ===== SOPORTE PARA GRUPOS DE OPCIONES ===== */
+.select-base optgroup {
+    font-weight: var(--font-weight-semibold);
+    color: var(--text-primary);
+    font-style: normal;
+    padding: var(--space-xs) 0;
+}
+
+.select-base optgroup option {
+    font-weight: var(--font-weight-normal);
+    padding-left: var(--space-md);
+}
+
+/* ===== ESTILOS PARA DISABLED OPTION ===== */
+.select-base option:disabled {
+    color: var(--text-disabled);
+    background-color: var(--bg-disabled);
+    font-style: italic;
+}
+
+/* ===== MEJORAS ESPECÍFICAS POR NAVEGADOR ===== */
+/* Firefox */
+@-moz-document url-prefix() {
+    .select-base {
+        background-image: none;
+    }
+}
+
+/* Safari específico */
+@media not all and (min-resolution:.001dpcm) {
+    @supports (-webkit-appearance:none) {
+        .select-base:focus {
+            outline-offset: 0;
+        }
+    }
+}
+
+/* ===== ESTADOS HOVER MEJORADOS ===== */
+.text-select-wrapper:hover:not(.text-select-wrapper--disabled) .text-select__label {
+    color: var(--text-primary);
+}
+
+.text-select-wrapper:hover:not(.text-select-wrapper--disabled) .select-base__arrow {
+    color: var(--text-secondary);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    /* Asegurar área táctil en móviles */
+    .text-select-wrapper--xs .select-base,
+    .text-select-wrapper--sm .select-base {
+        min-height: 4.4rem; /* 44px mínimo para táctil */
+    }
+    
+    /* Iconos más grandes en móvil para mejor táctil */
+    .text-select__icon--clickable {
+        min-width: 4.4rem;
+        min-height: 4.4rem;
+        padding: var(--space-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Ajustar footer en móvil */
+    .text-select__footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xs);
+    }
+}
+
+/* ===== MODO OSCURO COMPLETO ===== */
+.dark .text-select__label {
+    color: var(--text-primary);
+}
+
+.dark .text-select__message--helper {
+    color: var(--text-muted);
+}
+
+.dark .text-select__message--error {
+    color: var(--color-danger);
+}
+
+.dark .text-select__icon {
+    color: var(--text-muted);
+}
+
+.dark .text-select__icon--clickable:hover {
+    background-color: var(--bg-hover);
+    color: var(--color-primary);
+}
+
+.dark .select-base optgroup {
+    color: var(--text-primary);
+    background-color: var(--bg-primary);
+}
+
+.dark .select-base option {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.dark .select-base option:disabled {
+    color: var(--text-disabled);
+    background-color: var(--bg-disabled);
+}
+
+/* Estados específicos en modo oscuro */
+.dark .text-select-wrapper--focused .text-select__label {
+    color: var(--border-focus);
+}
+
+.dark .text-select-wrapper--error .text-select__label {
+    color: var(--color-danger);
+}
+
+.dark .text-select-wrapper--success .text-select__label {
+    color: var(--color-success);
+}
+
+.dark .text-select-wrapper--warning .text-select__label {
+    color: var(--color-warning);
+}
+
+/* ===== SHIMMER PARA MODO OSCURO ===== */
+.dark .text-select-wrapper--loading::after {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .text-select-wrapper {
+        break-inside: avoid;
+    }
+    
+    .text-select__icon--clickable {
+        display: none;
+    }
+    
+    .select-base__arrow {
+        display: none;
+    }
+    
+    .select-base {
+        border: 0.1rem solid #000;
+        background: none;
+    }
+}
+
+/* ===== CONTRASTE ALTO ===== */
+@media (prefers-contrast: high) {
+    .text-select__label {
+        font-weight: var(--font-weight-semibold);
+    }
+    
+    .text-select__message--error {
+        font-weight: var(--font-weight-bold);
+    }
+    
+    .select-base {
+        border-width: 0.2rem;
+    }
+    
+    .select-base:focus {
+        outline-width: 0.3rem;
+    }
+}
