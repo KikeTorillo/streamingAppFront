@@ -23,12 +23,12 @@ function LoginRegister() {
   // Estado compuesto para valores y validaciones del formulario
   const [formStatus, setFormStatus] = useState({
     values: {
-      email: '',
+      userName: '',
       password: '',
       confirmPassword: '',
     },
     validations: {
-      email: '',
+      userName: '',
       password: '',
       confirmPassword: '',
     },
@@ -36,13 +36,12 @@ function LoginRegister() {
 
   const navigate = useNavigate(); // Para navegación programática
 
-  // Validación de email
-  const validateEmail = (value) => {
-    if (!value) return 'Email obligatorio';
-    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return emailRegex.test(value) ? '' : 'Email inválido';
-  };
-
+  // Validación de userName
+  const validateUserName = (value) => {
+  if (!value) return 'userName obligatorio';
+  const userNameRegex = /^[a-zA-Z0-9._-]+$/; // Nueva regex para username sin espacios
+  return userNameRegex.test(value) ? '' : 'userName inválido';
+};
   // Validación de contraseña
   const validatePassword = (value) => {
     return !value ? 'Contraseña obligatoria' : '';
@@ -67,8 +66,8 @@ function LoginRegister() {
 
     // Validación según el campo
     switch (name) {
-      case 'email':
-        message = validateEmail(value);
+      case 'userName':
+        message = validateUserName(value);
         break;
       case 'password':
         message = validatePassword(value);
@@ -110,11 +109,11 @@ function LoginRegister() {
    * @param {'login'|'register'} action - Acción a realizar
    */
   const validateAll = (action) => {
-    const { email, password } = formStatus.values;
-    const validations = { email: '', password: '' };
+    const { userName, password } = formStatus.values;
+    const validations = { userName: '', password: '' };
 
     // Validaciones básicas
-    validations.email = validateEmail(email);
+    validations.userName = validateUserName(userName);
     validations.password = validatePassword(password);
 
     // Validación adicional para registro
@@ -149,8 +148,8 @@ function LoginRegister() {
    * Maneja el envío de recuperación de contraseña
    */
   const sendRecovery = () => {
-    const validations = { email: validateEmail(formStatus.values.email) };
-    const isValid = !validations.email;
+    const validations = { userName: validateUserName(formStatus.values.userName) };
+    const isValid = !validations.userName;
 
     if (isValid) {
       setIsRecovering(true);
@@ -169,7 +168,7 @@ function LoginRegister() {
   useEffect(() => {
     const loginUser = async () => {
       const data = await loginService(
-        formStatus.values.email,
+        formStatus.values.userName,
         formStatus.values.password
       );
       
@@ -189,7 +188,7 @@ function LoginRegister() {
   // Efecto para recuperación
   useEffect(() => {
     const recoveryUser = async () => {
-      await recoveryService(formStatus.values.email);
+      await recoveryService(formStatus.values.userName);
       setIsRecovering(false);
     };
     if (isRecovering) recoveryUser();
@@ -199,7 +198,7 @@ function LoginRegister() {
   useEffect(() => {
     const registerUser = async () => {
       const data = await registrationService(
-        formStatus.values.email,
+        formStatus.values.userName,
         formStatus.values.password
       );
       

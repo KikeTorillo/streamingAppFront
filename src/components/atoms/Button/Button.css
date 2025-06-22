@@ -1,73 +1,402 @@
-.button {
-  --color: #00a97f;
-  --color2: rgb(10, 25, 30);
-  padding: 0.5rem 2rem;
-  background-color: transparent;
-  border-radius: 5px;
-  border: 0.3px solid var(--color);
-  transition: 0.5s;
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  z-index: 1;
-  font-size: 1.6rem;
-  color: var(--color);
-  line-height: 1.5;
+/* ===== BUTTON COMPONENT - MEJORADO PARA SISTEMA DE DISEÑO ===== */
+/* Button.css */
+
+/* Clase base del botón - Usando variables del sistema */
+.btn {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    
+    /* Tipografía - Usando variables del sistema */
+    font-family: var(--font-family-base);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    white-space: nowrap;
+    
+    /* Interacción */
+    cursor: pointer;
+    user-select: none;
+    
+    /* Transiciones - Usando variables del sistema */
+    transition: all var(--transition-normal);
+    
+    /* Bordes - Usando variables del sistema */
+    border: 0.1rem solid transparent;
+    border-radius: var(--radius-md);
+    
+    /* Eliminar estilos por defecto */
+    background: none;
+    outline: none;
+    
+    /* Mejorar accesibilidad táctil */
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
-.sm {
-  height: auto;
-  padding: 0 2rem;
+/* Estados base - Mejorados con variables del sistema */
+.btn:focus-visible {
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.2rem;
+    z-index: 1; /* Asegurar que el focus esté visible */
 }
 
-.md {
-  height: 4.4rem;
+.btn:disabled,
+.btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
 }
 
-.link {
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  font-family: inherit;
-  padding: 0;
-  color: #323232;
+/* TAMAÑOS - Usando variables del sistema de espaciado */
+.btn--xs {
+    padding: var(--space-xs) var(--space-sm);    /* 4px 8px */
+    font-size: var(--font-size-xs);              /* 12px */
+    min-height: 2.4rem;
+    gap: var(--space-xs);                        /* Espaciado interno */
 }
 
-.button::after,
-.button::before {
-  content: "";
-  display: block;
-  height: 100%;
-  width: 100%;
-  transform: skew(90deg) translate(-50%, -50%);
-  position: absolute;
-  inset: 50%;
-  left: 25%;
-  z-index: -1;
-  transition: 0.5s ease-out;
-  background-color: var(--color);
+.btn--sm {
+    padding: var(--space-sm) var(--space-md);    /* 8px 16px */
+    font-size: var(--font-size-sm);              /* 14px */
+    min-height: 3.2rem;
+    gap: var(--space-xs);
 }
 
-.button::before {
-  top: -50%;
-  left: -25%;
-  transform: skew(90deg) rotate(180deg) translate(-50%, -50%);
+.btn--md {
+    padding: var(--space-sm) var(--space-md);    /* 8px 16px */
+    font-size: var(--font-size-base);            /* 16px */
+    min-height: 4.0rem;
+    gap: var(--space-sm);
 }
 
-.button:hover::before {
-  transform: skew(45deg) rotate(180deg) translate(-50%, -50%);
+.btn--lg {
+    padding: var(--space-md) var(--space-lg);    /* 16px 24px */
+    font-size: var(--font-size-lg);              /* 18px */
+    min-height: 4.8rem;
+    gap: var(--space-sm);
 }
 
-.button:hover::after {
-  transform: skew(45deg) translate(-50%, -50%);
+.btn--xl {
+    padding: var(--space-md) var(--space-xl);    /* 16px 32px */
+    font-size: var(--font-size-xl);              /* 20px */
+    min-height: 5.6rem;
+    gap: var(--space-sm);
 }
 
-.button:hover {
-  color: var(--color2);
+/* VARIANTES DE COLOR - Usando las variables del sistema */
+.btn--primary {
+    background-color: var(--color-primary);
+    color: var(--text-on-primary);
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-sm);
 }
 
-.button:active {
-  filter: brightness(0.7);
-  transform: scale(0.98);
+.btn--primary:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    border-color: var(--color-primary-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.1rem);
+}
+
+.btn--primary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--secondary {
+    background-color: var(--color-secondary);
+    color: var(--text-on-primary);
+    border-color: var(--color-secondary);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--secondary:hover:not(:disabled) {
+    background-color: var(--color-secondary-hover);
+    border-color: var(--color-secondary-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.1rem);
+}
+
+.btn--secondary:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--outline {
+    background-color: transparent;
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.btn--outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    color: var(--text-on-primary);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.1rem);
+}
+
+.btn--outline:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--ghost {
+    background-color: transparent;
+    color: var(--text-secondary);
+    border-color: transparent;
+}
+
+.btn--ghost:hover:not(:disabled) {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.btn--ghost:active:not(:disabled) {
+    background-color: var(--bg-muted);
+}
+
+.btn--danger {
+    background-color: var(--color-danger);
+    color: var(--text-on-primary);
+    border-color: var(--color-danger);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--danger:hover:not(:disabled) {
+    background-color: var(--color-danger-hover);
+    border-color: var(--color-danger-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.1rem);
+}
+
+.btn--danger:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--success {
+    background-color: var(--color-success);
+    color: var(--text-on-primary);
+    border-color: var(--color-success);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--success:hover:not(:disabled) {
+    background-color: var(--color-success-hover);
+    border-color: var(--color-success-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.1rem);
+}
+
+.btn--success:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--warning {
+    background-color: var(--color-warning);
+    color: var(--text-on-primary);
+    border-color: var(--color-warning);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn--warning:hover:not(:disabled) {
+    background-color: var(--color-warning-hover);
+    border-color: var(--color-warning-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-0.1rem);
+}
+
+.btn--warning:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+}
+
+/* MODIFICADORES */
+.btn--full-width {
+    width: 100%;
+}
+
+.btn--loading {
+    color: transparent;
+    pointer-events: none;
+}
+
+/* VARIANTES DE TAMAÑO DE RADIO */
+.btn--rounded-sm {
+    border-radius: var(--radius-sm);
+}
+
+.btn--rounded-lg {
+    border-radius: var(--radius-lg);
+}
+
+.btn--rounded-xl {
+    border-radius: var(--radius-xl);
+}
+
+.btn--rounded-full {
+    border-radius: var(--radius-full);
+}
+
+/* ELEMENTOS INTERNOS - Mejorados */
+.btn__content {
+    display: flex;
+    align-items: center;
+    gap: inherit; /* Heredar gap del botón */
+    position: relative;
+    z-index: 1;
+}
+
+.btn__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0; /* Evitar que se comprima */
+}
+
+/* Eliminar márgenes manuales - ahora usa gap */
+.btn__icon--left,
+.btn__icon--right {
+    margin: 0;
+}
+
+/* SPINNER DE LOADING - Optimizado */
+.btn__spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+}
+
+.btn__spinner-svg {
+    width: 1.6rem;
+    height: 1.6rem;
+    animation: btn-spin 1s linear infinite;
+}
+
+/* Estilos del spinner según variante - Simplificados */
+.btn--primary .btn__spinner-circle,
+.btn--secondary .btn__spinner-circle,
+.btn--danger .btn__spinner-circle,
+.btn--success .btn__spinner-circle,
+.btn--warning .btn__spinner-circle {
+    stroke: var(--text-on-primary);
+    stroke-width: 2;
+}
+
+.btn--outline .btn__spinner-circle,
+.btn--ghost .btn__spinner-circle {
+    stroke: var(--color-primary);
+    stroke-width: 2;
+}
+
+.btn__spinner-circle {
+    fill: none;
+    stroke-linecap: round;
+    animation: btn-spinner-dash 1.5s ease-in-out infinite;
+}
+
+/* Animaciones optimizadas */
+@keyframes btn-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes btn-spinner-dash {
+    0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+    }
+    50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+    }
+    100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+    }
+}
+
+/* RESPONSIVE - Mejorado con variables del sistema */
+@media (max-width: 768px) {
+    .btn--lg {
+        padding: var(--space-sm) var(--space-md);
+        font-size: var(--font-size-base);
+        min-height: 4.0rem;
+    }
+    
+    .btn--xl {
+        padding: var(--space-md) var(--space-lg);
+        font-size: var(--font-size-lg);
+        min-height: 4.8rem;
+    }
+    
+    .btn__spinner-svg {
+        width: 1.4rem;
+        height: 1.4rem;
+    }
+    
+    /* Mejorar área táctil en móviles */
+    .btn {
+        min-height: 4.4rem; /* Mínimo 44px para área táctil */
+    }
+    
+    .btn--xs {
+        min-height: 4.4rem;
+        padding: var(--space-sm) var(--space-md);
+    }
+    
+    .btn--sm {
+        min-height: 4.4rem;
+    }
+}
+
+/* MODO OSCURO - Ajustes específicos */
+.dark .btn--outline {
+    border-color: var(--border-primary);
+    color: var(--text-primary);
+}
+
+.dark .btn--outline:hover:not(:disabled) {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--text-on-primary);
+}
+
+.dark .btn--ghost {
+    color: var(--text-secondary);
+}
+
+.dark .btn--ghost:hover:not(:disabled) {
+    background-color: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+/* UTILIDADES ADICIONALES */
+.btn--compact {
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+}
+
+.btn--icon-only {
+    aspect-ratio: 1;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+/* Mejorar performance con will-change */
+.btn:hover:not(:disabled) {
+    will-change: transform, box-shadow;
+}
+
+.btn:not(:hover) {
+    will-change: auto;
 }

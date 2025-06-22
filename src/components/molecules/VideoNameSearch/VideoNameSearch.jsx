@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { TextInput } from "../../atoms/TextInput/TextInput";
+import { TextInput } from "../TextInput/TextInput";
 import "./VideoNameSearch.css";
 
 const VideoNameSearch = ({

@@ -6,12 +6,12 @@ const UsersForm = () => {
   // Ejemplo 3: Formulario complejo con 3 columnas
   const complexFields = [
     {
-      name: "email",
-      label: "Email",
-      type: "email",
+      name: "userName",
+      label: "userName",
+      type: "text",
       required: true,
     },
-    { name: "contrasena", label: "contrasena", type: "pass", required: true }
+    { name: "contrasena", label: "contrasena", type: "password", required: true }
   ];
   
   const [submittedData, setSubmittedData] = useState(null);

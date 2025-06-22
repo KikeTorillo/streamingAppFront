@@ -6,7 +6,7 @@ import { VideoNameSearch } from "../../molecules/VideoNameSearch/VideoNameSearch
 import { UploadProgress } from "../../atoms/UploadProgress/UploadProgress";
 import { useCategories } from "../../../hooks/useCategories";
 import { useUploadProgress } from "../../../hooks/useUploadProgress";
-import { TextInput } from "../../atoms/TextInput/TextInput";
+import { TextInput } from "../../molecules/TextInput/TextInput";
 import "./CreateMovies.css";
 import { Card } from "../../atoms/Card/Card";
 import { Select } from "../../atoms/Select/Select";

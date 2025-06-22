@@ -1,0 +1,446 @@
+/* ===== TEXTINPUT COMPONENT - MEJORADO PARA SISTEMA DE DISEÑO ===== */
+/* TextInput.css */
+/* Molécula que extiende el átomo Input con funcionalidades adicionales */
+
+/* ===== WRAPPER BASE ===== */
+.text-input-wrapper {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    font-family: var(--font-family-base);
+    gap: var(--space-xs); /* Espaciado consistente */
+}
+
+.text-input-wrapper--full-width {
+    width: 100%;
+}
+
+.text-input-wrapper--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ===== LABEL ===== */
+.text-input__label {
+    display: block;
+    font-weight: var(--font-weight-medium);
+    color: var(--text-primary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-tight);
+    margin: 0; /* Usar gap del wrapper */
+}
+
+.text-input__label--required::after {
+    content: ' *';
+    color: var(--color-danger);
+    font-weight: var(--font-weight-bold);
+}
+
+/* Estados del label */
+.text-input-wrapper--focused .text-input__label {
+    color: var(--border-focus);
+}
+
+.text-input-wrapper--error .text-input__label {
+    color: var(--color-danger);
+}
+
+.text-input-wrapper--success .text-input__label {
+    color: var(--color-success);
+}
+
+.text-input-wrapper--warning .text-input__label {
+    color: var(--color-warning);
+}
+
+/* ===== CONTAINER ===== */
+.text-input__container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* ===== VARIANTES - Extendiendo el átomo Input mejorado ===== */
+
+/* Success - extiende las variantes del átomo Input */
+.input-base.text-input--success {
+    border-color: var(--color-success);
+    background-color: var(--color-success-light);
+}
+
+.input-base.text-input--success:focus {
+    border-color: var(--color-success);
+    box-shadow: 0 0 0 0.3rem rgba(34, 197, 94, 0.1);
+    outline-color: var(--color-success);
+}
+
+.input-base.text-input--success:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-success-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Warning - extiende las variantes del átomo Input */
+.input-base.text-input--warning {
+    border-color: var(--color-warning);
+    background-color: var(--color-warning-light);
+}
+
+.input-base.text-input--warning:focus {
+    border-color: var(--color-warning);
+    box-shadow: 0 0 0 0.3rem rgba(245, 158, 11, 0.1);
+    outline-color: var(--color-warning);
+}
+
+.input-base.text-input--warning:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-warning-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* Error - extiende las variantes del átomo Input */
+.input-base.text-input--error {
+    border-color: var(--color-danger);
+    background-color: var(--color-danger-light);
+}
+
+.input-base.text-input--error:focus {
+    border-color: var(--color-danger);
+    box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+    outline-color: var(--color-danger);
+}
+
+.input-base.text-input--error:hover:not(:disabled):not(:focus) {
+    border-color: var(--color-danger-hover);
+    box-shadow: var(--shadow-sm);
+}
+
+/* ===== AJUSTES PARA ICONOS ===== */
+.input-base.text-input--with-left-icon {
+    padding-left: calc(var(--space-md) * 2.5); /* 40px para md */
+}
+
+.input-base.text-input--with-right-icon {
+    padding-right: calc(var(--space-md) * 2.5);
+}
+
+/* Ajustes por tamaño usando variables del sistema */
+.input-base--xs.text-input--with-left-icon {
+    padding-left: calc(var(--space-sm) * 3.5); /* 28px */
+}
+
+.input-base--xs.text-input--with-right-icon {
+    padding-right: calc(var(--space-sm) * 3.5);
+}
+
+.input-base--sm.text-input--with-left-icon {
+    padding-left: calc(var(--space-md) * 2); /* 32px */
+}
+
+.input-base--sm.text-input--with-right-icon {
+    padding-right: calc(var(--space-md) * 2);
+}
+
+.input-base--lg.text-input--with-left-icon,
+.input-base--xl.text-input--with-left-icon {
+    padding-left: calc(var(--space-lg) * 2); /* 48px */
+}
+
+.input-base--lg.text-input--with-right-icon,
+.input-base--xl.text-input--with-right-icon {
+    padding-right: calc(var(--space-lg) * 2);
+}
+
+/* ===== ICONOS ===== */
+.text-input__icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    pointer-events: none;
+    z-index: 2; /* Sobre el input */
+    transition: color var(--transition-normal);
+}
+
+.text-input__icon--left {
+    left: var(--space-md);
+}
+
+.text-input__icon--right {
+    right: var(--space-md);
+}
+
+.text-input__icon--clickable {
+    pointer-events: auto;
+    cursor: pointer;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    padding: var(--space-xs);
+    transition: all var(--transition-normal);
+    background-color: transparent;
+}
+
+.text-input__icon--clickable:hover {
+    background-color: var(--bg-hover);
+    color: var(--color-primary);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.text-input__icon--clickable:focus {
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.2rem;
+    background-color: var(--bg-hover);
+}
+
+.text-input__icon--clickable:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Estados de iconos según variante */
+.text-input-wrapper--error .text-input__icon:not(.text-input__icon--clickable) {
+    color: var(--color-danger);
+}
+
+.text-input-wrapper--success .text-input__icon:not(.text-input__icon--clickable) {
+    color: var(--color-success);
+}
+
+.text-input-wrapper--warning .text-input__icon:not(.text-input__icon--clickable) {
+    color: var(--color-warning);
+}
+
+.text-input-wrapper--focused .text-input__icon:not(.text-input__icon--clickable) {
+    color: var(--border-focus);
+}
+
+/* Ajustes de iconos por tamaño del wrapper */
+.text-input-wrapper--xs .text-input__icon {
+    font-size: var(--font-size-xs);
+}
+
+.text-input-wrapper--xs .text-input__icon--left {
+    left: var(--space-sm);
+}
+
+.text-input-wrapper--xs .text-input__icon--right {
+    right: var(--space-sm);
+}
+
+.text-input-wrapper--sm .text-input__icon {
+    font-size: var(--font-size-sm);
+}
+
+.text-input-wrapper--md .text-input__icon {
+    font-size: var(--font-size-base);
+}
+
+.text-input-wrapper--lg .text-input__icon,
+.text-input-wrapper--xl .text-input__icon {
+    font-size: var(--font-size-lg);
+}
+
+.text-input-wrapper--lg .text-input__icon--left,
+.text-input-wrapper--xl .text-input__icon--left {
+    left: var(--space-lg);
+}
+
+.text-input-wrapper--lg .text-input__icon--right,
+.text-input-wrapper--xl .text-input__icon--right {
+    right: var(--space-lg);
+}
+
+/* ===== FOOTER ===== */
+.text-input__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-md);
+    min-height: 2rem; /* Espacio reservado */
+}
+
+.text-input__messages {
+    flex: 1;
+    min-height: 1.8rem; /* Evitar saltos de layout */
+}
+
+/* ===== MENSAJES ===== */
+.text-input__helper-text {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    line-height: var(--line-height-tight);
+    margin: 0;
+    transition: color var(--transition-normal);
+}
+
+.text-input__error-text {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-danger);
+    line-height: var(--line-height-tight);
+    font-weight: var(--font-weight-medium);
+    margin: 0;
+    animation: slideInError 0.2s ease-out;
+}
+
+/* Animación sutil para errores */
+@keyframes slideInError {
+    from {
+        opacity: 0;
+        transform: translateY(-0.4rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ===== CONTADOR DE CARACTERES ===== */
+.text-input__char-count {
+    font-size: var(--font-size-xs);
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-weight: var(--font-weight-medium);
+    line-height: var(--line-height-tight);
+    transition: color var(--transition-normal);
+}
+
+/* Estados del contador */
+.text-input__char-count[data-warning="true"] {
+    color: var(--color-warning);
+    font-weight: var(--font-weight-semibold);
+}
+
+.text-input__char-count[data-danger="true"] {
+    color: var(--color-danger);
+    font-weight: var(--font-weight-bold);
+    animation: pulse 0.5s ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    /* Ajustar iconos en móvil para tamaños grandes */
+    .input-base--lg.text-input--with-left-icon,
+    .input-base--xl.text-input--with-left-icon {
+        padding-left: calc(var(--space-md) * 2.5);
+    }
+    
+    .input-base--lg.text-input--with-right-icon,
+    .input-base--xl.text-input--with-right-icon {
+        padding-right: calc(var(--space-md) * 2.5);
+    }
+    
+    .text-input-wrapper--lg .text-input__icon--left,
+    .text-input-wrapper--xl .text-input__icon--left {
+        left: var(--space-md);
+    }
+    
+    .text-input-wrapper--lg .text-input__icon--right,
+    .text-input-wrapper--xl .text-input__icon--right {
+        right: var(--space-md);
+    }
+    
+    /* Mejorar área táctil de iconos clickeables */
+    .text-input__icon--clickable {
+        padding: var(--space-sm);
+        min-width: 4.4rem;
+        min-height: 4.4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Ajustar footer en móvil */
+    .text-input__footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-xs);
+    }
+    
+    .text-input__char-count {
+        align-self: flex-end;
+    }
+}
+
+/* ===== MODO OSCURO ===== */
+.dark .text-input__label {
+    color: var(--text-primary);
+}
+
+.dark .text-input__helper-text {
+    color: var(--text-muted);
+}
+
+.dark .text-input__char-count {
+    color: var(--text-muted);
+}
+
+.dark .text-input__icon {
+    color: var(--text-muted);
+}
+
+.dark .text-input__icon--clickable:hover {
+    background-color: var(--bg-hover);
+    color: var(--color-primary);
+}
+
+/* Estados específicos en modo oscuro */
+.dark .text-input-wrapper--focused .text-input__label {
+    color: var(--border-focus);
+}
+
+.dark .text-input-wrapper--error .text-input__label {
+    color: var(--color-danger);
+}
+
+.dark .text-input-wrapper--success .text-input__label {
+    color: var(--color-success);
+}
+
+.dark .text-input-wrapper--warning .text-input__label {
+    color: var(--color-warning);
+}
+
+/* ===== UTILIDADES ADICIONALES ===== */
+
+/* Variante compacta */
+.text-input-wrapper--compact .text-input__label {
+    font-size: var(--font-size-xs);
+    margin-bottom: var(--space-xs);
+}
+
+.text-input-wrapper--compact .text-input__footer {
+    gap: var(--space-sm);
+}
+
+/* Estado de loading para iconos */
+.text-input__icon--loading {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Performance optimization */
+.text-input__icon--clickable:hover {
+    will-change: transform, background-color;
+}
+
+.text-input__icon--clickable:not(:hover) {
+    will-change: auto;
+}
+
+/* Mejorar contraste de focus para accesibilidad */
+.text-input__icon--clickable:focus-visible {
+    outline: 0.2rem solid var(--border-focus);
+    outline-offset: 0.2rem;
+    z-index: 3;
+}

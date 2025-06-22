@@ -1,0 +1,299 @@
+/* ===== INPUT COMPONENT - MEJORADO PARA SISTEMA DE DISEÑO ===== */
+/* Input.css */
+
+/* Clase base del input - Usando variables del sistema */
+.input-base {
+  /* Layout */
+  display: block;
+  width: 100%;
+  position: relative;
+  
+  /* Tipografía - Usando variables del sistema */
+  font-family: var(--font-family-base);
+  font-weight: var(--font-weight-normal);
+  color: var(--text-primary);
+  
+  /* Bordes - Usando variables del sistema */
+  border: 0.1rem solid var(--border-default);
+  border-radius: var(--radius-md);
+  
+  /* Fondo - Usando variables del sistema */
+  background-color: var(--bg-primary);
+  
+  /* Transiciones - Usando variables del sistema */
+  transition: all var(--transition-normal);
+  
+  /* Eliminar estilos por defecto */
+  outline: none;
+  appearance: none;
+  box-sizing: border-box;
+  
+  /* Mejorar UX móvil */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* TAMAÑOS - Usando variables del sistema de espaciado */
+.input-base--xs {
+  padding: var(--space-xs) var(--space-sm);    /* 4px 8px */
+  font-size: var(--font-size-xs);              /* 12px */
+  min-height: 2.4rem;
+  line-height: var(--line-height-tight);
+}
+
+.input-base--sm {
+  padding: var(--space-sm) var(--space-md);    /* 8px 16px */
+  font-size: var(--font-size-sm);              /* 14px */
+  min-height: 3.2rem;
+  line-height: var(--line-height-tight);
+}
+
+.input-base--md {
+  padding: var(--space-sm) var(--space-md);    /* 8px 16px */
+  font-size: var(--font-size-base);            /* 16px */
+  min-height: 4.0rem;
+  line-height: var(--line-height-normal);
+}
+
+.input-base--lg {
+  padding: var(--space-md) var(--space-lg);    /* 16px 24px */
+  font-size: var(--font-size-lg);              /* 18px */
+  min-height: 4.8rem;
+  line-height: var(--line-height-normal);
+}
+
+.input-base--xl {
+  padding: var(--space-md) var(--space-xl);    /* 16px 32px */
+  font-size: var(--font-size-xl);              /* 20px */
+  min-height: 5.6rem;
+  line-height: var(--line-height-normal);
+}
+
+/* VARIANTES DE BORDE - Para mantener consistencia */
+.input-base--rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.input-base--rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.input-base--rounded-xl {
+  border-radius: var(--radius-xl);
+}
+
+.input-base--rounded-full {
+  border-radius: var(--radius-full);
+}
+
+/* ESTADOS - Mejorados con variables del sistema */
+.input-base:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.input-base:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
+  outline: 0.2rem solid var(--border-focus);
+  outline-offset: 0.2rem;
+  z-index: 1;
+}
+
+.input-base:disabled {
+  background-color: var(--bg-disabled);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+  border-color: var(--border-default);
+  opacity: 0.6;
+}
+
+.input-base:read-only {
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+  cursor: default;
+  border-color: var(--border-default);
+}
+
+.input-base:read-only:focus {
+  box-shadow: 0 0 0 0.3rem rgba(107, 114, 128, 0.1);
+  border-color: var(--border-secondary);
+  outline-color: var(--border-secondary);
+}
+
+/* PLACEHOLDER - Mejorado */
+.input-base::placeholder {
+  color: var(--text-placeholder);
+  opacity: 1;
+  transition: opacity var(--transition-fast);
+}
+
+.input-base:focus::placeholder {
+  opacity: 0.6;
+}
+
+/* VARIANTES SEMÁNTICAS */
+.input-base--error {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+.input-base--error:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+  outline-color: var(--color-danger);
+}
+
+.input-base--success {
+  border-color: var(--color-success);
+  background-color: var(--color-success-light);
+}
+
+.input-base--success:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 0.3rem rgba(34, 197, 94, 0.1);
+  outline-color: var(--color-success);
+}
+
+.input-base--warning {
+  border-color: var(--color-warning);
+  background-color: var(--color-warning-light);
+}
+
+.input-base--warning:focus {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 0.3rem rgba(245, 158, 11, 0.1);
+  outline-color: var(--color-warning);
+}
+
+/* RESPONSIVE - Mejorado para área táctil */
+@media (max-width: 768px) {
+  .input-base--lg {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--font-size-base);
+    min-height: 4.4rem; /* Mínimo área táctil 44px */
+  }
+  
+  .input-base--xl {
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--font-size-lg);
+    min-height: 4.8rem;
+  }
+  
+  /* Asegurar área táctil mínima */
+  .input-base {
+    min-height: 4.4rem;
+  }
+  
+  .input-base--xs,
+  .input-base--sm {
+    min-height: 4.4rem;
+    padding: var(--space-sm) var(--space-md);
+  }
+  
+  /* Mejorar zoom en iOS */
+  .input-base {
+    font-size: max(1.6rem, 16px); /* Evitar zoom en iOS */
+  }
+}
+
+/* MODO OSCURO - Ajustes específicos */
+.dark .input-base {
+  background-color: var(--bg-primary);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+.dark .input-base:disabled {
+  background-color: var(--bg-disabled);
+  color: var(--text-disabled);
+  border-color: var(--border-default);
+}
+
+.dark .input-base:read-only {
+  background-color: var(--bg-muted);
+  color: var(--text-secondary);
+}
+
+.dark .input-base::placeholder {
+  color: var(--text-placeholder);
+}
+
+.dark .input-base:hover:not(:disabled):not(:focus) {
+  border-color: var(--border-hover);
+}
+
+/* UTILIDADES ADICIONALES */
+.input-base--compact {
+  padding-left: var(--space-sm);
+  padding-right: var(--space-sm);
+}
+
+.input-base--no-resize {
+  resize: none;
+}
+
+/* Performance optimization */
+.input-base:focus {
+  will-change: border-color, box-shadow, outline;
+}
+
+.input-base:not(:focus) {
+  will-change: auto;
+}
+
+/* TIPOS ESPECÍFICOS - Mejoras */
+.input-base[type="search"] {
+  -webkit-appearance: textfield;
+}
+
+.input-base[type="search"]::-webkit-search-decoration,
+.input-base[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+}
+
+.input-base[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.input-base[type="number"]::-webkit-outer-spin-button,
+.input-base[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* CONTENEDOR PARA ICONOS (preparado para futuras mejoras) */
+.input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-container .input-base {
+  flex: 1;
+}
+
+.input-icon {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  pointer-events: none;
+  color: var(--text-muted);
+  z-index: 1;
+}
+
+.input-icon--left {
+  left: var(--space-md);
+}
+
+.input-icon--right {
+  right: var(--space-md);
+}
+
+.input-base--with-icon-left {
+  padding-left: calc(var(--space-md) * 2.5);
+}
+
+.input-base--with-icon-right {
+  padding-right: calc(var(--space-md) * 2.5);
+}

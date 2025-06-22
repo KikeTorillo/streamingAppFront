@@ -19,7 +19,7 @@ const loginService = async (userValue, passValue) => {
 
     // 3. Crear cuerpo de la solicitud en formato JSON
     const raw = JSON.stringify({
-        email: userValue,
+        userName: userValue,
         password: passValue
     });
 

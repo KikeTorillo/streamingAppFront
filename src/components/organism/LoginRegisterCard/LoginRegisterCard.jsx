@@ -2,7 +2,7 @@
 
 // Importar dependencias y componentes necesarios
 import { React, useState } from "react";
-import { InputGroup } from "../../molecules/InputGroup/InputGroup"; // Campo de entrada compuesto
+import { TextInput } from "../../molecules/TextInput/TextInput";
 import { Button } from "../../atoms/Button/Button"; // Botón estilizado
 import { TextContent } from "../../atoms/TextContent/TextContent"; // Texto con estilo
 import { Card } from "../../atoms/Card/Card"; // Tarjeta contenedora
@@ -34,23 +34,19 @@ function LoginRegisterCard({
     <div className="login-register-card-container">
       {/* Tarjeta de inicio de sesión */}
       <Card>
-        <TextContent textStyle="header-2">Iniciar Sesión</TextContent>
-
         {/* Campo de email */}
-        <InputGroup
-          name="email"
-          type="email"
-          error={formStatus.validations.email}
-          placeholder="Email"
-          value={formStatus.values.email}
+        <TextInput
+          name="userName"
+          type="text"
+          error={formStatus.validations.userName}
+          placeholder="userName sin espacios"
+          value={formStatus.values.userName}
           onChange={handleChange}
           onBlur={validateOne}
-          textContent={formStatus.validations.email}
-          textStyle="label"
         />
 
         {/* Campo de contraseña */}
-        <InputGroup
+        <TextInput
           name="password"
           type="password"
           error={formStatus.validations.password}
@@ -58,8 +54,6 @@ function LoginRegisterCard({
           value={formStatus.values.password}
           onChange={handleChange}
           onBlur={validateOne}
-          textContent={formStatus.validations.password}
-          textStyle="label"
         />
 
         {/* Botón de envío */}
@@ -67,6 +61,7 @@ function LoginRegisterCard({
           onClick={() => validateAll("login")}
           text="Iniciar Sesión"
           size="md"
+          variant="primary"
         />
 
         {/* Enlace para recuperar contraseña */}

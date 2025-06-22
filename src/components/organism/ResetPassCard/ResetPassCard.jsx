@@ -2,7 +2,7 @@
 
 // Importar React y componentes necesarios
 import { React } from 'react';
-import { InputGroup } from "../../molecules/InputGroup/InputGroup"; // Campo de entrada compuesto
+
 import { Button } from "../../atoms/Button/Button"; // Botón estilizado
 import { TextContent } from "../../atoms/TextContent/TextContent"; // Texto con estilo
 import { Card } from "../../atoms/Card/Card"; // Tarjeta contenedora
