@@ -432,3 +432,146 @@
     );
   }
 }
+
+/* ===== MAIN PAGE - ACTUALIZACIONES PARA CONTENTCARD ===== */
+/* Agregamos estos estilos al MainPage.css existente */
+
+/* ===== BANNER DE ERROR ===== */
+.error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+  background-color: var(--color-danger-light);
+  border: 0.1rem solid var(--color-danger);
+  color: var(--color-danger);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--space-lg);
+}
+
+/* ===== ESTADOS VACÍOS MEJORADOS ===== */
+.empty-state {
+  text-align: center;
+  padding: var(--space-3xl) var(--space-xl);
+  color: var(--text-muted);
+}
+
+.empty-state__icon {
+  font-size: 8rem;
+  margin-bottom: var(--space-lg);
+  opacity: 0.3;
+  animation: float 3s ease-in-out infinite;
+}
+
+.empty-state__message {
+  font-size: var(--font-size-lg);
+  margin: 0 0 var(--space-lg) 0;
+  color: var(--text-muted);
+}
+
+.empty-state__action {
+  margin-top: var(--space-md);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-1rem);
+  }
+}
+
+/* ===== GRID DE CONTENIDO OPTIMIZADO PARA CONTENTCARD ===== */
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
+  gap: var(--space-xl);
+  padding: var(--space-md) 0;
+}
+
+/* ===== RESPONSIVE OPTIMIZATIONS ===== */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .content-grid {
+    grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+    gap: var(--space-lg);
+  }
+  
+  .empty-state__icon {
+    font-size: 6rem;
+  }
+  
+  .error-banner {
+    flex-direction: column;
+    gap: var(--space-sm);
+    text-align: center;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .content-grid {
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: var(--space-md);
+  }
+  
+  .empty-state {
+    padding: var(--space-2xl) var(--space-md);
+  }
+  
+  .empty-state__icon {
+    font-size: 5rem;
+  }
+  
+  .empty-state__message {
+    font-size: var(--font-size-base);
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 320px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== LOADING IMPROVEMENTS ===== */
+.loading-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-primary);
+}
+
+.loading-spinner {
+  font-size: var(--font-size-xl);
+  color: var(--color-primary);
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+  .empty-state__icon,
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* ===== MODO OSCURO ===== */
+.dark .error-banner {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}

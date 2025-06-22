@@ -1,75 +1,13 @@
-// MainPage.jsx - Página principal tipo Netflix
+// MainPage.jsx - Actualizado para usar ContentCard
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardBody, CardTitle, CardSubtitle } from '../../components/atoms/Card/Card';
 import { Button } from '../../components/atoms/Button/Button';
 import { TextInput } from '../../components/molecules/TextInput/TextInput';
+import { ContentCard } from '../../components/molecules/ContentCard/ContentCard';
+import { getMoviesService } from '../../services/Movies/getMoviesService';
 import './MainPage.css';
 
-// Datos de ejemplo para películas y series (en un proyecto real vendrían del backend)
-const SAMPLE_MOVIES = [
-    {
-        id: 1,
-        title: "Avatar: El Camino del Agua",
-        category: "Acción",
-        year: 2022,
-        type: "movie",
-        cover: "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop",
-        rating: 8.5,
-        duration: "192 min"
-    },
-    {
-        id: 2,
-        title: "Top Gun: Maverick",
-        category: "Acción",
-        year: 2022,
-        type: "movie",
-        cover: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=300&h=450&fit=crop",
-        rating: 9.1,
-        duration: "130 min"
-    },
-    {
-        id: 3,
-        title: "Black Panther",
-        category: "Superhéroes",
-        year: 2021,
-        type: "movie",
-        cover: "https://images.unsplash.com/photo-1635863138275-d9864d29a8d5?w=300&h=450&fit=crop",
-        rating: 8.8,
-        duration: "145 min"
-    },
-    {
-        id: 4,
-        title: "Dune",
-        category: "Ciencia Ficción",
-        year: 2021,
-        type: "movie",
-        cover: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=450&fit=crop",
-        rating: 8.7,
-        duration: "155 min"
-    },
-    {
-        id: 5,
-        title: "The Batman",
-        category: "Superhéroes",
-        year: 2022,
-        type: "movie",
-        cover: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&h=450&fit=crop",
-        rating: 8.9,
-        duration: "176 min"
-    },
-    {
-        id: 6,
-        title: "Spider-Man: No Way Home",
-        category: "Superhéroes",
-        year: 2021,
-        type: "movie",
-        cover: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=300&h=450&fit=crop",
-        rating: 9.2,
-        duration: "148 min"
-    }
-];
-
+// Datos de ejemplo para series (hasta conectar con backend)
 const SAMPLE_SERIES = [
     {
         id: 11,
@@ -103,39 +41,6 @@ const SAMPLE_SERIES = [
         rating: 8.9,
         seasons: 2,
         episodes: 20
-    },
-    {
-        id: 14,
-        title: "Wednesday",
-        category: "Comedia",
-        year: 2022,
-        type: "series",
-        cover: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=450&fit=crop",
-        rating: 8.6,
-        seasons: 1,
-        episodes: 8
-    },
-    {
-        id: 15,
-        title: "The Bear",
-        category: "Drama",
-        year: 2023,
-        type: "series",
-        cover: "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&h=450&fit=crop",
-        rating: 9.3,
-        seasons: 3,
-        episodes: 28
-    },
-    {
-        id: 16,
-        title: "Succession",
-        category: "Drama",
-        year: 2023,
-        type: "series",
-        cover: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=300&h=450&fit=crop",
-        rating: 9.5,
-        seasons: 4,
-        episodes: 39
     }
 ];
 
@@ -144,8 +49,10 @@ function MainPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [user, setUser] = useState(null);
-    const [movies, setMovies] = useState(SAMPLE_MOVIES);
+    const [movies, setMovies] = useState([]);
     const [series, setSeries] = useState(SAMPLE_SERIES);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     // Verificar si el usuario está logueado
     useEffect(() => {
@@ -163,6 +70,62 @@ function MainPage() {
             navigate('/login');
         }
     }, [navigate]);
+
+    // Cargar películas del backend
+    useEffect(() => {
+        const loadMovies = async () => {
+            try {
+                setLoading(true);
+                const moviesData = await getMoviesService();
+
+                // Transformar datos del backend al formato esperado por ContentCard
+                const transformedMovies = moviesData.map(movie => ({
+                    id: movie.id,
+                    title: movie.name || movie.title,
+                    category: movie.category,
+                    year: movie.releaseYear || new Date(movie.createdAt).getFullYear(),
+                    type: "movie",
+                    cover: movie.coverImageUrl || `https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop`,
+                    rating: movie.rating || 8.0,
+                    duration: movie.duration || "120 min"
+                }));
+
+                setMovies(transformedMovies);
+            } catch (error) {
+                console.error('Error loading movies:', error);
+                setError('Error al cargar las películas. Inténtalo de nuevo.');
+                // Usar datos de ejemplo en caso de error
+                setMovies([
+                    {
+                        id: 1,
+                        title: "Avatar: El Camino del Agua",
+                        category: "Acción",
+                        year: 2022,
+                        type: "movie",
+                        cover: "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop",
+                        rating: 8.5,
+                        duration: "192 min"
+                    },
+                    {
+                        id: 2,
+                        title: "Top Gun: Maverick",
+                        category: "Acción",
+                        year: 2022,
+                        type: "movie",
+                        cover: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=300&h=450&fit=crop",
+                        rating: 9.1,
+                        duration: "130 min"
+                    }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        if (user) {
+            loadMovies();
+        }
+    }, [user]);
 
     // Obtener categorías únicas
     const categories = ['all', ...new Set([...movies, ...series].map(item => item.category))];
@@ -191,70 +154,57 @@ function MainPage() {
     };
 
     const handleAddContent = () => {
-        // Aquí podrías navegar a una página de administración o modal
-        alert('Funcionalidad de agregar contenido - por implementar');
+        // Navegar a SearchForm o mostrar modal
+        navigate('/search-form'); // Si tienes esta ruta
+        // O: alert('Funcionalidad de agregar contenido - por implementar');
     };
 
-    // Componente para carátula de contenido
-    const ContentCard = ({ content }) => (
-        <Card
-            variant="elevated"
-            shadow="md"
-            rounded="lg"
-            hoverable
-            clickable
-            onClick={() => handlePlayContent(content)}
-            className="content-card"
-        >
-            <div className="content-card__image-container">
-                <img
-                    src={content.cover}
-                    alt={content.title}
-                    className="content-card__image"
-                    loading="lazy"
-                />
-                <div className="content-card__overlay">
-                    <Button
-                        variant="primary"
-                        size="sm"
-                        leftIcon="▶️"
-                        className="content-card__play-button"
-                    >
-                        Reproducir
-                    </Button>
-                </div>
-            </div>
-
-            <CardBody className="content-card__info">
-                <CardTitle className="content-card__title">{content.title}</CardTitle>
-                <CardSubtitle className="content-card__subtitle">
-                    {content.category} • {content.year}
-                </CardSubtitle>
-
-                <div className="content-card__details">
-                    <span className="content-card__rating">
-                        ⭐ {content.rating}
-                    </span>
-                    <span className="content-card__meta">
-                        {content.type === 'movie'
-                            ? content.duration
-                            : `${content.seasons} temporadas`
-                        }
-                    </span>
-                </div>
-            </CardBody>
-        </Card>
-    );
+    const handleFavoriteContent = (content) => {
+        console.log('Added to favorites:', content.title);
+        // Aquí implementarías la lógica de favoritos
+        alert(`${content.title} agregado a favoritos`);
+    };
 
     // Componente para sección de contenido
     const ContentSection = ({ title, items, emptyMessage }) => (
         <section className="content-section">
             <h2 className="content-section__title">{title}</h2>
 
-            {items.length > 0 ? (
+            {loading ? (
+                <div className="content-grid">
+                    {[...Array(6)].map((_, index) => (
+                        <ContentCard
+                            key={`loading-${index}`}
+                            content={{
+                                id: index,
+                                title: "Cargando...",
+                                category: "Cargando",
+                                year: 2023,
+                                type: title.includes('Películas') ? 'movie' : 'series',
+                                cover: "",
+                                rating: 0
+                            }}
+                            loading={true}
+                            size="md"
+                        />
+                    ))}
+                </div>
+            ) : items.length > 0 ? (
                 <div className="content-grid">
                     {items.map(item => (
-                        <ContentCard key={item.id} content={item} />
+                        <ContentCard
+                            key={item.id}
+                            content={item}
+                            onClick={handlePlayContent}
+                            onPlay={handlePlayContent}
+                            onFavorite={handleFavoriteContent}
+                            showRating={true}
+                            showMeta={true}
+                            showCategory={true}
+                            size="md"
+                            variant="elevated"
+                            rounded="lg"
+                        />
                     ))}
                 </div>
             ) : (
@@ -263,6 +213,13 @@ function MainPage() {
                         {title.includes('Películas') ? '🎬' : '📺'}
                     </div>
                     <p className="empty-state__message">{emptyMessage}</p>
+                    <Button
+                        variant="outline"
+                        onClick={() => setSelectedCategory('all')}
+                        className="empty-state__action"
+                    >
+                        Ver todo el contenido
+                    </Button>
                 </div>
             )}
         </section>
@@ -310,6 +267,21 @@ function MainPage() {
                     </Button>
                 </div>
             </header>
+
+            {/* Mensaje de error si existe */}
+            {error && (
+                <div className="error-banner">
+                    <span>⚠️ {error}</span>
+                    <Button
+                        variant="ghost"
+                        size="xs"
+                        onClick={() => setError(null)}
+                        leftIcon="✕"
+                    >
+                        Cerrar
+                    </Button>
+                </div>
+            )}
 
             {/* Filters */}
             <div className="main-page__filters">
