@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 import { resetPassService } from "../../services/Auth/resetPassService"; // Servicio para resetear contraseña
-import { ResetPassCard } from "../../components/organism/ResetPassCard/ResetPassCard"; // Componente de UI
+//import { ResetPassCard } from "../../components/organism/ResetPassCard/ResetPassCard"; // Componente de UI
 import { useQueryParams } from "../../hooks/useQueryParams"; // Hook para leer parámetros URL
 import './ResetPass.css';
 

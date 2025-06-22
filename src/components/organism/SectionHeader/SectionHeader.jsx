@@ -1,6 +1,6 @@
 import React from "react";
-import { Header } from "../../atoms/Header/Header";
-import { TextContent } from "../../atoms/TextContent/TextContent";
+//import { Header } from "../../atoms/Header/Header";
+//import { TextContent } from "../../atoms/TextContent/TextContent";
 import { FaPlus } from "react-icons/fa";
 import { Button } from "../../atoms/Button/Button";
 import "./SectionHeader.css";

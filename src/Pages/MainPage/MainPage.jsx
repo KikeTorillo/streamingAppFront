@@ -4,7 +4,6 @@ import Slider from "react-slick"; // Para el carrusel
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./MainPage.css"; // Archivo CSS para estilos
-import { Header } from "../../components/atoms/Header/Header";
 
 function MainPage() {
   const navigate = useNavigate();
@@ -80,7 +79,6 @@ function MainPage() {
 
   return (
     <div className="main-page-container">
-      <Header />
       {/* Contenido principal */}
       <main className="main-content">
         <section>

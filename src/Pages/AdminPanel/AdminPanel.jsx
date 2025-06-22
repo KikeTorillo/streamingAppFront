@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Sidebar } from "../../components/atoms/Sidebar/Sidebar";
 import "./AdminPanel.css";
 import { MainHeader } from "../../components/organism/MainHeader/MainHeader";
-import { ListGroup } from "../../components/atoms/ListGroup/ListGroup";
-import { ListItem } from "../../components/atoms/ListItem/ListItem";
+//import { ListGroup } from "../../components/atoms/ListGroup/ListGroup";
+//import { ListItem } from "../../components/atoms/ListItem/ListItem";
 import { CreateMovies } from "../../components/organism/CreateMovies/CreateMovies";
 import { CreateSeries } from "../../components/organism/CreateSeries/CreateSeries";
 import { UploadEpisode } from "../../components/organism/UploadEpisode/UploadEpisode";
@@ -125,7 +125,7 @@ const AdminPanel = () => {
 
       <div className={`div2 ${isMobile ? 'mobile-sidebar' : ''} ${isSidebarOpen ? 'sidebar-open' : ''}`}>
         <Sidebar>
-          <ListGroup>
+          {/* <ListGroup>
             {menuItems.map((item) => (
               <div
                 key={item.label}
@@ -137,7 +137,7 @@ const AdminPanel = () => {
                 </ListItem>
               </div>
             ))}
-          </ListGroup>
+          </ListGroup> */}
         </Sidebar>
       </div>
 
