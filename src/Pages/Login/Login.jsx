@@ -10,9 +10,9 @@ import { recoveryService } from "../../services/Auth/recoveryService";
 
 // Componente LoginCard del sistema de diseño
 import { LoginCard } from "../../components/organism/LoginCard/LoginCard";
-import './LoginRegister.css';
+import './Login.css';
 
-function LoginRegister() {
+function Login() {
   // Estados de la UI
   const [error, setError] = useState(null); // Mensajes de error
   const [isLoading, setIsLoading] = useState(false); // Estado de carga unificado
@@ -80,27 +80,12 @@ function LoginRegister() {
     }
   };
 
-  /**
-   * Maneja el click en "Crear cuenta"
-   * Redirige a una página de registro (por implementar)
-   */
-  const handleRegisterClick = () => {
-    // Opción 1: Navegar a página de registro separada
-    // navigate('/register');
-    
-    // Opción 2: Mostrar modal de registro
-    // setShowRegisterModal(true);
-    
-    // Opción 3: Placeholder por ahora
-    alert('Función de registro por implementar');
-  };
-
   return (
     <div className="login-register-container">
       <div className="login-register-content">
         {/* Header opcional con título de la app */}
         <div className="login-register-header">
-          <h1 className="app-title">Mi Aplicación</h1>
+          <h1 className="app-title">StreamingApp</h1>
           <p className="app-subtitle">Inicia sesión para continuar</p>
         </div>
 
@@ -108,10 +93,8 @@ function LoginRegister() {
         <LoginCard
           onSubmit={handleLoginSubmit}
           onForgotPassword={handleForgotPassword}
-          onRegisterClick={handleRegisterClick}
           loading={isLoading}
           error={error}
-          showRegisterLink={true}
           size="lg"
           rounded="lg"
         />
@@ -120,4 +103,4 @@ function LoginRegister() {
   );
 }
 
-export { LoginRegister };
+export { Login };
