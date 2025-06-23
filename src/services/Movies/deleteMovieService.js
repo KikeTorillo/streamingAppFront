@@ -1,18 +1,18 @@
-// src/services/Users/getUsersService.js (MANTENER COMO ESTÁ)
+// src/services/Movies/deleteMovieService.js
 import axios from "axios";
 import { environmentService } from "../environmentService";
 
-const getUsersService = async () => {
+const deleteMovieService = async (id) => {
     const { urlBackend } = environmentService();
     try {
-        const response = await axios.get(`${urlBackend}/api/v1/users`, {
+        const response = await axios.delete(`${urlBackend}/api/v1/movies/${id}`, {
             withCredentials: true,
         });
         return response.data;
     } catch (error) {
-        console.error('Error al obtener usuarios:', error);
+        console.error("Error al eliminar película:", error);
         throw error;
     }
 };
 
-export { getUsersService };
+export { deleteMovieService };

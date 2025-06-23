@@ -1,18 +1,18 @@
-// src/services/Users/getUsersService.js (MANTENER COMO ESTÁ)
+// src/services/Series/deleteSeriesService.js
 import axios from "axios";
 import { environmentService } from "../environmentService";
 
-const getUsersService = async () => {
+const deleteSeriesService = async (id) => {
     const { urlBackend } = environmentService();
     try {
-        const response = await axios.get(`${urlBackend}/api/v1/users`, {
+        const response = await axios.delete(`${urlBackend}/api/v1/series/${id}`, {
             withCredentials: true,
         });
         return response.data;
     } catch (error) {
-        console.error('Error al obtener usuarios:', error);
+        console.error("Error al eliminar serie:", error);
         throw error;
     }
 };
 
-export { getUsersService };
+export { deleteSeriesService };
