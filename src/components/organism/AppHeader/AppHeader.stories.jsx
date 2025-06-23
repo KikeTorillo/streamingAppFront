@@ -4,7 +4,7 @@ import { AppHeader } from './AppHeader';
 import './AppHeader.css';
 
 export default {
-  title: 'Components/Organisms/AppHeader',
+  title: 'Components/Organism/AppHeader',
   component: AppHeader,
   tags: ['autodocs'],
   parameters: {

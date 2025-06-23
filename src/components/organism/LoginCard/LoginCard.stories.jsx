@@ -4,7 +4,7 @@ import { LoginCard } from './LoginCard';
 import './LoginCard.css';
 
 export default {
-  title: 'Components/Organisms/LoginCard',
+  title: 'Components/Organism/LoginCard',
   component: LoginCard,
   tags: ['autodocs'],
   parameters: {
