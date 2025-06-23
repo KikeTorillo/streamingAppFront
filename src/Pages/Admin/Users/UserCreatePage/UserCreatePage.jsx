@@ -1,27 +1,24 @@
-// ===== USER CREATE PAGE =====
-// src/Pages/Admin/Users/UserCreatePage.jsx
+// ===== USER CREATE PAGE (CORREGIDO PARA BACKEND) =====
+// src/Pages/Admin/Users/UserCreatePage/UserCreatePage.jsx
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AdminLayout } from '../../../components/templates/AdminLayout/AdminLayout';
-import { DynamicForm } from '../../../components/molecules/DynamicForm/DynamicForm';
-import { Button } from '../../../components/atoms/Button/Button';
+import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminLayout';
+import { DynamicForm } from '../../../../components/molecules/DynamicForm/DynamicForm';
+import { Button } from '../../../../components/atoms/Button/Button';
 import './UserCreatePage.css';
 
 // Importar servicio para crear usuarios
-import { createUserService } from '../../../services/Users/createUserService';
+import { createUserService } from '../../../../services/Users/createUserService';
 
 /**
- * UserCreatePage - Página para crear nuevos usuarios
+ * UserCreatePage - Página para crear nuevos usuarios (ACTUALIZADA PARA BACKEND)
  * 
- * Características implementadas:
- * - ✅ AdminLayout con breadcrumbs
- * - ✅ DynamicForm del sistema de diseño
- * - ✅ Validaciones de campos
- * - ✅ Integración con createUserService
- * - ✅ Estados de loading, success, error
- * - ✅ Navegación después de crear
- * - ✅ Confirmación de salida sin guardar
+ * CAMBIOS PARA BACKEND:
+ * - ✅ Agregado campo username (requerido y único)
+ * - ✅ Eliminado campo status (no existe en DB)
+ * - ✅ Ajustado mapeo de datos para backend
+ * - ✅ Actualizada validación según esquemas Joi
  */
 function UserCreatePage() {
   const navigate = useNavigate();
@@ -32,12 +29,22 @@ function UserCreatePage() {
   const [success, setSuccess] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // ===== CONFIGURACIÓN DEL FORMULARIO =====
+  // ===== CONFIGURACIÓN DEL FORMULARIO (ACTUALIZADA) =====
   
   /**
-   * Configuración de campos para el formulario de usuario
+   * Configuración de campos según la estructura real del backend
    */
   const userFormFields = [
+    {
+      name: 'username',
+      type: 'text',
+      label: 'Nombre de Usuario',
+      placeholder: 'Ej: juan_perez',
+      required: true,
+      leftIcon: '👤',
+      helperText: 'Debe ser único en el sistema (sin espacios)',
+      width: 'half'
+    },
     {
       name: 'email',
       type: 'email',
@@ -46,7 +53,7 @@ function UserCreatePage() {
       required: true,
       leftIcon: '📧',
       helperText: 'El email será usado para iniciar sesión',
-      width: 'full'
+      width: 'half'
     },
     {
       name: 'password',
@@ -55,7 +62,7 @@ function UserCreatePage() {
       placeholder: 'Mínimo 8 caracteres',
       required: true,
       leftIcon: '🔒',
-      helperText: 'Debe tener al menos 8 caracteres',
+      helperText: 'Debe ser alfanumérica (solo letras y números)',
       width: 'half'
     },
     {
@@ -73,28 +80,15 @@ function UserCreatePage() {
       type: 'select',
       label: 'Rol del Usuario',
       required: true,
-      leftIcon: '👤',
-      helperText: 'Define los permisos del usuario',
+      leftIcon: '👥',
+      helperText: 'Define los permisos del usuario en el sistema',
       options: [
         { value: '', label: 'Seleccionar rol...', disabled: true },
         { value: 1, label: 'Administrador' },
         { value: 2, label: 'Editor' },
-        { value: 3, label: 'Usuario' }
+        { value: 3, label: 'Usuario Normal' }
       ],
-      width: 'half'
-    },
-    {
-      name: 'status',
-      type: 'select',
-      label: 'Estado Inicial',
-      required: true,
-      leftIcon: '🔘',
-      helperText: 'El usuario puede activarse/desactivarse después',
-      options: [
-        { value: 'active', label: 'Activo' },
-        { value: 'inactive', label: 'Inactivo' }
-      ],
-      width: 'half'
+      width: 'full'
     }
   ];
 
@@ -122,17 +116,30 @@ function UserCreatePage() {
   };
 
   /**
-   * Validar fortaleza de contraseña
+   * Validar username (según backend)
+   */
+  const validateUsername = (username) => {
+    if (username.length < 3) {
+      return 'El nombre de usuario debe tener al menos 3 caracteres';
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return 'Solo se permiten letras, números y guiones bajos';
+    }
+    if (username.includes(' ')) {
+      return 'No se permiten espacios';
+    }
+    return null;
+  };
+
+  /**
+   * Validar contraseña (según esquema Joi: alfanumérica)
    */
   const validatePassword = (password) => {
-    if (password.length < 8) {
-      return 'La contraseña debe tener al menos 8 caracteres';
+    if (password.length < 6) {
+      return 'La contraseña debe tener al menos 6 caracteres';
     }
-    if (!/(?=.*[a-z])(?=.*[A-Z])/.test(password)) {
-      return 'Debe contener al menos una mayúscula y una minúscula';
-    }
-    if (!/(?=.*\d)/.test(password)) {
-      return 'Debe contener al menos un número';
+    if (!/^[a-zA-Z0-9]+$/.test(password)) {
+      return 'La contraseña debe ser alfanumérica (solo letras y números)';
     }
     return null;
   };
@@ -144,18 +151,23 @@ function UserCreatePage() {
    */
   const handleFormChange = (formData) => {
     setHasChanges(true);
-    setError(null); // Limpiar errores al cambiar datos
+    setError(null);
   };
 
   /**
-   * Manejar envío del formulario
+   * Manejar envío del formulario (ACTUALIZADO PARA BACKEND)
    */
   const handleSubmit = async (formData) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Validaciones adicionales
+      // Validaciones específicas del backend
+      const usernameError = validateUsername(formData.username);
+      if (usernameError) {
+        throw new Error(usernameError);
+      }
+
       const emailError = validateEmail(formData.email);
       if (emailError) {
         throw new Error(emailError);
@@ -171,43 +183,45 @@ function UserCreatePage() {
         throw new Error(passwordMatchError);
       }
 
-      // Preparar datos para el servicio
+      // Preparar datos según la estructura exacta del backend
       const userData = {
+        username: formData.username.trim().toLowerCase(), // Normalizar username
         email: formData.email.trim().toLowerCase(),
-        password: formData.password,
-        roleId: parseInt(formData.roleId),
-        status: formData.status,
-        // Campos adicionales que el backend podría esperar
-        active: formData.status === 'active',
-        createdAt: new Date().toISOString()
+        password: formData.password, // Backend se encarga del hash
+        roleId: parseInt(formData.roleId) // Backend espera roleId como número
       };
+
+      console.log('Enviando datos al backend:', userData);
 
       // Llamar al servicio
       const response = await createUserService(userData);
       
-      console.log('Usuario creado:', response);
+      console.log('Usuario creado exitosamente:', response);
       
       // Marcar como exitoso
       setSuccess(true);
       setHasChanges(false);
 
       // Mostrar mensaje de éxito
-      const userName = formData.email;
-      alert(`✅ Usuario "${userName}" creado correctamente`);
+      alert(`✅ Usuario "${userData.username}" creado correctamente`);
 
-      // Navegar a la lista de usuarios después de un delay
+      // Navegar a la lista después de un delay
       setTimeout(() => {
         navigate('/admin/users');
-      }, 1000);
+      }, 1500);
 
     } catch (err) {
       console.error('Error creating user:', err);
       
-      // Manejar diferentes tipos de error
+      // Manejar errores específicos del backend
       let errorMessage = 'Error al crear el usuario';
       
       if (err.message) {
         errorMessage = err.message;
+      } else if (err.response?.status === 409) {
+        errorMessage = 'El email o nombre de usuario ya están registrados';
+      } else if (err.response?.status === 400) {
+        errorMessage = 'Datos inválidos. Verifica los campos requeridos';
       } else if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.response?.data?.error) {
@@ -238,11 +252,11 @@ function UserCreatePage() {
    * Datos iniciales del formulario
    */
   const initialData = {
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    roleId: '',
-    status: 'active'
+    roleId: ''
   };
 
   // ===== RENDER =====
@@ -327,28 +341,28 @@ function UserCreatePage() {
           />
         </div>
 
-        {/* ===== INFORMACIÓN ADICIONAL ===== */}
+        {/* ===== INFORMACIÓN ACTUALIZADA ===== */}
         <div className="user-create__info">
           <div className="user-create__info-section">
             <h3 className="user-create__info-title">
               ℹ️ Información sobre Roles
             </h3>
             <ul className="user-create__info-list">
-              <li><strong>Administrador:</strong> Acceso completo al sistema</li>
-              <li><strong>Editor:</strong> Puede gestionar contenido pero no usuarios</li>
-              <li><strong>Usuario:</strong> Solo puede ver y reproducir contenido</li>
+              <li><strong>Administrador:</strong> Acceso completo al sistema y gestión de usuarios</li>
+              <li><strong>Editor:</strong> Puede gestionar contenido (películas, series) pero no usuarios</li>
+              <li><strong>Usuario Normal:</strong> Solo puede ver y reproducir contenido</li>
             </ul>
           </div>
           
           <div className="user-create__info-section">
             <h3 className="user-create__info-title">
-              🔒 Seguridad de Contraseñas
+              🔒 Validaciones del Sistema
             </h3>
             <ul className="user-create__info-list">
-              <li>Mínimo 8 caracteres</li>
-              <li>Al menos una mayúscula y una minúscula</li>
-              <li>Al menos un número</li>
-              <li>Se recomienda usar símbolos especiales</li>
+              <li><strong>Username:</strong> Único, mínimo 3 caracteres, solo letras, números y guiones bajos</li>
+              <li><strong>Email:</strong> Único, formato válido</li>
+              <li><strong>Contraseña:</strong> Mínimo 6 caracteres alfanuméricos</li>
+              <li><strong>Roles:</strong> Deben existir en la base de datos</li>
             </ul>
           </div>
         </div>

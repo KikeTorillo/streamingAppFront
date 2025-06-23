@@ -1,5 +1,5 @@
-// ===== USERS LIST PAGE =====
-// src/Pages/Admin/Users/UsersListPage.jsx
+// ===== USERS LIST PAGE (CORREGIDO PARA BACKEND) =====
+// src/Pages/Admin/Users/UsersListPage/UsersListPage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -14,18 +14,14 @@ import { getUserByIdService } from '../../../../services/Users/getUserByIdServic
 import { deleteUserService } from '../../../../services/Users/deleteUserService';
 
 /**
- * UsersListPage - Página de gestión de usuarios
+ * UsersListPage - Página de gestión de usuarios (ACTUALIZADA PARA BACKEND)
  * 
- * Características implementadas:
- * - ✅ AdminLayout como contenedor
- * - ✅ DataTable con datos reales de usuarios
- * - ✅ Operaciones CRUD: Ver, Editar, Eliminar
- * - ✅ Estados de loading, error, empty
- * - ✅ Búsqueda y filtrado de usuarios
- * - ✅ Paginación configurada
- * - ✅ Confirmaciones de eliminación
- * - ✅ Navegación a formularios de crear/editar
- * - ✅ Responsive design
+ * CAMBIOS PARA BACKEND:
+ * - ✅ Corregido mapeo de role_id desde backend
+ * - ✅ Agregado campo username que existe en DB
+ * - ✅ Eliminado campo status simulado
+ * - ✅ Actualizada estructura de datos según respuesta real
+ * - ✅ Mejorado manejo de fechas created_at/updated_at
  */
 function UsersListPage() {
   const navigate = useNavigate();
@@ -34,13 +30,9 @@ function UsersListPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deleting, setDeleting] = useState(null); // ID del usuario siendo eliminado
+  const [deleting, setDeleting] = useState(null);
 
   // ===== EFECTOS =====
-  
-  /**
-   * Cargar usuarios al montar el componente
-   */
   useEffect(() => {
     loadUsers();
   }, []);
@@ -48,14 +40,16 @@ function UsersListPage() {
   // ===== FUNCIONES DE DATOS =====
   
   /**
-   * Cargar lista de usuarios desde el servicio
+   * Cargar lista de usuarios desde el servicio (ACTUALIZADA)
    */
   const loadUsers = async () => {
     try {
       setLoading(true);
       setError(null);
       
+      console.log('Cargando usuarios desde el backend...');
       const response = await getUsersService();
+      console.log('Respuesta del backend:', response);
       
       // Manejar diferentes formatos de respuesta
       let userData = [];
@@ -67,56 +61,90 @@ function UsersListPage() {
         userData = response.items;
       }
 
-      // Mapear datos al formato esperado por la tabla
-      const mappedUsers = userData.map(user => ({
-        id: user.id,
-        email: user.email || user.username || 'Sin email',
-        roleId: user.roleId || user.role_id || 1,
-        roleName: getRoleName(user.roleId || user.role_id || 1),
-        status: user.status || user.active ? 'Activo' : 'Inactivo',
-        createdAt: user.createdAt || user.created_at || user.dateCreated || new Date().toISOString(),
-        lastLogin: user.lastLogin || user.last_login || user.updatedAt || 'Nunca',
-        // Datos originales para operaciones
-        _original: user
-      }));
+      console.log('Datos de usuarios extraídos:', userData);
 
+      // Mapear datos según la estructura REAL del backend
+      const mappedUsers = userData.map(user => {
+        console.log('Mapeando usuario:', user);
+        
+        return {
+          id: user.id,
+          username: user.username || 'Sin username',
+          email: user.email || 'Sin email',
+          // Backend devuelve role_id (snake_case)
+          roleId: user.role_id || user.roleId || 3, // Default a Usuario Normal
+          roleName: getRoleName(user.role_id || user.roleId || 3),
+          // El backend no tiene campo status, lo calculamos basado en datos existentes
+          isActive: user.recovery_token ? false : true, // Si tiene token de recovery, posiblemente inactivo
+          createdAt: user.created_at || user.createdAt || new Date().toISOString(),
+          updatedAt: user.updated_at || user.updatedAt || new Date().toISOString(),
+          recoveryToken: user.recovery_token || null,
+          // Datos originales para debugging
+          _original: user
+        };
+      });
+
+      console.log('Usuarios mapeados:', mappedUsers);
       setUsers(mappedUsers);
       
     } catch (err) {
       console.error('Error loading users:', err);
-      setError('Error al cargar la lista de usuarios. Verifica tu conexión.');
+      setError('Error al cargar la lista de usuarios. Verifica la conexión con el servidor.');
     } finally {
       setLoading(false);
     }
   };
 
   /**
-   * Obtener nombre del rol basado en roleId
+   * Obtener nombre del rol basado en roleId (ACTUALIZADO)
    */
   const getRoleName = (roleId) => {
     const roles = {
       1: 'Administrador',
-      2: 'Editor',
-      3: 'Usuario'
+      2: 'Editor', 
+      3: 'Usuario Normal'
     };
-    return roles[roleId] || 'Usuario';
+    return roles[roleId] || 'Usuario Normal';
   };
 
   /**
    * Formatear fecha para mostrar
    */
   const formatDate = (dateString) => {
-    if (!dateString || dateString === 'Nunca') return 'Nunca';
+    if (!dateString) return 'No disponible';
     
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
     } catch {
       return 'Fecha inválida';
+    }
+  };
+
+  /**
+   * Calcular tiempo transcurrido desde la creación
+   */
+  const getTimeSinceCreated = (createdAt) => {
+    if (!createdAt) return 'No disponible';
+    
+    try {
+      const now = new Date();
+      const created = new Date(createdAt);
+      const diffInDays = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+      
+      if (diffInDays === 0) return 'Hoy';
+      if (diffInDays === 1) return 'Ayer';
+      if (diffInDays < 30) return `Hace ${diffInDays} días`;
+      if (diffInDays < 365) return `Hace ${Math.floor(diffInDays / 30)} meses`;
+      return `Hace ${Math.floor(diffInDays / 365)} años`;
+    } catch {
+      return 'No disponible';
     }
   };
 
@@ -127,15 +155,29 @@ function UsersListPage() {
    */
   const handleViewUser = async (user) => {
     try {
+      console.log('Viendo detalles de usuario:', user);
+      
       // Intentar obtener datos completos del usuario
       const response = await getUserByIdService(user.id);
+      console.log('Detalles completos del usuario:', response);
       
-      // Por ahora, navegar a una página de detalles (cuando la creemos)
-      // navigate(`/admin/users/${user.id}`);
+      // Mostrar información completa del usuario
+      const userDetails = `
+=== DETALLES DEL USUARIO ===
+ID: ${user.id}
+Username: ${user.username}
+Email: ${user.email}
+Rol: ${user.roleName} (ID: ${user.roleId})
+Estado: ${user.isActive ? 'Activo' : 'Inactivo'}
+Creado: ${formatDate(user.createdAt)}
+Actualizado: ${formatDate(user.updatedAt)}
+Token de Recovery: ${user.recoveryToken ? 'Sí' : 'No'}
+
+=== DATOS ORIGINALES ===
+${JSON.stringify(user._original, null, 2)}
+      `;
       
-      // Mientras tanto, mostrar los datos en console para desarrollo
-      console.log('Ver usuario:', response || user);
-      alert(`Ver detalles de: ${user.email}\n\nEsta funcionalidad estará disponible pronto.`);
+      alert(userDetails);
       
     } catch (err) {
       console.error('Error viewing user:', err);
@@ -147,7 +189,8 @@ function UsersListPage() {
    * Editar un usuario
    */
   const handleEditUser = (user) => {
-    // Navegar a página de edición (cuando la creemos)
+    console.log('Editando usuario:', user);
+    // TODO: Navegar a página de edición cuando esté lista
     navigate(`/admin/users/${user.id}/edit`);
   };
 
@@ -155,9 +198,11 @@ function UsersListPage() {
    * Eliminar un usuario con confirmación
    */
   const handleDeleteUser = async (user) => {
-    // Confirmar eliminación
     const confirmDelete = window.confirm(
-      `¿Estás seguro de que quieres eliminar al usuario "${user.email}"?\n\n` +
+      `¿Estás seguro de que quieres eliminar al usuario?\n\n` +
+      `Username: ${user.username}\n` +
+      `Email: ${user.email}\n` +
+      `Rol: ${user.roleName}\n\n` +
       'Esta acción no se puede deshacer.'
     );
 
@@ -165,6 +210,7 @@ function UsersListPage() {
 
     try {
       setDeleting(user.id);
+      console.log('Eliminando usuario:', user);
       
       // Llamar al servicio de eliminación
       await deleteUserService(user.id);
@@ -173,11 +219,19 @@ function UsersListPage() {
       setUsers(prevUsers => prevUsers.filter(u => u.id !== user.id));
       
       // Mostrar mensaje de éxito
-      alert(`Usuario "${user.email}" eliminado correctamente.`);
+      alert(`✅ Usuario "${user.username}" eliminado correctamente.`);
       
     } catch (err) {
       console.error('Error deleting user:', err);
-      alert('Error al eliminar el usuario. Inténtalo de nuevo.');
+      
+      let errorMessage = 'Error al eliminar el usuario.';
+      if (err.response?.status === 404) {
+        errorMessage = 'El usuario no existe o ya fue eliminado.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'No tienes permisos para eliminar este usuario.';
+      }
+      
+      alert(`❌ ${errorMessage}`);
     } finally {
       setDeleting(null);
     }
@@ -197,7 +251,7 @@ function UsersListPage() {
     loadUsers();
   };
 
-  // ===== CONFIGURACIÓN DE COLUMNAS =====
+  // ===== CONFIGURACIÓN DE COLUMNAS (ACTUALIZADA) =====
   const userColumns = [
     {
       accessorKey: 'id',
@@ -210,8 +264,18 @@ function UsersListPage() {
       )
     },
     {
+      accessorKey: 'username',
+      header: 'Username',
+      size: 150,
+      cell: ({ getValue }) => (
+        <span className="users-list__username" title={getValue()}>
+          {getValue()}
+        </span>
+      )
+    },
+    {
       accessorKey: 'email',
-      header: 'Correo Electrónico',
+      header: 'Email',
       cell: ({ getValue }) => (
         <span className="users-list__email" title={getValue()}>
           {getValue()}
@@ -228,7 +292,7 @@ function UsersListPage() {
         const badgeClass = 
           roleId === 1 ? 'info' :     // Administrador
           roleId === 2 ? 'warning' :  // Editor
-          'success';                  // Usuario
+          'success';                  // Usuario Normal
         
         return (
           <span className={`data-table__badge data-table__badge--${badgeClass}`}>
@@ -238,12 +302,25 @@ function UsersListPage() {
       }
     },
     {
-      accessorKey: 'status',
+      accessorKey: 'isActive',
       header: 'Estado',
       size: 100,
-      cell: ({ getValue }) => {
-        const status = getValue();
-        const variant = status === 'Activo' ? 'success' : 'danger';
+      cell: ({ getValue, row }) => {
+        const isActive = getValue();
+        const hasRecoveryToken = row.original.recoveryToken;
+        
+        let status, variant;
+        if (hasRecoveryToken) {
+          status = 'En Recovery';
+          variant = 'warning';
+        } else if (isActive) {
+          status = 'Activo';
+          variant = 'success';
+        } else {
+          status = 'Inactivo';
+          variant = 'danger';
+        }
+        
         return (
           <span className={`data-table__badge data-table__badge--${variant}`}>
             {status}
@@ -253,20 +330,25 @@ function UsersListPage() {
     },
     {
       accessorKey: 'createdAt',
-      header: 'Fecha de Registro',
-      size: 150,
-      cell: ({ getValue }) => (
-        <span className="users-list__date">
-          {formatDate(getValue())}
-        </span>
+      header: 'Creado',
+      size: 180,
+      cell: ({ getValue, row }) => (
+        <div className="users-list__date-cell">
+          <span className="users-list__date">
+            {formatDate(getValue())}
+          </span>
+          <span className="users-list__date-relative">
+            {getTimeSinceCreated(getValue())}
+          </span>
+        </div>
       )
     },
     {
-      accessorKey: 'lastLogin',
-      header: 'Último Acceso',
-      size: 150,
+      accessorKey: 'updatedAt',
+      header: 'Actualizado',
+      size: 180,
       cell: ({ getValue }) => (
-        <span className="users-list__date users-list__date--muted">
+        <span className="users-list__date">
           {formatDate(getValue())}
         </span>
       )
@@ -306,7 +388,7 @@ function UsersListPage() {
       }
     >
       <div className="users-list">
-        {/* ===== INFORMACIÓN ADICIONAL ===== */}
+        {/* ===== INFORMACIÓN ADICIONAL (ACTUALIZADA) ===== */}
         {!loading && !error && users.length > 0 && (
           <div className="users-list__summary">
             <div className="users-list__stats">
@@ -323,54 +405,4 @@ function UsersListPage() {
                 <span className="users-list__stat-label">Editores</span>
               </div>
               <div className="users-list__stat">
-                <span className="users-list__stat-value">
-                  {users.filter(u => u.roleId === 3).length}
-                </span>
-                <span className="users-list__stat-label">Usuarios</span>
-              </div>
-              <div className="users-list__stat">
-                <span className="users-list__stat-value">
-                  {users.filter(u => u.status === 'Activo').length}
-                </span>
-                <span className="users-list__stat-label">Activos</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ===== TABLA DE USUARIOS ===== */}
-        <div className="users-list__table">
-          <DataTable
-            data={users}
-            columns={userColumns}
-            loading={loading}
-            error={error}
-            searchPlaceholder="Buscar por email o rol..."
-            pageSizeOptions={[10, 25, 50, 100]}
-            defaultPageSize={25}
-            variant="default"
-            emptyTitle="No hay usuarios registrados"
-            emptyDescription="Crea tu primer usuario para comenzar a gestionar tu plataforma"
-            emptyIcon="👥"
-            onView={handleViewUser}
-            onEdit={handleEditUser}
-            onDelete={handleDeleteUser}
-            className={deleting ? 'users-list__table--deleting' : ''}
-          />
-        </div>
-
-        {/* ===== MENSAJE DE ELIMINACIÓN ===== */}
-        {deleting && (
-          <div className="users-list__deleting-overlay">
-            <div className="users-list__deleting-message">
-              <span className="users-list__deleting-spinner">⏳</span>
-              Eliminando usuario...
-            </div>
-          </div>
-        )}
-      </div>
-    </AdminLayout>
-  );
-}
-
-export { UsersListPage };
+                <span className="users-

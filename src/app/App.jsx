@@ -1,26 +1,441 @@
-// App.jsx - Actualizado con la nueva ruta MainPage
+// App.jsx - Actualizado con rutas del panel de administración
 import React from "react";
-import { useRoutes, BrowserRouter } from "react-router-dom"; // Para manejo de rutas
-import { Login } from "../Pages/Login/Login"; // Página de Login/Registro
-import { VideoPlayer } from "../Pages/VideoPlayer/VideoPlayer"; // Reproductor de video
-import { MainPage } from "../Pages/MainPage/MainPage"; // Página principal tipo Netflix
-import "./App.css"; // Estilos globales de la aplicación
+import { useRoutes, BrowserRouter } from "react-router-dom";
 
-// Definición de las rutas de la aplicación usando useRoutes
+// Páginas existentes
+import { Login } from "../Pages/Login/Login";
+import { VideoPlayer } from "../Pages/VideoPlayer/VideoPlayer";
+import { MainPage } from "../Pages/MainPage/MainPage";
+
+// ===== PÁGINAS DEL ADMIN PANEL =====
+import { AdminDashboard } from "../Pages/AdminDashboard/AdminDashboard";
+import { UsersListPage } from "../Pages/Admin/Users/UsersListPage/UsersListPage";
+import { UserCreatePage } from "../Pages/Admin/Users/UserCreatePage/UserCreatePage";
+
+import "./App.css";
+
+/**
+ * Componente de protección de rutas admin
+ */
+function AdminRoute({ children }) {
+  const user = JSON.parse(sessionStorage.getItem('sessionUser') || '{}');
+  const isAdmin = user?.roleId === 1 || user?.role === 'admin';
+  
+  if (!isAdmin) {
+    return (
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+        padding: '2rem',
+        textAlign: 'center',
+        fontFamily: 'var(--font-family-base)'
+      }}>
+        <div style={{
+          fontSize: '4rem',
+          marginBottom: '1rem'
+        }}>🔒</div>
+        <h1 style={{
+          fontSize: '2rem',
+          marginBottom: '1rem',
+          color: 'var(--text-primary)'
+        }}>
+          Acceso Restringido
+        </h1>
+        <p style={{
+          color: 'var(--text-secondary)',
+          marginBottom: '2rem'
+        }}>
+          Necesitas permisos de administrador para acceder a esta área.
+        </p>
+        <button
+          onClick={() => window.location.href = '/login'}
+          style={{
+            padding: '1rem 2rem',
+            backgroundColor: 'var(--color-primary)',
+            color: 'white',
+            border: 'none',
+            borderRadius: 'var(--radius-md)',
+            cursor: 'pointer',
+            fontSize: '1rem'
+          }}
+        >
+          Ir al Login
+        </button>
+      </div>
+    );
+  }
+  
+  return children;
+}
+
+// Definición de las rutas de la aplicación
 function AppRoutes() {
   const routes = useRoutes([
-    // Ruta raíz ('/') y '/login' muestran el mismo componente
+    // ===== RUTAS PÚBLICAS =====
     { path: "/", element: <Login /> },
     { path: "/login", element: <Login /> },
-    
-    // Nueva ruta para la página principal tipo Netflix
     { path: "/main-page", element: <MainPage /> },
-    
-    // Reproductor de video (mantenemos la funcionalidad existente)
     { path: "/video-player/:id", element: <VideoPlayer /> },
     
-    // Ruta comodín para manejar rutas no definidas (404)
-    { path: "/*", element: <div>404 - Página no encontrada</div> },
+    // ===== RUTAS DEL ADMIN PANEL =====
+    {
+      path: "/admin",
+      element: (
+        <AdminRoute>
+          <AdminDashboard />
+        </AdminRoute>
+      )
+    },
+    
+    // ===== GESTIÓN DE USUARIOS =====
+    {
+      path: "/admin/users",
+      element: (
+        <AdminRoute>
+          <UsersListPage />
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/users/create",
+      element: (
+        <AdminRoute>
+          <UserCreatePage />
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/users/:id/edit",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear UserEditPage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>UserEditPage</h2>
+            <p>Página en desarrollo...</p>
+            <button 
+              onClick={() => window.history.back()}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    
+    // ===== GESTIÓN DE PELÍCULAS (FUTURAS) =====
+    {
+      path: "/admin/movies",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear MoviesListPage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Gestión de Películas</h2>
+            <p>Esta funcionalidad estará disponible pronto...</p>
+            <button 
+              onClick={() => window.location.href = '/admin'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver al Dashboard
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/movies/create",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear MovieCreatePage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Crear Película</h2>
+            <p>Funcionalidad en desarrollo...</p>
+            <button 
+              onClick={() => window.location.href = '/admin/movies'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    
+    // ===== GESTIÓN DE SERIES (FUTURAS) =====
+    {
+      path: "/admin/series",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear SeriesListPage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Gestión de Series</h2>
+            <p>Esta funcionalidad estará disponible pronto...</p>
+            <button 
+              onClick={() => window.location.href = '/admin'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver al Dashboard
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/series/create",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear SeriesCreatePage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Crear Serie</h2>
+            <p>Funcionalidad en desarrollo...</p>
+            <button 
+              onClick={() => window.location.href = '/admin/series'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    
+    // ===== GESTIÓN DE CATEGORÍAS (FUTURAS) =====
+    {
+      path: "/admin/categories",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear CategoriesListPage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Gestión de Categorías</h2>
+            <p>Esta funcionalidad estará disponible pronto...</p>
+            <button 
+              onClick={() => window.location.href = '/admin'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver al Dashboard
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/categories/create",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear CategoryCreatePage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Crear Categoría</h2>
+            <p>Funcionalidad en desarrollo...</p>
+            <button 
+              onClick={() => window.location.href = '/admin/categories'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    
+    // ===== GESTIÓN DE EPISODIOS (FUTURAS) =====
+    {
+      path: "/admin/episodes",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear EpisodesListPage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Gestión de Episodios</h2>
+            <p>Esta funcionalidad estará disponible pronto...</p>
+            <button 
+              onClick={() => window.location.href = '/admin'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver al Dashboard
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/episodes/create",
+      element: (
+        <AdminRoute>
+          {/* TODO: Crear EpisodeCreatePage */}
+          <div style={{ 
+            padding: '2rem', 
+            textAlign: 'center',
+            fontFamily: 'var(--font-family-base)'
+          }}>
+            <h2>Crear Episodio</h2>
+            <p>Funcionalidad en desarrollo...</p>
+            <button 
+              onClick={() => window.location.href = '/admin/episodes'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Volver
+            </button>
+          </div>
+        </AdminRoute>
+      )
+    },
+    
+    // ===== RUTA 404 =====
+    { 
+      path: "/*", 
+      element: (
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          padding: '2rem',
+          textAlign: 'center',
+          fontFamily: 'var(--font-family-base)'
+        }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔍</div>
+          <h1 style={{ 
+            fontSize: '2rem', 
+            marginBottom: '1rem',
+            color: 'var(--text-primary)'
+          }}>
+            404 - Página no encontrada
+          </h1>
+          <p style={{ 
+            color: 'var(--text-secondary)',
+            marginBottom: '2rem'
+          }}>
+            La página que buscas no existe o ha sido movida.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => window.location.href = '/'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--color-primary)',
+                color: 'white',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Ir al Inicio
+            </button>
+            <button
+              onClick={() => window.location.href = '/admin'}
+              style={{
+                padding: '1rem 2rem',
+                backgroundColor: 'var(--bg-secondary)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-default)',
+                borderRadius: 'var(--radius-md)',
+                cursor: 'pointer'
+              }}
+            >
+              Panel Admin
+            </button>
+          </div>
+        </div>
+      )
+    },
   ]);
 
   return routes;
@@ -29,10 +444,8 @@ function AppRoutes() {
 // Componente principal de la aplicación
 function App() {
   return (
-    // BrowserRouter habilita el enrutamiento en la aplicación
     <BrowserRouter>
-        {/* Renderiza las rutas definidas en AppRoutes */}
-        <AppRoutes />
+      <AppRoutes />
     </BrowserRouter>
   );
 }
