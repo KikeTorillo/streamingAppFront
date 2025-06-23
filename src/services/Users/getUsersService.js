@@ -16,25 +16,18 @@ const getUsersService = async () => {
             withCredentials: true,
         });
         
-        console.log('Respuesta getUsersService:', response.data);
-        
         // ✅ MEJORADO: Normalizar respuesta
-        const users = Array.isArray(response.data) ? response.data : response.data?.items || [];
+        const users = response.data;
         
         // ✅ MEJORADO: Mapear usuarios con campos corregidos
         const mappedUsers = users.map(user => ({
-            id: user.id,
-            username: user.username || user.userName || 'Sin username',
+            createdAt: user.created_at,
             email: user.email || 'Sin email',
-            // ✅ CORREGIDO: Backend envía role_id (snake_case)
+            id: user.id,
             roleId: user.role_id || user.roleId || 3,
             roleName: getRoleName(user.role_id || user.roleId || 3),
-            // ✅ CALCULADO: Estado basado en recovery_token
-            isActive: !user.recovery_token,
-            createdAt: user.created_at || user.createdAt,
             updatedAt: user.updated_at || user.updatedAt,
-            displayName: user.username || user.userName || 'Usuario',
-            lastActivity: user.updated_at || user.updatedAt || user.created_at
+            userName: user.user_name,    
         }));
         
         return {

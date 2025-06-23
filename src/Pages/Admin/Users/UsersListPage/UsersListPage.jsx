@@ -1,5 +1,5 @@
-// ===== USERS LIST PAGE =====
-// src/Pages/Admin/Users/UsersListPage.jsx
+// ===== USERS LIST PAGE - HOMOLOGADO CON BACKEND =====
+// src/Pages/Admin/Users/UsersListPage/UsersListPage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,24 +8,18 @@ import { DataTable } from '../../../../components/organism/DataTable/DataTable';
 import { Button } from '../../../../components/atoms/Button/Button';
 import './UsersListPage.css';
 
-// Importar servicios de usuarios
+// Servicios de usuarios
 import { getUsersService } from '../../../../services/Users/getUsersService';
-import { getUserByIdService } from '../../../../services/Users/getUserByIdService';
 import { deleteUserService } from '../../../../services/Users/deleteUserService';
 
 /**
- * UsersListPage - Página de gestión de usuarios
+ * UsersListPage - Página de gestión de usuarios HOMOLOGADA
  * 
- * Características implementadas:
- * - ✅ AdminLayout como contenedor
- * - ✅ DataTable con datos reales de usuarios
- * - ✅ Operaciones CRUD: Ver, Editar, Eliminar
- * - ✅ Estados de loading, error, empty
- * - ✅ Búsqueda y filtrado de usuarios
- * - ✅ Paginación configurada
- * - ✅ Confirmaciones de eliminación
- * - ✅ Navegación a formularios de crear/editar
- * - ✅ Responsive design
+ * ✅ CORREGIDO: Mapeo correcto de campos del backend
+ * ✅ CORREGIDO: Manejo de respuestas estructuradas
+ * ✅ CORREGIDO: Estados y roles correctos
+ * ✅ AÑADIDO: Logs de debugging
+ * ✅ AÑADIDO: Manejo de sesión expirada
  */
 function UsersListPage() {
   const navigate = useNavigate();
@@ -34,150 +28,167 @@ function UsersListPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [deleting, setDeleting] = useState(null); // ID del usuario siendo eliminado
+  const [deleting, setDeleting] = useState(null);
 
-  // ===== EFECTOS =====
+  // ===== FUNCIONES AUXILIARES =====
   
   /**
-   * Cargar usuarios al montar el componente
-   */
-  useEffect(() => {
-    loadUsers();
-  }, []);
-
-  // ===== FUNCIONES DE DATOS =====
-  
-  /**
-   * Cargar lista de usuarios desde el servicio
-   */
-  const loadUsers = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await getUsersService();
-      
-      // Manejar diferentes formatos de respuesta
-      let userData = [];
-      if (Array.isArray(response)) {
-        userData = response;
-      } else if (response?.data && Array.isArray(response.data)) {
-        userData = response.data;
-      } else if (response?.items && Array.isArray(response.items)) {
-        userData = response.items;
-      }
-
-      // Mapear datos al formato esperado por la tabla
-      const mappedUsers = userData.map(user => ({
-        id: user.id,
-        email: user.email || user.username || 'Sin email',
-        roleId: user.roleId || user.role_id || 1,
-        roleName: getRoleName(user.roleId || user.role_id || 1),
-        status: user.status || user.active ? 'Activo' : 'Inactivo',
-        createdAt: user.createdAt || user.created_at || user.dateCreated || new Date().toISOString(),
-        lastLogin: user.lastLogin || user.last_login || user.updatedAt || 'Nunca',
-        // Datos originales para operaciones
-        _original: user
-      }));
-
-      setUsers(mappedUsers);
-      
-    } catch (err) {
-      console.error('Error loading users:', err);
-      setError('Error al cargar la lista de usuarios. Verifica tu conexión.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  /**
-   * Obtener nombre del rol basado en roleId
-   */
-  const getRoleName = (roleId) => {
-    const roles = {
-      1: 'Administrador',
-      2: 'Editor',
-      3: 'Usuario'
-    };
-    return roles[roleId] || 'Usuario';
-  };
-
-  /**
-   * Formatear fecha para mostrar
+   * ✅ CORREGIDO: Formatear fechas
    */
   const formatDate = (dateString) => {
-    if (!dateString || dateString === 'Nunca') return 'Nunca';
+    if (!dateString) return 'No disponible';
     
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('es-ES', {
         year: 'numeric',
         month: 'short',
-        day: 'numeric'
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
       });
-    } catch {
+    } catch (error) {
       return 'Fecha inválida';
     }
   };
 
-  // ===== HANDLERS DE ACCIONES =====
-  
   /**
-   * Ver detalles de un usuario
+   * ✅ NUEVO: Verificar si es el usuario actual
    */
-  const handleViewUser = async (user) => {
+  const isCurrentUser = (userId) => {
     try {
-      // Intentar obtener datos completos del usuario
-      const response = await getUserByIdService(user.id);
-      
-      // Por ahora, navegar a una página de detalles (cuando la creemos)
-      // navigate(`/admin/users/${user.id}`);
-      
-      // Mientras tanto, mostrar los datos en console para desarrollo
-      console.log('Ver usuario:', response || user);
-      alert(`Ver detalles de: ${user.email}\n\nEsta funcionalidad estará disponible pronto.`);
-      
-    } catch (err) {
-      console.error('Error viewing user:', err);
-      alert('Error al obtener los detalles del usuario');
+      const sessionUser = JSON.parse(sessionStorage.getItem('sessionUser') || '{}');
+      return sessionUser.sub === userId;
+    } catch {
+      return false;
     }
   };
 
+  // ===== FUNCIONES DE DATOS =====
+  
   /**
-   * Editar un usuario
+   * ✅ CORREGIDO: Cargar usuarios con SOLO campos reales del backend
+   */
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      console.log('📥 Cargando usuarios...');
+      const response = await getUsersService();
+      
+      // ✅ MANEJAR respuesta estructurada
+      if (response.message === 'session expired' && response.error) {
+        console.log('🔒 Sesión expirada, redirigiendo...');
+        sessionStorage.clear();
+        navigate('/login');
+        return;
+      }
+
+      if (!response.success) {
+        throw new Error(response.error || 'Error al cargar usuarios');
+      }
+
+      const rawUsers = Array.isArray(response.data) ? response.data : [];
+      // ✅ MAPEAR SOLO CAMPOS QUE EXISTEN EN EL BACKEND
+      const mappedUsers = rawUsers.map(user => ({
+        createdAt: user.createdAt,
+        email: user.email,
+        id: user.id,
+        roleId: user.roleId,  
+        roleName: user.roleName,
+        updatedAt: user.updated_at,
+        userName: user.userName,
+      }));
+
+      setUsers(mappedUsers);
+      
+    } catch (error) {
+      console.error('💥 Error loading users:', error);
+      setError(error.message || 'Error al cargar usuarios');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ===== EFECTOS =====
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // ===== FUNCIONES DE MANEJO =====
+  
+  /**
+   * ✅ CORREGIDO: Ver usuario
+   */
+  const handleViewUser = async (user) => {
+    console.log('👁️ Ver usuario:', user);
+    // TODO: Implementar modal de detalles o navegar a página de detalle
+    alert(`Ver detalles de ${user.userName}\n\nID: ${user.id}\nEmail: ${user.email}\nRol: ${user.roleName}\nEstado: ${user.status}`);
+  };
+
+  /**
+   * ✅ CORREGIDO: Editar usuario
    */
   const handleEditUser = (user) => {
-    // Navegar a página de edición (cuando la creemos)
+    console.log('✏️ Editar usuario:', user);
     navigate(`/admin/users/${user.id}/edit`);
   };
 
   /**
-   * Eliminar un usuario con confirmación
+   * ✅ CORREGIDO: Eliminar usuario con validaciones
    */
   const handleDeleteUser = async (user) => {
-    // Confirmar eliminación
+    console.log('🗑️ Eliminar usuario:', user);
+    
+    // ✅ VERIFICAR: No eliminar usuario actual
+    if (isCurrentUser(user.id)) {
+      alert('❌ No puedes eliminar tu propia cuenta.');
+      return;
+    }
+
+    // ✅ VERIFICAR: No eliminar último admin
+    const adminCount = users.filter(u => u.roleId === 1).length;
+    if (user.roleId === 1 && adminCount <= 1) {
+      alert('❌ No puedes eliminar el último administrador del sistema.');
+      return;
+    }
+
     const confirmDelete = window.confirm(
-      `¿Estás seguro de que quieres eliminar al usuario "${user.email}"?\n\n` +
-      'Esta acción no se puede deshacer.'
+      `¿Estás seguro de que deseas eliminar el usuario "${user.userName}"?\n\n` +
+      `Email: ${user.email}\n` +
+      `Rol: ${user.roleName}\n\n` +
+      `Esta acción no se puede deshacer.`
     );
 
     if (!confirmDelete) return;
 
     try {
       setDeleting(user.id);
+      console.log('🔄 Eliminando usuario:', user.id);
       
-      // Llamar al servicio de eliminación
-      await deleteUserService(user.id);
+      const response = await deleteUserService(user.id);
       
-      // Remover usuario de la lista local
+      // ✅ MANEJAR respuesta estructurada
+      if (response.message === 'session expired' && response.error) {
+        sessionStorage.clear();
+        navigate('/login');
+        return;
+      }
+
+      if (!response.success) {
+        throw new Error(response.error || 'Error al eliminar usuario');
+      }
+
+      // ✅ ACTUALIZAR lista local
       setUsers(prevUsers => prevUsers.filter(u => u.id !== user.id));
       
-      // Mostrar mensaje de éxito
-      alert(`Usuario "${user.email}" eliminado correctamente.`);
+      console.log('✅ Usuario eliminado exitosamente');
+      alert(`✅ Usuario "${user.userName}" eliminado correctamente.`);
       
     } catch (err) {
-      console.error('Error deleting user:', err);
-      alert('Error al eliminar el usuario. Inténtalo de nuevo.');
+      console.error('💥 Error deleting user:', err);
+      alert(`❌ Error al eliminar el usuario: ${err.message}`);
     } finally {
       setDeleting(null);
     }
@@ -191,13 +202,13 @@ function UsersListPage() {
   };
 
   /**
-   * Refrescar lista de usuarios
+   * Refrescar lista
    */
   const handleRefresh = () => {
     loadUsers();
   };
 
-  // ===== CONFIGURACIÓN DE COLUMNAS =====
+  // ===== CONFIGURACIÓN DE COLUMNAS (SOLO CAMPOS REALES) =====
   const userColumns = [
     {
       accessorKey: 'id',
@@ -210,11 +221,22 @@ function UsersListPage() {
       )
     },
     {
-      accessorKey: 'email',
-      header: 'Correo Electrónico',
+      accessorKey: 'userName',
+      header: 'Usuario',
       cell: ({ getValue }) => (
-        <span className="users-list__email" title={getValue()}>
-          {getValue()}
+        <div className="users-list__user-info">
+          <span className="users-list__username" title={getValue()}>
+            {getValue()}
+          </span>
+        </div>
+      )
+    },
+    {
+      accessorKey: 'email',
+      header: 'Email',
+      cell: ({ getValue }) => (
+        <span className="users-list__email" title={getValue() || 'Sin email'}>
+          {getValue() || <em style={{ color: 'var(--text-muted)' }}>Sin email</em>}
         </span>
       )
     },
@@ -238,20 +260,6 @@ function UsersListPage() {
       }
     },
     {
-      accessorKey: 'status',
-      header: 'Estado',
-      size: 100,
-      cell: ({ getValue }) => {
-        const status = getValue();
-        const variant = status === 'Activo' ? 'success' : 'danger';
-        return (
-          <span className={`data-table__badge data-table__badge--${variant}`}>
-            {status}
-          </span>
-        );
-      }
-    },
-    {
       accessorKey: 'createdAt',
       header: 'Fecha de Registro',
       size: 150,
@@ -261,23 +269,23 @@ function UsersListPage() {
         </span>
       )
     },
-    {
-      accessorKey: 'lastLogin',
-      header: 'Último Acceso',
-      size: 150,
-      cell: ({ getValue }) => (
-        <span className="users-list__date users-list__date--muted">
-          {formatDate(getValue())}
-        </span>
-      )
-    }
   ];
+
+  // ===== ESTADÍSTICAS (SOLO DATOS REALES) =====
+  const stats = {
+    total: users.length,
+    admins: users.filter(u => u.roleId === 1).length,
+    editors: users.filter(u => u.roleId === 2).length,
+    regularUsers: users.filter(u => u.roleId === 3).length,
+    withEmail: users.filter(u => u.email).length,
+    withoutEmail: users.filter(u => !u.email).length
+  };
 
   // ===== RENDER =====
   return (
     <AdminLayout
       title="Gestión de Usuarios"
-      subtitle={`${users.length} usuario${users.length !== 1 ? 's' : ''} registrado${users.length !== 1 ? 's' : ''}`}
+      subtitle={`${stats.total} usuario${stats.total !== 1 ? 's' : ''} registrado${stats.total !== 1 ? 's' : ''}`}
       breadcrumbs={[
         { label: 'Admin', href: '/admin' },
         { label: 'Usuarios' }
@@ -287,9 +295,9 @@ function UsersListPage() {
           <Button
             variant="outline"
             size="sm"
+            leftIcon="🔄"
             onClick={handleRefresh}
             loading={loading}
-            icon="🔄"
             disabled={loading}
           >
             Actualizar
@@ -297,8 +305,8 @@ function UsersListPage() {
           <Button
             variant="primary"
             size="sm"
+            leftIcon="➕"
             onClick={handleCreateUser}
-            icon="➕"
           >
             Crear Usuario
           </Button>
@@ -306,33 +314,39 @@ function UsersListPage() {
       }
     >
       <div className="users-list">
-        {/* ===== INFORMACIÓN ADICIONAL ===== */}
-        {!loading && !error && users.length > 0 && (
+        {/* ===== ESTADÍSTICAS (SOLO DATOS REALES) ===== */}
+        {!loading && !error && stats.total > 0 && (
           <div className="users-list__summary">
             <div className="users-list__stats">
               <div className="users-list__stat">
                 <span className="users-list__stat-value">
-                  {users.filter(u => u.roleId === 1).length}
+                  {stats.admins}
                 </span>
                 <span className="users-list__stat-label">Administradores</span>
               </div>
               <div className="users-list__stat">
                 <span className="users-list__stat-value">
-                  {users.filter(u => u.roleId === 2).length}
+                  {stats.editors}
                 </span>
                 <span className="users-list__stat-label">Editores</span>
               </div>
               <div className="users-list__stat">
                 <span className="users-list__stat-value">
-                  {users.filter(u => u.roleId === 3).length}
+                  {stats.regularUsers}
                 </span>
                 <span className="users-list__stat-label">Usuarios</span>
               </div>
               <div className="users-list__stat">
                 <span className="users-list__stat-value">
-                  {users.filter(u => u.status === 'Activo').length}
+                  {stats.withEmail}
                 </span>
-                <span className="users-list__stat-label">Activos</span>
+                <span className="users-list__stat-label">Con Email</span>
+              </div>
+              <div className="users-list__stat">
+                <span className="users-list__stat-value">
+                  {stats.withoutEmail}
+                </span>
+                <span className="users-list__stat-label">Sin Email</span>
               </div>
             </div>
           </div>
@@ -345,7 +359,7 @@ function UsersListPage() {
             columns={userColumns}
             loading={loading}
             error={error}
-            searchPlaceholder="Buscar por email o rol..."
+            searchPlaceholder="Buscar por usuario, email o rol..."
             pageSizeOptions={[10, 25, 50, 100]}
             defaultPageSize={25}
             variant="default"
@@ -356,18 +370,14 @@ function UsersListPage() {
             onEdit={handleEditUser}
             onDelete={handleDeleteUser}
             className={deleting ? 'users-list__table--deleting' : ''}
+            rowClassName={(row) => {
+              const classes = [];
+              if (deleting === row.original.id) classes.push('users-list__row--deleting');
+              if (isCurrentUser(row.original.id)) classes.push('users-list__row--current');
+              return classes.join(' ');
+            }}
           />
         </div>
-
-        {/* ===== MENSAJE DE ELIMINACIÓN ===== */}
-        {deleting && (
-          <div className="users-list__deleting-overlay">
-            <div className="users-list__deleting-message">
-              <span className="users-list__deleting-spinner">⏳</span>
-              Eliminando usuario...
-            </div>
-          </div>
-        )}
       </div>
     </AdminLayout>
   );

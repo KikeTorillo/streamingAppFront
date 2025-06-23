@@ -1,22 +1,4 @@
-// ===== ANÁLISIS DE INCOMPATIBILIDADES DETECTADAS =====
-
-/* 
-🚨 PROBLEMAS ENCONTRADOS EN MAINPAGE:
-
-1. **Data Fake en Series**: usa SAMPLE_SERIES en lugar de getSeriesService
-2. **Estructura de datos inconsistente**: movies del backend vs fake data
-3. **Campos incompatibles**: backend usa diferentes nombres de campos
-4. **Búsquedas no implementadas**: no usa searchMoviesService/searchSeriesService  
-5. **Categorías hardcodeadas**: no usa getCategoriesService
-6. **Manejo de errores básico**: fallback a datos fake
-7. **Estados de loading separados**: no unificados
-
-PROBLEMAS DE MAPEO:
-- Backend puede devolver: id, title, categoryId, releaseYear, description, cover_image
-- Componente espera: id, title, category (string), year, cover, type, rating, duration
-*/
-
-// ===== MAINPAGE REFACTORIZADO COMPLETO =====
+// ===== MAIN PAGE - CAMBIO BOTÓN ADMIN =====
 // src/Pages/MainPage/MainPage.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -29,29 +11,18 @@ import { ContentSection } from '../../components/molecules/ContentSection/Conten
 import { ContentCard } from '../../components/molecules/ContentCard/ContentCard';
 import { EmptyState } from '../../components/molecules/EmptyState/EmptyState';
 
-// ===== IMPORTAR TODOS LOS SERVICIOS REALES =====
+// Servicios
 import { getMoviesService } from '../../services/Movies/getMoviesService';
 import { searchMoviesService } from '../../services/Movies/searchMoviesService';
 import { getSeriesService } from '../../services/Series/getSeriesService';
 import { searchSeriesService } from '../../services/Series/searchSeriesService';
 import { getCategoriesService } from '../../services/Categories/getCategoriesService';
+//import { logoutService } from '../../services/Auth/logoutService';
 
-/**
- * MainPage - Página principal con servicios reales
- * 
- * CAMBIOS REALIZADOS:
- * - ✅ Eliminados datos fake (SAMPLE_SERIES)
- * - ✅ Implementados todos los servicios reales
- * - ✅ Agregada funcionalidad de búsqueda
- * - ✅ Categorías dinámicas desde backend
- * - ✅ Mapeo correcto de campos backend → componente
- * - ✅ Estados de loading unificados
- * - ✅ Manejo de errores robusto
- */
 function MainPage() {
     const navigate = useNavigate();
     
-    // ===== ESTADOS UNIFICADOS =====
+    // Estados
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [user, setUser] = useState(null);
@@ -61,7 +32,7 @@ function MainPage() {
     const [series, setSeries] = useState([]);
     const [categories, setCategories] = useState([]);
     
-    // Estados de loading (separados para UX granular)
+    // Estados de carga
     const [loadingMovies, setLoadingMovies] = useState(true);
     const [loadingSeries, setLoadingSeries] = useState(true);
     const [loadingCategories, setLoadingCategories] = useState(true);
@@ -72,78 +43,6 @@ function MainPage() {
     const [seriesError, setSeriesError] = useState(null);
     const [categoriesError, setCategoriesError] = useState(null);
 
-    // ===== FUNCIONES DE MAPEO DE DATOS =====
-    
-    /**
-     * Mapea datos del backend al formato esperado por los componentes
-     */
-    const mapMovieData = (movie) => ({
-        id: movie.id,
-        title: movie.title,
-        category: movie.categoryName || movie.category || 'Sin categoría', // String para mostrar
-        categoryId: movie.categoryId, // ID para filtros
-        year: movie.releaseYear,
-        type: "movie",
-        cover: movie.cover_image || movie.coverImage || movie.cover || 
-               "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop",
-        rating: movie.rating || 8.0,
-        duration: movie.duration || "120 min",
-        description: movie.description || "Sin descripción disponible"
-    });
-
-    const mapSeriesData = (serie) => ({
-        id: serie.id,
-        title: serie.title,
-        category: serie.categoryName || serie.category || 'Sin categoría',
-        categoryId: serie.categoryId,
-        year: serie.releaseYear,
-        type: "series",
-        cover: serie.cover_image || serie.coverImage || serie.cover || 
-               "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=300&h=450&fit=crop",
-        rating: serie.rating || 8.5,
-        seasons: serie.seasons || 1,
-        episodes: serie.episodes || 10,
-        description: serie.description || "Sin descripción disponible"
-    });
-
-    /**
-     * Mapea categorías del backend al formato para FilterBar
-     */
-    const mapCategoriesData = (categoriesData) => {
-        const baseCategories = [{ value: 'all', label: 'Todo', icon: '🎬' }];
-        
-        if (!Array.isArray(categoriesData)) return baseCategories;
-        
-        const mappedCategories = categoriesData.map(category => ({
-            value: category.id.toString(), // FilterBar espera string
-            label: category.name,
-            icon: getCategoryIcon(category.name),
-            id: category.id // Mantener ID para filtros
-        }));
-        
-        return [...baseCategories, ...mappedCategories];
-    };
-
-    /**
-     * Obtiene icono según nombre de categoría
-     */
-    const getCategoryIcon = (categoryName) => {
-        const icons = {
-            'Acción': '💥',
-            'Drama': '🎭', 
-            'Comedia': '😂',
-            'Terror': '👻',
-            'Fantasía': '🧙‍♂️',
-            'Ciencia Ficción': '🚀',
-            'Romance': '💕',
-            'Animación': '🎨',
-            'Documental': '📋',
-            'Thriller': '🔪',
-            'Aventura': '🗺️'
-        };
-        return icons[categoryName] || '🎞️';
-    };
-
     // ===== VERIFICAR AUTENTICACIÓN =====
     useEffect(() => {
         const sessionUser = sessionStorage.getItem('sessionUser');
@@ -151,244 +50,267 @@ function MainPage() {
             navigate('/login');
             return;
         }
-
+        
         try {
             const userData = JSON.parse(sessionUser);
             setUser(userData);
-        } catch (error) {
-            console.error('Error parsing user data:', error);
+        } catch (err) {
+            console.error('Error parsing user data:', err);
             navigate('/login');
         }
     }, [navigate]);
 
-    // ===== CARGAR DATOS INICIALES =====
-    useEffect(() => {
-        if (!user) return;
-
-        // Cargar categorías
-        const loadCategories = async () => {
-            try {
-                setLoadingCategories(true);
-                setCategoriesError(null);
-                const categoriesData = await getCategoriesService();
-                
-                if (categoriesData?.message === 'session expired') {
-                    navigate('/login');
-                    return;
-                }
-                
-                setCategories(mapCategoriesData(categoriesData));
-            } catch (error) {
-                console.error('Error loading categories:', error);
-                setCategoriesError('Error al cargar categorías');
-                // Fallback a categorías básicas
-                setCategories([
-                    { value: 'all', label: 'Todo', icon: '🎬' },
-                    { value: '1', label: 'Acción', icon: '💥' },
-                    { value: '2', label: 'Drama', icon: '🎭' },
-                ]);
-            } finally {
-                setLoadingCategories(false);
-            }
-        };
-
-        // Cargar películas
-        const loadMovies = async () => {
-            try {
-                setLoadingMovies(true);
-                setMoviesError(null);
-                const moviesData = await getMoviesService();
-                
-                if (moviesData?.message === 'session expired') {
-                    navigate('/login');
-                    return;
-                }
-                
-                // Manejar diferentes formatos de respuesta
-                let moviesArray = [];
-                if (Array.isArray(moviesData)) {
-                    moviesArray = moviesData;
-                } else if (moviesData?.data && Array.isArray(moviesData.data)) {
-                    moviesArray = moviesData.data;
-                } else if (moviesData?.movies && Array.isArray(moviesData.movies)) {
-                    moviesArray = moviesData.movies;
-                }
-                
-                setMovies(moviesArray.map(mapMovieData));
-            } catch (error) {
-                console.error('Error loading movies:', error);
-                setMoviesError('Error al cargar películas');
-                setMovies([]); // Array vacío en lugar de datos fake
-            } finally {
-                setLoadingMovies(false);
-            }
-        };
-
-        // Cargar series
-        const loadSeries = async () => {
-            try {
-                setLoadingSeries(true);
-                setSeriesError(null);
-                const seriesData = await getSeriesService();
-                
-                if (seriesData?.message === 'session expired') {
-                    navigate('/login');
-                    return;
-                }
-                
-                // Manejar diferentes formatos de respuesta
-                let seriesArray = [];
-                if (Array.isArray(seriesData)) {
-                    seriesArray = seriesData;
-                } else if (seriesData?.data && Array.isArray(seriesData.data)) {
-                    seriesArray = seriesData.data;
-                } else if (seriesData?.series && Array.isArray(seriesData.series)) {
-                    seriesArray = seriesData.series;
-                }
-                
-                setSeries(seriesArray.map(mapSeriesData));
-            } catch (error) {
-                console.error('Error loading series:', error);
-                setSeriesError('Error al cargar series');
-                setSeries([]); // Array vacío en lugar de datos fake
-            } finally {
-                setLoadingSeries(false);
-            }
-        };
-
-        // Ejecutar cargas en paralelo para mejor rendimiento
-        Promise.all([
-            loadCategories(),
-            loadMovies(),
-            loadSeries()
-        ]);
-
-    }, [user, navigate]);
-
-    // ===== FUNCIONES DE BÚSQUEDA REAL =====
-    useEffect(() => {
-        const performSearch = async () => {
-            if (!searchTerm.trim()) return;
-            
-            try {
-                setSearching(true);
-                
-                // Búsquedas en paralelo
-                const [moviesResults, seriesResults] = await Promise.all([
-                    searchMoviesService(searchTerm).catch(err => {
-                        console.error('Error searching movies:', err);
-                        return [];
-                    }),
-                    searchSeriesService(searchTerm).catch(err => {
-                        console.error('Error searching series:', err);
-                        return [];
-                    })
-                ]);
-                
-                // Mapear resultados
-                const mappedMovies = Array.isArray(moviesResults) ? 
-                    moviesResults.map(mapMovieData) : [];
-                const mappedSeries = Array.isArray(seriesResults) ? 
-                    seriesResults.map(mapSeriesData) : [];
-                
-                setMovies(mappedMovies);
-                setSeries(mappedSeries);
-                
-            } catch (error) {
-                console.error('Error during search:', error);
-            } finally {
-                setSearching(false);
-            }
-        };
-
-        // Debounce search - buscar después de 500ms de inactividad
-        const timeoutId = setTimeout(performSearch, 500);
-        return () => clearTimeout(timeoutId);
+    /**
+     * ✅ AÑADIDO: Función para iconos de categorías
+     */
+    const getCategoryIcon = (categoryName) => {
+        if (!categoryName) return '🎞️';
         
-    }, [searchTerm]);
-
-    // ===== FUNCIONES DE FILTRADO =====
-    const getFilteredContent = (contentArray) => {
-        if (!Array.isArray(contentArray)) return [];
+        const icons = {
+            'Acción': '💥',
+            'Drama': '🎭', 
+            'Comedia': '😂',
+            'Terror': '👻',
+            'Horror': '👻',
+            'Fantasía': '🧙‍♂️',
+            'Ciencia Ficción': '🚀',
+            'Sci-Fi': '🚀',
+            'Romance': '💕',
+            'Animación': '🎨',
+            'Documental': '📋',
+            'Thriller': '🔪',
+            'Aventura': '🗺️',
+            'Misterio': '🕵️',
+            'Crimen': '🚔',
+            'Familia': '👨‍👩‍👧‍👦'
+        };
         
-        return contentArray.filter(item => {
-            // Filtro por categoría
-            if (selectedCategory !== 'all') {
-                // Comparar por ID de categoría
-                if (item.categoryId?.toString() !== selectedCategory) {
-                    return false;
-                }
+        // Buscar coincidencia exacta o parcial
+        const exactMatch = icons[categoryName];
+        if (exactMatch) return exactMatch;
+        
+        // Buscar coincidencia parcial (case insensitive)
+        const lowerName = categoryName.toLowerCase();
+        for (const [key, icon] of Object.entries(icons)) {
+            if (key.toLowerCase().includes(lowerName) || lowerName.includes(key.toLowerCase())) {
+                return icon;
             }
-            
-            // Filtro por término de búsqueda (opcional, ya se hace en server)
-            if (searchTerm && !searchTerm.trim()) {
-                return true; // Si no hay término, mostrar todos
-            }
-            
-            return true;
-        });
+        }
+        
+        return '🎞️'; // Icono por defecto
     };
-
-    const filteredMovies = getFilteredContent(movies);
-    const filteredSeries = getFilteredContent(series);
-
-    // ===== HANDLERS =====
-    const handleLogout = () => {
-        sessionStorage.removeItem('sessionUser');
-        navigate('/login');
-    };
-
-    const handleSearchChange = (e) => {
-        setSearchTerm(e.target.value);
-        // El efecto useEffect manejará la búsqueda con debounce
-    };
-
-    const handleCategoryChange = (categoryValue) => {
-        setSelectedCategory(categoryValue);
-    };
-
-    const handlePlayContent = (content) => {
-        if (content.type === 'movie') {
-            navigate(`/video-player/${content.id}`);
+    // ===== FUNCIONES DE MANEJO =====
+    
+    /**
+     * ✅ CORREGIDO: Función para ir al Admin Panel
+     */
+    const handleGoToAdmin = () => {
+        // Verificar si el usuario es administrador
+        const isAdmin = user?.roleId === 1 || user?.role === 'admin';
+        
+        if (isAdmin) {
+            navigate('/admin');
         } else {
-            // Para series, podrías navegar a una página de episodios
-            navigate(`/series/${content.id}/episodes`);
+            alert('⚠️ No tienes permisos de administrador para acceder al panel admin.');
         }
     };
 
-    const handleAddContent = () => {
-        // Navegar a página de subida de contenido
-        navigate('/upload');
+    /**
+     * Manejar logout
+     */
+    //const handleLogout = async () => {
+    //    await logoutService();
+        // logoutService ya maneja la redirección
+    //};
+
+    /**
+     * Manejar búsqueda
+     */
+    const handleSearchChange = (e) => {
+        setSearchTerm(e.target.value);
     };
 
+    /**
+     * Manejar cambio de categoría
+     */
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category);
+    };
+
+    /**
+     * Manejar reproducción de contenido
+     */
+    const handlePlayContent = (content) => {
+        navigate(`/player/${content.type}/${content.id}`);
+    };
+
+    /**
+     * Reintentar carga de películas
+     */
     const handleRetryMovies = () => {
-        // Recargar películas
-        setMovies([]);
         setMoviesError(null);
-        // El useEffect se ejecutará de nuevo
+        loadMovies();
     };
 
+    /**
+     * Reintentar carga de series
+     */
     const handleRetrySeries = () => {
-        // Recargar series
-        setSeries([]);
         setSeriesError(null);
-        // El useEffect se ejecutará de nuevo
+        loadSeries();
     };
 
-    // ===== RENDER =====
+    // ===== FUNCIONES DE DATOS =====
+    
+    const loadMovies = async () => {
+        try {
+            setLoadingMovies(true);
+            setMoviesError(null);
+            const response = await getMoviesService();
+            
+            console.log('🎬 Respuesta movies:', response); // Debug
+            
+            const movieData = Array.isArray(response) ? response : response?.data || [];
+            const mappedMovies = movieData.map(movie => ({
+                id: movie.id,
+                title: movie.title,
+                category: movie.category || 'Sin categoría', // Para mostrar
+                categoryId: movie.categoryId, // Para filtrar
+                year: movie.releaseYear || movie.year || new Date().getFullYear(),
+                cover: movie.cover_image || movie.cover || '/placeholder-movie.jpg',
+                type: 'movie',
+                rating: movie.rating || 0,
+                duration: movie.duration || 0
+            }));
+            
+            console.log('🎬 Movies mapeadas:', mappedMovies); // Debug
+            setMovies(mappedMovies);
+        } catch (error) {
+            console.error('Error loading movies:', error);
+            setMoviesError('Error al cargar películas');
+        } finally {
+            setLoadingMovies(false);
+        }
+    };
+
+    const loadSeries = async () => {
+        try {
+            setLoadingSeries(true);
+            setSeriesError(null);
+            const response = await getSeriesService();
+            
+            console.log('📺 Respuesta series:', response); // Debug
+            
+            const seriesData = Array.isArray(response) ? response : response?.data || [];
+            const mappedSeries = seriesData.map(serie => ({
+                id: serie.id,
+                title: serie.title,
+                category: serie.category || 'Sin categoría', // Para mostrar
+                categoryId: serie.categoryId, // Para filtrar
+                year: serie.releaseYear || serie.year || new Date().getFullYear(),
+                cover: serie.cover_image || serie.cover || '/placeholder-series.jpg',
+                type: 'series',
+                rating: serie.rating || 0,
+                seasons: serie.seasons || 1
+            }));
+            
+            console.log('📺 Series mapeadas:', mappedSeries); // Debug
+            setSeries(mappedSeries);
+        } catch (error) {
+            console.error('Error loading series:', error);
+            setSeriesError('Error al cargar series');
+        } finally {
+            setLoadingSeries(false);
+        }
+    };
+
+    const loadCategories = async () => {
+        try {
+            setLoadingCategories(true);
+            setCategoriesError(null);
+            const response = await getCategoriesService();
+            
+            console.log('📋 Respuesta categorías:', response); // Debug
+            
+            const categoryData = Array.isArray(response) ? response : response?.data || [];
+            
+            // ✅ CORREGIDO: Mapear al formato que espera FilterBar
+            const mappedCategories = [
+                { value: 'all', label: 'Todas', icon: '🎬' }, // Categoría por defecto
+                ...categoryData.map(cat => ({
+                    value: cat.id ? cat.id.toString() : 'unknown', // FilterBar espera string
+                    label: cat.name || 'Sin nombre',
+                    icon: getCategoryIcon(cat.name),
+                    id: cat.id // Mantener ID original para filtros
+                }))
+            ];
+            
+            console.log('📋 Categorías mapeadas:', mappedCategories); // Debug
+            setCategories(mappedCategories);
+            
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            setCategoriesError('Error al cargar categorías');
+            
+            // ✅ FALLBACK: Categorías por defecto si falla
+            setCategories([
+                { value: 'all', label: 'Todas', icon: '🎬' },
+                { value: '1', label: 'Acción', icon: '💥' },
+                { value: '2', label: 'Drama', icon: '🎭' },
+                { value: '3', label: 'Comedia', icon: '😂' }
+            ]);
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
+
+    // ===== EFECTOS =====
+    useEffect(() => {
+        if (user) {
+            loadMovies();
+            loadSeries();
+            loadCategories();
+        }
+    }, [user]);
+
+    // ===== FILTRADO CORREGIDO =====
+    const filteredMovies = movies.filter(movie => {
+        const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        // ✅ CORREGIDO: Comparar con categoryId del contenido
+        const matchesCategory = selectedCategory === 'all' || 
+                               movie.categoryId?.toString() === selectedCategory;
+        
+        return matchesSearch && matchesCategory;
+    });
+
+    const filteredSeries = series.filter(serie => {
+        const matchesSearch = serie.title.toLowerCase().includes(searchTerm.toLowerCase());
+        
+        // ✅ CORREGIDO: Comparar con categoryId del contenido  
+        const matchesCategory = selectedCategory === 'all' || 
+                               serie.categoryId?.toString() === selectedCategory;
+        
+        return matchesSearch && matchesCategory;
+    });
+
+    // ===== LOADING INICIAL =====
     if (!user) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: '100vh',
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
                 fontSize: 'var(--font-size-lg)'
             }}>
                 Cargando...
             </div>
         );
     }
+
+    // ===== VERIFICAR SI ES ADMIN =====
+    const isAdmin = user?.roleId === 1 || user?.role === 'admin';
 
     return (
         <PageLayout
@@ -399,7 +321,7 @@ function MainPage() {
                     searchValue={searchTerm}
                     onSearchChange={handleSearchChange}
                     searchPlaceholder="Buscar películas y series..."
-                    onLogout={handleLogout}
+                    //onLogout={handleLogout}
                     variant="default"
                     size="lg"
                 />
@@ -411,13 +333,26 @@ function MainPage() {
                     onCategoryChange={handleCategoryChange}
                     loading={loadingCategories}
                     actions={
-                        <Button
-                            variant="primary"
-                            size="md"
-                            onClick={handleAddContent}
-                        >
-                            Subir Contenido
-                        </Button>
+                        // ✅ CAMBIO: Botón condicional según permisos
+                        isAdmin ? (
+                            <Button
+                                variant="primary"
+                                size="md"
+                                leftIcon="⚙️"
+                                onClick={handleGoToAdmin}
+                            >
+                                Admin Panel
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="outline"
+                                size="md"
+                                leftIcon="📤"
+                                onClick={() => alert('🔒 Solo los administradores pueden subir contenido')}
+                            >
+                                Solicitar Acceso
+                            </Button>
+                        )
                     }
                 />
             }
@@ -451,14 +386,18 @@ function MainPage() {
                         <Button variant="outline" onClick={() => setSearchTerm('')}>
                             Limpiar búsqueda
                         </Button>
+                    ) : isAdmin ? (
+                        <Button variant="primary" onClick={handleGoToAdmin}>
+                            Ir al Admin Panel
+                        </Button>
                     ) : (
-                        <Button variant="primary" onClick={handleAddContent}>
-                            Subir primera película
+                        <Button variant="outline" onClick={() => alert('Contacta al administrador')}>
+                            Solicitar contenido
                         </Button>
                     )
                 }
-                variant="featured"
-                size="lg"
+                variant="default"
+                size="md"
                 gridColumns="repeat(auto-fit, minmax(200px, 1fr))"
                 gridGap="var(--space-md)"
             >
@@ -477,7 +416,7 @@ function MainPage() {
 
             {/* ===== SECCIÓN DE SERIES ===== */}
             <ContentSection
-                title={`📺 Series ${searchTerm ? `- "${searchTerm}"` : selectedCategory !== 'all' ? '- Filtradas' : 'en Tendencia'}`}
+                title={`📺 Series ${searchTerm ? `- "${searchTerm}"` : selectedCategory !== 'all' ? '- Filtradas' : 'Populares'}`}
                 icon="📺"
                 loading={loadingSeries || searching}
                 error={seriesError}
@@ -503,9 +442,13 @@ function MainPage() {
                         <Button variant="outline" onClick={() => setSearchTerm('')}>
                             Limpiar búsqueda
                         </Button>
+                    ) : isAdmin ? (
+                        <Button variant="primary" onClick={handleGoToAdmin}>
+                            Ir al Admin Panel
+                        </Button>
                     ) : (
-                        <Button variant="primary" onClick={handleAddContent}>
-                            Subir primera serie
+                        <Button variant="outline" onClick={() => alert('Contacta al administrador')}>
+                            Solicitar serie
                         </Button>
                     )
                 }
@@ -536,15 +479,17 @@ function MainPage() {
                 <EmptyState
                     icon="🚀"
                     title="¡Bienvenido a StreamApp!"
-                    description="Tu plataforma de streaming está lista. Comienza subiendo tu primer video o explora el contenido disponible."
+                    description="Tu plataforma de streaming está lista. El contenido se está cargando o será agregado pronto."
                     action={
                         <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
                             <Button variant="outline" size="md" onClick={() => window.location.reload()}>
                                 Recargar contenido
                             </Button>
-                            <Button variant="primary" size="md" onClick={handleAddContent}>
-                                Subir primer video
-                            </Button>
+                            {isAdmin && (
+                                <Button variant="primary" size="md" onClick={handleGoToAdmin}>
+                                    Ir al Admin Panel
+                                </Button>
+                            )}
                         </div>
                     }
                     variant="info"

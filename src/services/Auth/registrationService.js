@@ -1,16 +1,8 @@
-// ===== 2. REGISTRATION SERVICE CORREGIDO =====
-// src/services/Auth/registrationService.js (REEMPLAZAR EL EXISTENTE)
+// 1. MEJORAR registrationService.js
+// src/services/Auth/registrationService.js - VERSIÓN MEJORADA
 
 import { environmentService } from "../environmentService";
 
-/**
- * Servicio para registro de nuevos usuarios - HOMOLOGADO
- * ✅ CORREGIDO: Usar userName en lugar de email según schema del backend
- * @param {Object} userData - Datos del usuario
- * @param {string} userData.username - Username (será mapeado a userName)
- * @param {string} userData.password - Contraseña del usuario
- * @returns {Promise<Object>} Respuesta estructurada del servidor
- */
 const registrationService = async (userData) => {
     const { urlBackend, apiKey } = environmentService();
     
@@ -18,10 +10,8 @@ const registrationService = async (userData) => {
     myHeaders.append("api", apiKey);
     myHeaders.append("Content-Type", "application/json");
 
-    // ✅ CORREGIDO: Según registrationSchema del backend
-    // Solo userName y password, NO email
     const raw = JSON.stringify({
-        userName: userData.username, // Frontend 'username' → Backend 'userName'
+        userName: userData.username,
         password: userData.password
     });
 
@@ -38,26 +28,41 @@ const registrationService = async (userData) => {
         
         console.log('Respuesta del backend registration:', data);
         
-        // ✅ MEJORADO: Respuesta estructurada
+        // ✅ MEJORADO: Manejo más específico de respuestas
         if (response.ok) {
             return {
                 success: true,
-                data: data,
+                user: data,
                 message: 'Usuario registrado exitosamente'
             };
         } else {
-            return {
-                success: false,
-                error: data.message || 'Error al registrar usuario',
-                details: data
-            };
+            // Manejo específico de errores del backend
+            if (response.status === 409) {
+                return {
+                    success: false,
+                    error: 'Usuario ya existe',
+                    message: 'El nombre de usuario ya está registrado'
+                };
+            } else if (response.status === 400) {
+                return {
+                    success: false,
+                    error: 'Datos inválidos',
+                    message: data.message || 'Verifica los datos ingresados'
+                };
+            } else {
+                return {
+                    success: false,
+                    error: 'Error del servidor',
+                    message: 'Error interno del servidor'
+                };
+            }
         }
     } catch (error) {
         console.error('Error en registrationService:', error);
         return {
             success: false,
             error: 'Error de conexión',
-            message: error.message || 'Error al conectar con el servidor'
+            message: 'No se pudo conectar con el servidor'
         };
     }
 }

@@ -1,7 +1,7 @@
-// LoginRegister.jsx - REFACTORIZADO PARA USAR LOGINCARD
+// ===== LOGIN PAGE CORREGIDO =====
+// src/Pages/Login/Login.jsx
 
-import React from "react";
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 // Servicios de autenticación
@@ -14,42 +14,46 @@ import './Login.css';
 
 function Login() {
   // Estados de la UI
-  const [error, setError] = useState(null); // Mensajes de error
-  const [isLoading, setIsLoading] = useState(false); // Estado de carga unificado
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   
-  const navigate = useNavigate(); // Para navegación programática
+  const navigate = useNavigate();
 
   /**
-   * Maneja el envío del formulario de login
-   * @param {Object} formData - Datos del formulario { username, password }
+   * ✅ CORREGIDO: Manejo de respuesta del loginService
    */
   const handleLoginSubmit = async (formData) => {
     setIsLoading(true);
     setError(null);
     
     try {
-      const data = await loginService(formData.username, formData.password);
+      const response = await loginService(formData.username, formData.password);
       
-      if (data?.sub) {
-        // Login exitoso
-        sessionStorage.setItem('sessionUser', JSON.stringify(data));
+      if (response.success && response.user?.sub) {
+        // Guardar datos del usuario en sessionStorage
+        sessionStorage.setItem('sessionUser', JSON.stringify(response.user));
+        
+        // Navegar a la página principal
         navigate('/main-page');
+        
       } else {
-        // Credenciales incorrectas
-        setError('Credenciales incorrectas. Verifica tu usuario y contraseña.');
+        const errorMessage = response.message || response.error || 'Credenciales incorrectas';
+        setError(errorMessage);
       }
+      
     } catch (err) {
-      // Error de conexión o servidor
-      setError('Error de conexión. Inténtalo de nuevo.');
-      console.error('Login error:', err);
+      console.error('Error en login:', err); // Solo este log es útil para debugging
+      
+      const errorMessage = err.message || 'Error de conexión. Inténtalo de nuevo.';
+      setError(errorMessage);
+      
     } finally {
       setIsLoading(false);
     }
   };
 
   /**
-   * Maneja la recuperación de contraseña
-   * @param {string} username - Usuario para recuperación
+   * ✅ MEJORADO: Recovery con mejor manejo de errores
    */
   const handleForgotPassword = async (username) => {
     if (!username || username.trim() === '') {
@@ -69,21 +73,38 @@ function Login() {
 
     try {
       await recoveryService(username);
-      setError('Email de recuperación enviado. Revisa tu bandeja de entrada.');
-      // En este caso "error" se usa para mostrar un mensaje informativo
-      // Podrías crear un estado separado para mensajes de éxito si prefieres
+      setError('✅ Email de recuperación enviado. Revisa tu bandeja de entrada.');
+      
     } catch (err) {
-      setError('Error al enviar email de recuperación.');
-      console.error('Recovery error:', err);
+      console.error('Error en recovery:', err);
+      setError('❌ Error al enviar email de recuperación.');
+      
     } finally {
       setIsLoading(false);
     }
   };
 
+  /**
+   * ✅ NUEVO: Verificar si el usuario ya está logueado
+   */
+  useEffect(() => {
+    const sessionUser = sessionStorage.getItem('sessionUser');
+    if (sessionUser) {
+      try {
+        const user = JSON.parse(sessionUser);
+        if (user?.sub) {
+          navigate('/main-page');
+        }
+      } catch (err) {
+        sessionStorage.removeItem('sessionUser');
+      }
+    }
+  }, [navigate]);
+
   return (
     <div className="login-register-container">
       <div className="login-register-content">
-        {/* Header opcional con título de la app */}
+        {/* Header con título de la app */}
         <div className="login-register-header">
           <h1 className="app-title">StreamingApp</h1>
           <p className="app-subtitle">Inicia sesión para continuar</p>
