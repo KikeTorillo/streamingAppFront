@@ -11,6 +11,7 @@ import { MainPage } from "../Pages/MainPage/MainPage";
 import { AdminDashboard } from "../Pages/AdminDashboard/AdminDashboard";
 import { UsersListPage } from "../Pages/Admin/Users/UsersListPage/UsersListPage";
 import { UserCreatePage } from "../Pages/Admin/Users/UserCreatePage/UserCreatePage";
+import { UserEditPage } from "../Pages/Admin/Users/UserEditPage/UserEditPage"; // Aún no implementada
 
 import "./App.css";
 
@@ -20,7 +21,7 @@ import "./App.css";
 function AdminRoute({ children }) {
   const user = JSON.parse(sessionStorage.getItem('sessionUser') || '{}');
   const isAdmin = user?.roleId === 1 || user?.role === 'admin';
-  
+
   if (!isAdmin) {
     return (
       <div style={{
@@ -67,7 +68,7 @@ function AdminRoute({ children }) {
       </div>
     );
   }
-  
+
   return children;
 }
 
@@ -79,7 +80,7 @@ function AppRoutes() {
     { path: "/login", element: <Login /> },
     { path: "/main-page", element: <MainPage /> },
     { path: "/video-player/:id", element: <VideoPlayer /> },
-    
+
     // ===== RUTAS DEL ADMIN PANEL =====
     {
       path: "/admin",
@@ -89,7 +90,7 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    
+
     // ===== GESTIÓN DE USUARIOS =====
     {
       path: "/admin/users",
@@ -108,49 +109,26 @@ function AppRoutes() {
       )
     },
     {
-      path: "/admin/users/:id/edit",
+      path: '/admin/users/:id/edit',
       element: (
-        <AdminRoute>
-          {/* TODO: Crear UserEditPage */}
-          <div style={{ 
-            padding: '2rem', 
-            textAlign: 'center',
-            fontFamily: 'var(--font-family-base)'
-          }}>
-            <h2>UserEditPage</h2>
-            <p>Página en desarrollo...</p>
-            <button 
-              onClick={() => window.history.back()}
-              style={{
-                padding: '1rem 2rem',
-                backgroundColor: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer'
-              }}
-            >
-              Volver
-            </button>
-          </div>
-        </AdminRoute>
+        <AdminRoute><UserEditPage /></AdminRoute>
       )
     },
-    
+
     // ===== GESTIÓN DE PELÍCULAS (FUTURAS) =====
     {
       path: "/admin/movies",
       element: (
         <AdminRoute>
           {/* TODO: Crear MoviesListPage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Gestión de Películas</h2>
             <p>Esta funcionalidad estará disponible pronto...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin'}
               style={{
                 padding: '1rem 2rem',
@@ -172,14 +150,14 @@ function AppRoutes() {
       element: (
         <AdminRoute>
           {/* TODO: Crear MovieCreatePage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Crear Película</h2>
             <p>Funcionalidad en desarrollo...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin/movies'}
               style={{
                 padding: '1rem 2rem',
@@ -196,21 +174,21 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    
+
     // ===== GESTIÓN DE SERIES (FUTURAS) =====
     {
       path: "/admin/series",
       element: (
         <AdminRoute>
           {/* TODO: Crear SeriesListPage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Gestión de Series</h2>
             <p>Esta funcionalidad estará disponible pronto...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin'}
               style={{
                 padding: '1rem 2rem',
@@ -232,14 +210,14 @@ function AppRoutes() {
       element: (
         <AdminRoute>
           {/* TODO: Crear SeriesCreatePage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Crear Serie</h2>
             <p>Funcionalidad en desarrollo...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin/series'}
               style={{
                 padding: '1rem 2rem',
@@ -256,21 +234,21 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    
+
     // ===== GESTIÓN DE CATEGORÍAS (FUTURAS) =====
     {
       path: "/admin/categories",
       element: (
         <AdminRoute>
           {/* TODO: Crear CategoriesListPage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Gestión de Categorías</h2>
             <p>Esta funcionalidad estará disponible pronto...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin'}
               style={{
                 padding: '1rem 2rem',
@@ -292,14 +270,14 @@ function AppRoutes() {
       element: (
         <AdminRoute>
           {/* TODO: Crear CategoryCreatePage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Crear Categoría</h2>
             <p>Funcionalidad en desarrollo...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin/categories'}
               style={{
                 padding: '1rem 2rem',
@@ -316,21 +294,21 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    
+
     // ===== GESTIÓN DE EPISODIOS (FUTURAS) =====
     {
       path: "/admin/episodes",
       element: (
         <AdminRoute>
           {/* TODO: Crear EpisodesListPage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Gestión de Episodios</h2>
             <p>Esta funcionalidad estará disponible pronto...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin'}
               style={{
                 padding: '1rem 2rem',
@@ -352,14 +330,14 @@ function AppRoutes() {
       element: (
         <AdminRoute>
           {/* TODO: Crear EpisodeCreatePage */}
-          <div style={{ 
-            padding: '2rem', 
+          <div style={{
+            padding: '2rem',
             textAlign: 'center',
             fontFamily: 'var(--font-family-base)'
           }}>
             <h2>Crear Episodio</h2>
             <p>Funcionalidad en desarrollo...</p>
-            <button 
+            <button
               onClick={() => window.location.href = '/admin/episodes'}
               style={{
                 padding: '1rem 2rem',
@@ -376,10 +354,10 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    
+
     // ===== RUTA 404 =====
-    { 
-      path: "/*", 
+    {
+      path: "/*",
       element: (
         <div style={{
           display: 'flex',
@@ -392,14 +370,14 @@ function AppRoutes() {
           fontFamily: 'var(--font-family-base)'
         }}>
           <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🔍</div>
-          <h1 style={{ 
-            fontSize: '2rem', 
+          <h1 style={{
+            fontSize: '2rem',
             marginBottom: '1rem',
             color: 'var(--text-primary)'
           }}>
             404 - Página no encontrada
           </h1>
-          <p style={{ 
+          <p style={{
             color: 'var(--text-secondary)',
             marginBottom: '2rem'
           }}>

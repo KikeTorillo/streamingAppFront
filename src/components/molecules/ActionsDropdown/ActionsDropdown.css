@@ -1,4 +1,4 @@
-/* ===== ACTIONS DROPDOWN COMPONENT - SISTEMA DE DISEÑO ===== */
+/* ===== ACTIONS DROPDOWN COMPONENT - VERSIÓN CORREGIDA ===== */
 /* src/components/molecules/ActionsDropdown/ActionsDropdown.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
@@ -7,7 +7,12 @@
   position: relative;
   display: inline-block;
   
-  /* Z-index para menús */
+  /* Z-index del sistema de diseño - bajo por defecto */
+  z-index: 1;
+}
+
+/* IMPORTANTE: Cuando el dropdown está abierto, elevar todo el contenedor */
+.actions-dropdown--open {
   z-index: var(--z-dropdown);
 }
 
@@ -19,6 +24,15 @@
   
   /* Estados específicos del trigger */
   transition: all var(--transition-fast);
+  
+  /* Z-index bajo por defecto para no interferir con otros dropdowns */
+  position: relative;
+  z-index: 1;
+}
+
+/* Cuando el dropdown está abierto, el trigger tiene z-index más alto */
+.actions-dropdown--open .actions-dropdown__trigger {
+  z-index: calc(var(--z-dropdown) + 1);
 }
 
 .actions-dropdown__trigger:hover:not(:disabled) {
@@ -42,7 +56,7 @@
   /* Visual */
   background: transparent;
   
-  /* Z-index */
+  /* Z-index del sistema */
   z-index: calc(var(--z-dropdown) - 1);
   
   /* Cursor */
@@ -58,17 +72,17 @@
   min-width: 16rem;
   max-width: 24rem;
   
-  /* Visual */
+  /* Visual usando variables del sistema */
   background: var(--bg-primary);
   border: 0.1rem solid var(--border-default);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   
-  /* Espaciado */
+  /* Espaciado del sistema */
   padding: var(--space-xs);
   
-  /* Z-index */
-  z-index: var(--z-dropdown);
+  /* Z-index MÁS ALTO para estar por encima de TODO */
+  z-index: calc(var(--z-dropdown) + 2);
   
   /* Animación */
   animation: actions-dropdown-appear var(--transition-fast) ease-out;
@@ -89,6 +103,10 @@
   top: calc(100% + var(--space-xs));
   right: 0;
   transform-origin: top right;
+  
+  /* CORRECCIÓN: Asegurar que no se corte */
+  max-height: calc(100vh - 100% - var(--space-lg));
+  overflow-y: auto;
 }
 
 /* Bottom Left */
@@ -96,6 +114,10 @@
   top: calc(100% + var(--space-xs));
   left: 0;
   transform-origin: top left;
+  
+  /* CORRECCIÓN: Asegurar que no se corte */
+  max-height: calc(100vh - 100% - var(--space-lg));
+  overflow-y: auto;
 }
 
 /* Top Right */
@@ -103,6 +125,10 @@
   bottom: calc(100% + var(--space-xs));
   right: 0;
   transform-origin: bottom right;
+  
+  /* CORRECCIÓN: Asegurar que no se corte hacia arriba */
+  max-height: calc(100vh - 100% - var(--space-lg));
+  overflow-y: auto;
 }
 
 /* Top Left */
@@ -110,6 +136,10 @@
   bottom: calc(100% + var(--space-xs));
   left: 0;
   transform-origin: bottom left;
+  
+  /* CORRECCIÓN: Asegurar que no se corte hacia arriba */
+  max-height: calc(100vh - 100% - var(--space-lg));
+  overflow-y: auto;
 }
 
 /* ===== ITEMS DEL MENU ===== */
@@ -126,7 +156,7 @@
   border: none;
   border-radius: var(--radius-md);
   
-  /* Tipografía */
+  /* Tipografía del sistema */
   font-family: var(--font-family-base);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -138,7 +168,7 @@
   cursor: pointer;
   user-select: none;
   
-  /* Transiciones */
+  /* Transiciones del sistema */
   transition: all var(--transition-fast);
   
   /* Estados de focus/hover */
@@ -246,6 +276,54 @@
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* ===== CORRECCIÓN PARA CONTEXTOS ESPECÍFICOS ===== */
+
+/* Asegurar que dentro de tablas funcione correctamente */
+.data-table .actions-dropdown__menu,
+table .actions-dropdown__menu,
+.users-list__table .actions-dropdown__menu {
+  /* CORRECCIÓN: Usar position fixed para evitar cortes en contenedores con overflow */
+  position: fixed;
+  z-index: var(--z-popover); /* Z-index más alto para estar por encima de todo */
+}
+
+/* Corrección específica para contenedores con overflow */
+.table-container .actions-dropdown__menu,
+.overflow-hidden .actions-dropdown__menu,
+.overflow-auto .actions-dropdown__menu {
+  position: fixed;
+  z-index: var(--z-popover);
+}
+
+/* IMPORTANTE: Para position fixed necesitamos calcular la posición con JS */
+/* o usar una clase específica para casos problemáticos */
+.actions-dropdown--fixed .actions-dropdown__menu {
+  position: fixed;
+  z-index: var(--z-popover);
+}
+
+/* Asegurar visibilidad completa del menú */
+.actions-dropdown__menu {
+  /* CORRECCIÓN: Asegurar que el menú sea completamente visible */
+  min-height: fit-content;
+  width: max-content;
+  min-width: 16rem;
+  
+  /* Evitar que se corte por los bordes de la pantalla */
+  max-width: calc(100vw - 2rem);
+}
+
+/* Asegurar visibilidad completa del menú */
+.actions-dropdown__menu {
+  /* CORRECCIÓN: Asegurar que el menú sea completamente visible */
+  min-height: fit-content;
+  width: max-content;
+  min-width: 16rem;
+  
+  /* Evitar que se corte por los bordes de la pantalla */
+  max-width: calc(100vw - 2rem);
 }
 
 /* ===== RESPONSIVE DESIGN ===== */

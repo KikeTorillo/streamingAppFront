@@ -376,44 +376,6 @@ function UserCreatePage() {
             className={`user-create__form ${success ? 'user-create__form--success' : ''}`}
           />
         </div>
-
-        {/* ===== INFORMACIÓN SOBRE CAMPOS REALES ===== */}
-        <div className="user-create__info">
-          <div className="user-create__info-section">
-            <h3 className="user-create__info-title">
-              🗄️ Campos de la Base de Datos
-            </h3>
-            <ul className="user-create__info-list">
-              <li><strong>userName:</strong> VARCHAR(255) NOT NULL UNIQUE - Identificador único del usuario</li>
-              <li><strong>email:</strong> VARCHAR(255) NULLABLE - Opcional para notificaciones</li>
-              <li><strong>password:</strong> VARCHAR(255) NOT NULL - Se encripta automáticamente con bcrypt</li>
-              <li><strong>role_id:</strong> INT NOT NULL REFERENCES roles(id) - Determina permisos</li>
-            </ul>
-          </div>
-          
-          <div className="user-create__info-section">
-            <h3 className="user-create__info-title">
-              ⚙️ Validaciones del Backend (Joi)
-            </h3>
-            <ul className="user-create__info-list">
-              <li><strong>userName:</strong> .alphanum().min(3).max(30) - Solo alfanumérico</li>
-              <li><strong>email:</strong> .email().optional() - Formato email válido si se proporciona</li>
-              <li><strong>password:</strong> .alphanum().required() - Solo letras y números</li>
-              <li><strong>roleId:</strong> .number().positive().required() - Debe existir en tabla roles</li>
-            </ul>
-          </div>
-
-          <div className="user-create__info-section">
-            <h3 className="user-create__info-title">
-              👥 Roles Disponibles
-            </h3>
-            <ul className="user-create__info-list">
-              <li><strong>1 - Administrador:</strong> Acceso completo al sistema y gestión de usuarios</li>
-              <li><strong>2 - Editor:</strong> Puede gestionar contenido (películas, series) pero no usuarios</li>
-              <li><strong>3 - Usuario:</strong> Solo puede ver y reproducir contenido</li>
-            </ul>
-          </div>
-        </div>
       </div>
     </AdminLayout>
   );

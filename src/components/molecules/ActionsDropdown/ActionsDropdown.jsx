@@ -1,4 +1,4 @@
-// ===== ACTIONS DROPDOWN COMPONENT =====
+// ===== ACTIONS DROPDOWN COMPONENT - VERSIÓN CORREGIDA =====
 // src/components/molecules/ActionsDropdown/ActionsDropdown.jsx
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -8,10 +8,7 @@ import './ActionsDropdown.css';
 /**
  * ActionsDropdown - Menú desplegable de acciones para filas de tablas
  * 
- * Molécula que combina:
- * - Button (átomo) como trigger
- * - Menu nativo como dropdown
- * - Backdrop para cerrar
+ * VERSIÓN CORREGIDA que respeta el sistema de diseño completo
  * 
  * @param {Object} props - Props del componente
  * @param {Array} props.actions - Array de acciones [{label, icon, onClick, variant}]
@@ -45,6 +42,109 @@ function ActionsDropdown({
   const triggerRef = useRef(null);
   const menuRef = useRef(null);
 
+  // ===== FUNCIONES DE MANEJO =====
+  
+  /**
+   * Abrir el menú
+   */
+  const handleOpen = () => {
+    if (disabled || isOpen) return;
+    
+    setIsOpen(true);
+    onOpen?.(data);
+    
+    // CORRECCIÓN: Verificar si necesita position fixed
+    setTimeout(() => {
+      const menu = menuRef.current;
+      const trigger = triggerRef.current;
+      
+      if (menu && trigger) {
+        // Detectar si está dentro de una tabla o contenedor problemático
+        const isInTable = trigger.closest('table, .data-table, .users-list__table');
+        const hasOverflowParent = trigger.closest('.overflow-hidden, .overflow-auto');
+        
+        if (isInTable || hasOverflowParent) {
+          // Usar position fixed y calcular posición
+          const triggerRect = trigger.getBoundingClientRect();
+          const menuHeight = menu.offsetHeight;
+          const menuWidth = menu.offsetWidth;
+          
+          // Determinar si hay espacio abajo o arriba
+          const spaceBelow = window.innerHeight - triggerRect.bottom;
+          const spaceAbove = triggerRect.top;
+          
+          menu.style.position = 'fixed';
+          menu.style.zIndex = getComputedStyle(document.documentElement).getPropertyValue('--z-dropdown').trim() ? 
+            `calc(${getComputedStyle(document.documentElement).getPropertyValue('--z-dropdown').trim()} + 2)` : 
+            '1002';
+          
+          // Posicionar según el espacio disponible
+          if (spaceBelow >= menuHeight || spaceBelow >= spaceAbove) {
+            // Mostrar abajo
+            menu.style.top = `${triggerRect.bottom + 4}px`;
+            menu.style.bottom = 'auto';
+          } else {
+            // Mostrar arriba
+            menu.style.bottom = `${window.innerHeight - triggerRect.top + 4}px`;
+            menu.style.top = 'auto';
+          }
+          
+          // Posición horizontal
+          if (position.includes('right')) {
+            menu.style.right = `${window.innerWidth - triggerRect.right}px`;
+            menu.style.left = 'auto';
+          } else {
+            menu.style.left = `${triggerRect.left}px`;
+            menu.style.right = 'auto';
+          }
+        }
+      }
+      
+      // Focus al primer item
+      const firstItem = menu?.querySelector('.actions-dropdown__item:not(:disabled)');
+      firstItem?.focus();
+    }, 10);
+  };
+
+  /**
+   * Cerrar el menú
+   */
+  const handleClose = () => {
+    if (!isOpen) return;
+    
+    setIsOpen(false);
+    onClose?.(data);
+    
+    // Retornar focus al trigger
+    setTimeout(() => {
+      triggerRef.current?.focus();
+    }, 50);
+  };
+
+  /**
+   * Toggle del menú
+   */
+  const handleToggle = () => {
+    if (isOpen) {
+      handleClose();
+    } else {
+      handleOpen();
+    }
+  };
+
+  /**
+   * Ejecutar acción y cerrar menú
+   */
+  const handleActionClick = (action) => {
+    try {
+      action.onClick?.(data);
+    } catch (error) {
+      console.error('Error ejecutando acción:', error);
+    }
+    
+    handleClose();
+  };
+
   // ===== EFECTOS =====
   
   /**
@@ -69,7 +169,7 @@ function ActionsDropdown({
   }, [isOpen]);
 
   /**
-   * Manejo de teclas (Escape, Enter, flechas)
+   * Manejo de teclas (ESC para cerrar, flechas para navegar)
    */
   useEffect(() => {
     function handleKeyDown(event) {
@@ -79,27 +179,22 @@ function ActionsDropdown({
         case 'Escape':
           event.preventDefault();
           handleClose();
-          triggerRef.current?.focus();
           break;
         
         case 'ArrowDown':
           event.preventDefault();
-          focusNextItem();
+          const nextItem = document.activeElement.nextElementSibling;
+          if (nextItem && nextItem.classList.contains('actions-dropdown__item')) {
+            nextItem.focus();
+          }
           break;
         
         case 'ArrowUp':
           event.preventDefault();
-          focusPrevItem();
-          break;
-        
-        case 'Home':
-          event.preventDefault();
-          focusFirstItem();
-          break;
-        
-        case 'End':
-          event.preventDefault();
-          focusLastItem();
+          const prevItem = document.activeElement.previousElementSibling;
+          if (prevItem && prevItem.classList.contains('actions-dropdown__item')) {
+            prevItem.focus();
+          }
           break;
       }
     }
@@ -113,165 +208,96 @@ function ActionsDropdown({
     };
   }, [isOpen]);
 
-  // ===== FUNCIONES =====
-
-  /**
-   * Abrir el menú
-   */
-  const handleOpen = () => {
-    if (disabled) return;
-    
-    setIsOpen(true);
-    onOpen?.(data);
-    
-    // Focus en el primer item después de abrir
-    setTimeout(() => {
-      focusFirstItem();
-    }, 0);
-  };
-
-  /**
-   * Cerrar el menú
-   */
-  const handleClose = () => {
-    setIsOpen(false);
-    onClose?.(data);
-  };
-
-  /**
-   * Toggle del menú
-   */
-  const handleToggle = () => {
-    if (isOpen) {
-      handleClose();
-    } else {
-      handleOpen();
-    }
-  };
-
-  /**
-   * Manejar acción clickeada
-   */
-  const handleAction = (action) => {
-    if (action.onClick) {
-      action.onClick(data);
-    }
-    handleClose();
-  };
-
-  /**
-   * Funciones de navegación por teclado
-   */
-  const getMenuItems = () => {
-    return menuRef.current?.querySelectorAll('.actions-dropdown__item:not([disabled])') || [];
-  };
-
-  const focusFirstItem = () => {
-    const items = getMenuItems();
-    if (items.length > 0) {
-      items[0].focus();
-    }
-  };
-
-  const focusLastItem = () => {
-    const items = getMenuItems();
-    if (items.length > 0) {
-      items[items.length - 1].focus();
-    }
-  };
-
-  const focusNextItem = () => {
-    const items = getMenuItems();
-    const currentIndex = Array.from(items).indexOf(document.activeElement);
-    const nextIndex = currentIndex + 1 >= items.length ? 0 : currentIndex + 1;
-    items[nextIndex]?.focus();
-  };
-
-  const focusPrevItem = () => {
-    const items = getMenuItems();
-    const currentIndex = Array.from(items).indexOf(document.activeElement);
-    const prevIndex = currentIndex - 1 < 0 ? items.length - 1 : currentIndex - 1;
-    items[prevIndex]?.focus();
-  };
-
-  // ===== VALIDACIONES =====
+  // ===== RENDER =====
+  
+  // Si no hay acciones, no renderizar nada
   if (!actions || actions.length === 0) {
     return null;
   }
 
-  // ===== RENDER =====
   return (
     <div 
-      className="actions-dropdown" 
+      className={`actions-dropdown ${isOpen ? 'actions-dropdown--open' : ''}`}
       ref={dropdownRef}
-      role="group" 
-      aria-label={triggerLabel}
     >
-      {/* Trigger Button */}
+      {/* ===== TRIGGER BUTTON ===== */}
       <Button
         ref={triggerRef}
         variant={variant}
         size={size}
-        onClick={handleToggle}
         disabled={disabled}
-        className="actions-dropdown__trigger"
-        aria-label={triggerLabel}
+        onClick={handleToggle}
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        id={`actions-dropdown-trigger-${data.id || 'default'}`}
+        aria-label={triggerLabel}
+        className="actions-dropdown__trigger"
       >
         {triggerIcon}
       </Button>
 
-      {/* Dropdown Menu */}
+      {/* ===== BACKDROP (Solo cuando está abierto) ===== */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="actions-dropdown__backdrop"
-            onClick={handleClose}
-            aria-hidden="true"
-          />
-          
-          {/* Menu */}
-          <div 
-            ref={menuRef}
-            className={`actions-dropdown__menu actions-dropdown__menu--${position}`}
-            role="menu"
-            aria-labelledby={`actions-dropdown-trigger-${data.id || 'default'}`}
-          >
-            {actions.map((action, index) => (
+        <div 
+          className="actions-dropdown__backdrop"
+          onClick={handleClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* ===== MENU DESPLEGABLE ===== */}
+      {isOpen && (
+        <div
+          ref={menuRef}
+          className={`actions-dropdown__menu actions-dropdown__menu--${position}`}
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="actions-dropdown-trigger"
+        >
+          {actions.map((action, index) => {
+            // Determinar variante del item
+            const itemVariant = action.variant === 'danger' ? 'danger' : '';
+            const isDisabled = action.disabled === true;
+            
+            return (
               <button
-                key={action.key || index}
-                className={`actions-dropdown__item ${
-                  action.variant === 'danger' ? 'actions-dropdown__item--danger' : ''
-                } ${action.disabled ? 'actions-dropdown__item--disabled' : ''}`}
-                onClick={() => !action.disabled && handleAction(action)}
-                disabled={action.disabled}
+                key={action.key || `action-${index}`}
+                className={`
+                  actions-dropdown__item 
+                  ${itemVariant ? `actions-dropdown__item--${itemVariant}` : ''}
+                  ${isDisabled ? 'actions-dropdown__item--disabled' : ''}
+                `.trim()}
+                disabled={isDisabled}
+                onClick={() => handleActionClick(action)}
                 role="menuitem"
-                tabIndex={-1}
+                tabIndex={isDisabled ? -1 : 0}
                 title={action.description || action.label}
               >
+                {/* Ícono */}
                 {action.icon && (
-                  <span className="actions-dropdown__icon" aria-hidden="true">
+                  <span className="actions-dropdown__icon">
                     {action.icon}
                   </span>
                 )}
+                
+                {/* Label */}
                 <span className="actions-dropdown__label">
                   {action.label}
                 </span>
+                
+                {/* Shortcut (opcional) */}
                 {action.shortcut && (
-                  <span className="actions-dropdown__shortcut" aria-hidden="true">
+                  <span className="actions-dropdown__shortcut">
                     {action.shortcut}
                   </span>
                 )}
               </button>
-            ))}
-          </div>
-        </>
+            );
+          })}
+        </div>
       )}
     </div>
   );
 }
 
+// ===== EXPORT =====
 export { ActionsDropdown };
