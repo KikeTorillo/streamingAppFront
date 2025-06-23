@@ -10,15 +10,16 @@ import './CategoriesListPage.css';
 
 // Servicios de categorías
 import { getCategoriesService } from '../../../../services/Categories/getCategoriesService';
-// import { deleteCategoryService } from '../../../../services/Categories/deleteCategoryService'; // Si existe
+import { deleteCategoryService } from '../../../../services/Categories/deleteCategoryService';
 
 /**
- * CategoriesListPage - Página de gestión de categorías HOMOLOGADA
+ * CategoriesListPage - Página de gestión de categorías COMPLETA
  * 
  * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ BACKEND: Homologado con servicio existente getCategoriesService
+ * ✅ BACKEND: Homologado con servicios existentes
  * ✅ PATRÓN: Sigue exactamente el mismo patrón que UsersListPage
  * ✅ UX: Estados de loading, error y success consistentes
+ * ✅ CRUD: Operaciones de Ver, Editar y Eliminar implementadas
  */
 function CategoriesListPage() {
   const navigate = useNavigate();
@@ -54,7 +55,7 @@ function CategoriesListPage() {
   // ===== CONFIGURACIÓN DE COLUMNAS =====
   
   /**
-   * ✅ Columnas de la tabla - adaptadas para categorías
+   * ✅ Columnas de la tabla - SIN columna de acciones personalizada (usa DataTable integrado)
    */
   const categoryColumns = [
     {
@@ -100,48 +101,8 @@ function CategoriesListPage() {
           {formatDate(row.original.updatedAt)}
         </span>
       )
-    },
-    {
-      accessorKey: 'actions',
-      header: 'Acciones',
-      size: 150,
-      enableSorting: false,
-      cell: ({ row }) => (
-        <div className="categories-list__actions">
-          <Button
-            variant="ghost"
-            size="xs"
-            leftIcon="👁️"
-            onClick={() => handleViewCategory(row.original)}
-            disabled={deleting === row.original.id}
-            aria-label={`Ver categoría ${row.original.name}`}
-          >
-            Ver
-          </Button>
-          <Button
-            variant="ghost"
-            size="xs"
-            leftIcon="✏️"
-            onClick={() => handleEditCategory(row.original)}
-            disabled={deleting === row.original.id}
-            aria-label={`Editar categoría ${row.original.name}`}
-          >
-            Editar
-          </Button>
-          <Button
-            variant="ghost"
-            size="xs"
-            leftIcon="🗑️"
-            onClick={() => handleDeleteCategory(row.original)}
-            disabled={deleting === row.original.id}
-            loading={deleting === row.original.id}
-            aria-label={`Eliminar categoría ${row.original.name}`}
-          >
-            Eliminar
-          </Button>
-        </div>
-      )
     }
+    // ✅ NO incluir columna de acciones - DataTable ya las maneja automáticamente
   ];
 
   // ===== ESTADÍSTICAS CALCULADAS =====
@@ -229,9 +190,10 @@ function CategoriesListPage() {
   };
 
   /**
-   * Eliminar categoría
+   * ✅ Eliminar categoría - IMPLEMENTADO CON SERVICIO REAL
    */
   const handleDeleteCategory = async (category) => {
+    // Confirmación con información detallada
     const confirmMessage = 
       `¿Estás seguro de que quieres eliminar la categoría "${category.name}"?\n\n` +
       `⚠️ ADVERTENCIA: Esta acción no se puede deshacer y puede afectar contenido multimedia asociado.`;
@@ -245,28 +207,47 @@ function CategoriesListPage() {
       
       console.log('🗑️ Eliminando categoría:', category);
       
-      // TODO: Implementar servicio de eliminación cuando esté disponible
-      // await deleteCategoryService(category.id);
+      // ✅ USAR SERVICIO REAL
+      const response = await deleteCategoryService(category.id);
       
-      // Simulación temporal
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log('📥 Respuesta del servicio de eliminación:', response);
+      
+      // ✅ El servicio devuelve directamente la data o lanza error
+      // Si llegamos aquí, la eliminación fue exitosa
       
       console.log('✅ Categoría eliminada exitosamente');
       
-      // Recargar lista
+      // Mostrar notificación de éxito
+      alert(`✅ Categoría "${category.name}" eliminada exitosamente`);
+      
+      // Recargar lista para reflejar los cambios
       await loadCategories();
       
     } catch (error) {
       console.error('💥 Error al eliminar categoría:', error);
       
-      // Manejar sesión expirada
+      // ✅ Manejar errores específicos del backend
+      let errorMessage = `Error al eliminar la categoría "${category.name}".`;
+      
       if (error.response?.status === 401) {
+        // Sesión expirada
+        console.log('🔒 Sesión expirada, redirigiendo...');
         sessionStorage.clear();
         navigate('/login');
         return;
+      } else if (error.response?.status === 404) {
+        errorMessage = 'La categoría no existe o ya fue eliminada.';
+      } else if (error.response?.status === 403) {
+        errorMessage = 'No tienes permisos para eliminar esta categoría.';
+      } else if (error.response?.status === 409) {
+        errorMessage = 'No se puede eliminar la categoría porque tiene contenido asociado.';
+      } else if (error.message) {
+        errorMessage = error.message;
       }
       
-      alert(`Error al eliminar categoría: ${error.message}`);
+      // Mostrar error al usuario
+      alert(`❌ ${errorMessage}`);
+      
     } finally {
       setDeleting(null);
     }
@@ -377,7 +358,9 @@ function CategoriesListPage() {
             className={deleting ? 'categories-list__table--deleting' : ''}
             rowClassName={(row) => {
               const classes = [];
-              if (deleting === row.original.id) classes.push('categories-list__row--deleting');
+              if (deleting === row.original.id) {
+                classes.push('categories-list__row--deleting');
+              }
               return classes.join(' ');
             }}
           />

@@ -75,6 +75,19 @@
 .categories-list__table--deleting {
   pointer-events: none;
   opacity: 0.7;
+  position: relative;
+}
+
+.categories-list__table--deleting::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  border-radius: var(--radius-md);
+  z-index: 1;
 }
 
 /* ===== CELDAS PERSONALIZADAS ===== */
@@ -118,19 +131,36 @@
   white-space: nowrap;
 }
 
-.categories-list__actions {
-  /* Contenedor de acciones - IGUAL QUE users-list__actions */
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-  justify-content: flex-end;
-}
-
 /* ===== ESTADOS DE FILAS ===== */
 .categories-list__row--deleting {
   /* Fila siendo eliminada */
   opacity: 0.5;
   background-color: var(--color-danger-light);
+  position: relative;
+  animation: deleteShake 0.5s ease-in-out;
+}
+
+.categories-list__row--deleting::before {
+  content: '🗑️ Eliminando...';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--color-danger);
+  color: var(--text-white);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Animación sutil para eliminación */
+@keyframes deleteShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
 }
 
 /* ===== RESPONSIVE DESIGN - IGUAL QUE USERS LIST ===== */
@@ -156,11 +186,6 @@
   
   .categories-list__summary {
     padding: var(--space-md);
-  }
-  
-  .categories-list__actions {
-    flex-direction: column;
-    gap: var(--space-xs);
   }
   
   .categories-list__name {
@@ -196,26 +221,9 @@
   .categories-list__stat-label {
     font-size: var(--font-size-xs);
   }
-  
-  .categories-list__actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: var(--space-xs);
-  }
-  
-  .categories-list__actions > * {
-    flex: 1;
-    min-width: auto;
-  }
 }
 
 /* ===== ACCESIBILIDAD - IGUAL QUE USERS LIST ===== */
-
-/* Focus visible mejorado */
-.categories-list__actions button:focus-visible {
-  outline: 0.2rem solid var(--color-primary);
-  outline-offset: 0.2rem;
-}
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
@@ -301,8 +309,7 @@
 
 /* ===== PRINT STYLES ===== */
 @media print {
-  .categories-list__header-actions,
-  .categories-list__actions {
+  .categories-list__header-actions {
     display: none;
   }
   
