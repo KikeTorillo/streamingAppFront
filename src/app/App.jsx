@@ -11,7 +11,9 @@ import { MainPage } from "../Pages/MainPage/MainPage";
 import { AdminDashboard } from "../Pages/AdminDashboard/AdminDashboard";
 import { UsersListPage } from "../Pages/Admin/Users/UsersListPage/UsersListPage";
 import { UserCreatePage } from "../Pages/Admin/Users/UserCreatePage/UserCreatePage";
-import { UserEditPage } from "../Pages/Admin/Users/UserEditPage/UserEditPage"; // Aún no implementada
+import { UserEditPage } from "../Pages/Admin/Users/UserEditPage/UserEditPage";
+import { CategoryCreatePage } from "../Pages/Admin/Categories/CategoryCreatePage/CategoryCreatePage";
+import { CategoriesListPage } from "../Pages/Admin/Categories/CategoriesListPage/CategoriesListPage";
 
 import "./App.css";
 
@@ -234,67 +236,18 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-
-    // ===== GESTIÓN DE CATEGORÍAS (FUTURAS) =====
     {
-      path: "/admin/categories",
+      path: '/admin/categories',
       element: (
-        <AdminRoute>
-          {/* TODO: Crear CategoriesListPage */}
-          <div style={{
-            padding: '2rem',
-            textAlign: 'center',
-            fontFamily: 'var(--font-family-base)'
-          }}>
-            <h2>Gestión de Categorías</h2>
-            <p>Esta funcionalidad estará disponible pronto...</p>
-            <button
-              onClick={() => window.location.href = '/admin'}
-              style={{
-                padding: '1rem 2rem',
-                backgroundColor: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer'
-              }}
-            >
-              Volver al Dashboard
-            </button>
-          </div>
-        </AdminRoute>
+        <AdminRoute><CategoriesListPage /></AdminRoute>
       )
     },
     {
-      path: "/admin/categories/create",
+      path: '/admin/categories/create',
       element: (
-        <AdminRoute>
-          {/* TODO: Crear CategoryCreatePage */}
-          <div style={{
-            padding: '2rem',
-            textAlign: 'center',
-            fontFamily: 'var(--font-family-base)'
-          }}>
-            <h2>Crear Categoría</h2>
-            <p>Funcionalidad en desarrollo...</p>
-            <button
-              onClick={() => window.location.href = '/admin/categories'}
-              style={{
-                padding: '1rem 2rem',
-                backgroundColor: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer'
-              }}
-            >
-              Volver
-            </button>
-          </div>
-        </AdminRoute>
+        <CategoryCreatePage />
       )
     },
-
     // ===== GESTIÓN DE EPISODIOS (FUTURAS) =====
     {
       path: "/admin/episodes",

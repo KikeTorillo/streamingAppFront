@@ -1,15 +1,14 @@
-/* ===== USER EDIT PAGE STYLES ===== */
+/* ===== USER EDIT PAGE STYLES - HOMOLOGADO CON USER CREATE ===== */
 /* src/Pages/Admin/Users/UserEditPage/UserEditPage.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .user-edit {
-  /* Layout */
+  /* Layout - IGUAL QUE user-create */
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
-  
-  /* Posición relativa para overlays */
-  position: relative;
+  max-width: 80rem; /* 800px */
+  margin: 0 auto;
   
   /* Fuente */
   font-family: var(--font-family-base);
@@ -17,24 +16,218 @@
 
 /* ===== HEADER ACTIONS ===== */
 .user-edit__header-actions {
-  /* Layout */
+  /* Layout - IGUAL QUE user-create__header-actions */
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  flex-wrap: wrap;
+}
+
+/* ===== MENSAJES DE ESTADO ===== */
+.user-edit__error,
+.user-edit__success {
+  /* Layout - IGUAL QUE user-create */
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid;
+  
+  /* Tipografía - IGUAL QUE user-create */
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  
+  /* Animación - IGUAL QUE user-create */
+  animation: slideIn 0.3s ease-out;
+}
+
+.user-edit__error {
+  /* Colores de error - IGUAL QUE user-create */
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
+.user-edit__success {
+  /* Colores de éxito - IGUAL QUE user-create */
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.user-edit__error-icon,
+.user-edit__success-icon {
+  /* Iconos - IGUAL QUE user-create */
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+}
+
+.user-edit__error-content,
+.user-edit__success-content {
+  /* Texto - IGUAL QUE user-create */
+  flex: 1;
+  min-width: 0;
+}
+
+.user-edit__error-message {
+  /* Layout - IGUAL QUE user-create__error */
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid;
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  animation: slideIn 0.3s ease-out;
+}
+
+/* ===== INFORMACIÓN ACTUAL DEL USUARIO ===== */
+.user-edit__current-info {
+  /* Layout - ADAPTADO PARA EDIT */
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+}
+
+.user-edit__current-info-section {
+  /* Layout - IGUAL QUE user-create__info-section */
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid var(--border-default);
+  padding: var(--space-lg);
+}
+
+.user-edit__info-title {
+  /* Reset - IGUAL QUE user-create__info-title */
+  margin: 0 0 var(--space-md) 0;
+  
+  /* Tipografía - IGUAL QUE user-create__info-title */
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.user-edit__current-info-grid {
+  /* Layout */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+  gap: var(--space-md);
+}
+
+.user-edit__current-info-item {
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-sm);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-sm);
+  border: 0.1rem solid var(--border-primary);
+}
+
+.user-edit__current-info-label {
+  /* Tipografía */
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.user-edit__current-info-value {
+  /* Tipografía */
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+  font-family: var(--font-family-mono);
+}
+
+/* Advertencia para usuario actual */
+.user-edit__warning {
+  /* Layout - SIMILAR A user-create pero con warning */
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid var(--color-warning);
+  background-color: var(--color-warning-light);
+  font-size: var(--font-size-sm);
+  color: var(--color-warning);
+  font-weight: var(--font-weight-medium);
+  margin-top: var(--space-md);
+}
+
+.user-edit__warning-icon {
+  /* Layout */
+  flex-shrink: 0;
+}
+
+/* ===== CONTENEDOR DEL FORMULARIO - IGUAL QUE CREATE ===== */
+.user-edit__form-container {
+  /* Layout - EXACTAMENTE IGUAL QUE user-create__form-container */
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 0.1rem solid var(--border-default);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.user-edit__form-header {
+  /* Layout - IGUAL QUE user-create__form-header */
+  margin-bottom: var(--space-xl);
+  text-align: center;
+}
+
+.user-edit__form-title {
+  /* Reset - IGUAL QUE user-create__form-title */
+  margin: 0 0 var(--space-sm) 0;
+  
+  /* Tipografía - IGUAL QUE user-create__form-title */
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.user-edit__form-description {
+  /* Reset - IGUAL QUE user-create__form-description */
+  margin: 0;
+  
+  /* Tipografía - IGUAL QUE user-create__form-description */
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+/* ===== ESTADOS DE FORMULARIO - IGUAL QUE CREATE ===== */
+.user-edit__form {
+  /* Base del formulario */
+}
+
+.user-edit__form--success {
+  /* Estado de éxito - IGUAL QUE user-create */
+  opacity: 0.8;
+  pointer-events: none;
 }
 
 /* ===== ESTADOS DE LOADING ===== */
 .user-edit__loading {
-  /* Layout */
+  /* Layout - SIMILAR A user-create pero adaptado */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: var(--space-3xl);
-  
-  /* Colores */
   color: var(--text-secondary);
 }
 
@@ -42,8 +235,6 @@
   /* Tipografía */
   font-size: var(--font-size-4xl);
   margin-bottom: var(--space-lg);
-  
-  /* Animación */
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -52,17 +243,15 @@
   50% { opacity: 0.5; }
 }
 
-/* ===== ESTADOS DE ERROR ===== */
+/* ===== ESTADOS DE ERROR - PÁGINA COMPLETA ===== */
 .user-edit__error {
-  /* Layout */
+  /* Layout - SIMILAR A user-create pero para errores de página */
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
   padding: var(--space-3xl);
-  
-  /* Visual */
   background-color: var(--bg-secondary);
   border-radius: var(--radius-lg);
   border: 0.1rem solid var(--border-default);
@@ -92,340 +281,7 @@
   color: var(--text-secondary);
 }
 
-/* ===== NOTIFICACIONES ===== */
-
-/* Notificación de éxito */
-.user-edit__success {
-  /* Layout */
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  
-  /* Visual */
-  background-color: var(--color-success-light);
-  border: 0.1rem solid var(--color-success);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  
-  /* Animación */
-  animation: slideIn var(--transition-normal) ease-out;
-}
-
-.user-edit__success-icon {
-  /* Layout */
-  flex-shrink: 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-xl);
-}
-
-.user-edit__success-content h3 {
-  /* Reset */
-  margin: 0 0 var(--space-xs) 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-success);
-}
-
-.user-edit__success-content p {
-  /* Reset */
-  margin: 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-/* Mensaje de error */
-.user-edit__error-message {
-  /* Layout */
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  
-  /* Visual */
-  background-color: var(--color-danger-light);
-  border: 0.1rem solid var(--color-danger);
-  border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  
-  /* Animación */
-  animation: slideIn var(--transition-normal) ease-out;
-}
-
-.user-edit__error-message .user-edit__error-icon {
-  /* Layout */
-  flex-shrink: 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-xl);
-}
-
-.user-edit__error-content h4 {
-  /* Reset */
-  margin: 0 0 var(--space-xs) 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-danger);
-}
-
-.user-edit__error-content p {
-  /* Reset */
-  margin: 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-/* ===== INFORMACIÓN DEL USUARIO ===== */
-.user-edit__info {
-  /* Layout */
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-lg);
-}
-
-.user-edit__info-section {
-  /* Layout */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-lg);
-}
-
-.user-edit__info-section h3 {
-  /* Reset */
-  margin: 0 0 var(--space-md) 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-}
-
-.user-edit__info-grid {
-  /* Layout */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-  gap: var(--space-md);
-}
-
-.user-edit__info-item {
-  /* Layout */
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.user-edit__info-label {
-  /* Tipografía */
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.user-edit__info-value {
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  font-family: var(--font-family-mono);
-}
-
-/* Advertencia para usuario actual */
-.user-edit__warning {
-  /* Layout */
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  
-  /* Visual */
-  background-color: var(--color-warning-light);
-  border: 0.1rem solid var(--color-warning);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-top: var(--space-md);
-  
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  color: var(--color-warning);
-  font-weight: var(--font-weight-medium);
-}
-
-.user-edit__warning-icon {
-  /* Layout */
-  flex-shrink: 0;
-}
-
-/* ===== CONTENEDOR DEL FORMULARIO ===== */
-.user-edit__form-container {
-  /* Layout */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.user-edit__form-header {
-  /* Layout */
-  margin-bottom: var(--space-xl);
-  text-align: center;
-}
-
-.user-edit__form-title {
-  /* Reset */
-  margin: 0 0 var(--space-sm) 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-}
-
-.user-edit__form-description {
-  /* Reset */
-  margin: 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-base);
-  color: var(--text-secondary);
-  line-height: var(--line-height-normal);
-}
-
-/* ===== INFORMACIÓN ACTUAL DEL USUARIO ===== */
-.user-edit__current-info {
-  /* Layout */
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--space-lg);
-}
-
-.user-edit__current-info-section {
-  /* Layout - IGUAL QUE info-section */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-lg);
-}
-
-.user-edit__current-info-grid {
-  /* Layout */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-
-.user-edit__current-info-item {
-  /* Layout */
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xs);
-}
-
-.user-edit__current-info-label {
-  /* Tipografía */
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.user-edit__current-info-value {
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: var(--text-primary);
-  font-family: var(--font-family-mono);
-}
-
-/* Advertencia para usuario actual */
-.user-edit__warning {
-  /* Layout */
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  
-  /* Visual */
-  background-color: var(--color-warning-light);
-  border: 0.1rem solid var(--color-warning);
-  border-radius: var(--radius-md);
-  padding: var(--space-md);
-  margin-top: var(--space-md);
-  
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  color: var(--color-warning);
-  font-weight: var(--font-weight-medium);
-}
-
-.user-edit__warning-icon {
-  /* Layout */
-  flex-shrink: 0;
-}
-
-/* ===== INFORMACIÓN ADICIONAL (MISMO ESTILO QUE CREATE) ===== */
-.user-edit__info {
-  /* Layout - IGUAL QUE user-create__info */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-  gap: var(--space-lg);
-}
-
-.user-edit__info-section {
-  /* Layout - IGUAL QUE user-create__info-section */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-lg);
-}
-
-.user-edit__info-title {
-  /* Reset - IGUAL QUE user-create__info-title */
-  margin: 0 0 var(--space-md) 0;
-  
-  /* Tipografía - IGUAL QUE user-create__info-title */
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-}
-
-.user-edit__info-list {
-  /* Reset - IGUAL QUE user-create__info-list */
-  margin: 0;
-  padding-left: var(--space-lg);
-  
-  /* Lista - IGUAL QUE user-create__info-list */
-  list-style-type: disc;
-  
-  /* Tipografía - IGUAL QUE user-create__info-list */
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  line-height: var(--line-height-relaxed);
-}
-
-.user-edit__info-list li {
-  /* IGUAL QUE user-create__info-list li */
-  margin-bottom: var(--space-xs);
-}
-
-.user-edit__info-list li strong {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-bold);
-}
-
-/* ===== ANIMACIONES ===== */
+/* ===== ANIMACIONES - IGUAL QUE CREATE ===== */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -437,12 +293,14 @@
   }
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
+/* ===== RESPONSIVE DESIGN - IGUAL QUE CREATE ===== */
 
 /* Tablets */
 @media (max-width: 768px) {
   .user-edit {
     gap: var(--space-lg);
+    max-width: none;
+    padding: 0 var(--space-md);
   }
   
   .user-edit__header-actions {
@@ -456,10 +314,6 @@
   
   .user-edit__current-info-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .user-edit__info {
-    grid-template-columns: 1fr;
   }
   
   .user-edit__form-container {
@@ -479,7 +333,6 @@
   }
   
   .user-edit__current-info-section,
-  .user-edit__info-section,
   .user-edit__form-container {
     padding: var(--space-md);
   }
@@ -518,35 +371,9 @@
   .user-edit__error {
     padding: var(--space-lg);
   }
-  
-  .user-edit__additional-info h3 {
-    font-size: var(--font-size-sm);
-  }
-  
-  .user-edit__additional-info ul {
-    padding-left: var(--space-md);
-  }
-  
-  .user-edit__additional-info li {
-    font-size: var(--font-size-xs);
-  }
 }
 
-/* ===== ESTADOS ESPECIALES ===== */
-
-/* Cuando el formulario está guardando */
-.user-edit--saving {
-  opacity: 0.7;
-  pointer-events: none;
-}
-
-/* Cuando hay éxito */
-.user-edit--success .user-edit__form-container {
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-/* ===== ACCESIBILIDAD ===== */
+/* ===== ACCESIBILIDAD - IGUAL QUE CREATE ===== */
 
 /* Focus visible mejorado */
 .user-edit__header-actions .button:focus-visible {
@@ -556,10 +383,9 @@
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
-  .user-edit__info-section,
+  .user-edit__current-info-section,
   .user-edit__form-container {
     border-width: 0.2rem;
-    border-color: var(--text-primary);
   }
   
   .user-edit__success {
@@ -587,9 +413,9 @@
   }
 }
 
-/* ===== MODO OSCURO ===== */
+/* ===== MODO OSCURO - IGUAL QUE CREATE ===== */
 @media (prefers-color-scheme: dark) {
-  .user-edit__info-section,
+  .user-edit__current-info-section,
   .user-edit__form-container {
     background-color: var(--bg-secondary);
     border-color: var(--border-default);
@@ -612,7 +438,7 @@
 }
 
 /* Forzar modo oscuro con clase */
-.dark .user-edit__info-section,
+.dark .user-edit__current-info-section,
 .dark .user-edit__form-container {
   background-color: var(--bg-secondary);
   border-color: var(--border-default);
@@ -634,11 +460,6 @@
 }
 
 /* ===== UTILIDADES ESPECÍFICAS ===== */
-
-/* Para testing y debugging */
-.user-edit[data-testid] {
-  border: 0.1rem dashed var(--border-default);
-}
 
 /* Estados de formulario específicos */
 .user-edit__form-container[data-has-changes="true"] {
@@ -663,7 +484,7 @@
     gap: var(--space-md);
   }
   
-  .user-edit__info-section,
+  .user-edit__current-info-section,
   .user-edit__form-container {
     break-inside: avoid;
     box-shadow: none;

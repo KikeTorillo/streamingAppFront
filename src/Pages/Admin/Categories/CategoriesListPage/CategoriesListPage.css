@@ -1,0 +1,322 @@
+/* ===== CATEGORIES LIST PAGE STYLES - HOMOLOGADO CON USERS LIST ===== */
+/* src/Pages/Admin/Categories/CategoriesListPage/CategoriesListPage.css */
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.categories-list {
+  /* Layout - EXACTAMENTE IGUAL QUE users-list */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  
+  /* Posición relativa para overlays */
+  position: relative;
+  
+  /* Fuente */
+  font-family: var(--font-family-base);
+}
+
+/* ===== HEADER ACTIONS ===== */
+.categories-list__header-actions {
+  /* Layout - IGUAL QUE users-list__header-actions */
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+/* ===== RESUMEN/ESTADÍSTICAS ===== */
+.categories-list__summary {
+  /* Layout - IGUAL QUE users-list__summary */
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 0.1rem solid var(--border-default);
+  padding: var(--space-lg);
+}
+
+.categories-list__stats {
+  /* Grid de estadísticas - IGUAL QUE users-list__stats */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+  gap: var(--space-lg);
+}
+
+.categories-list__stat {
+  /* Layout - IGUAL QUE users-list__stat */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-xs);
+}
+
+.categories-list__stat-value {
+  /* Tipografía - IGUAL QUE users-list__stat-value */
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+  line-height: 1;
+}
+
+.categories-list__stat-label {
+  /* Tipografía - IGUAL QUE users-list__stat-label */
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ===== TABLA DE CATEGORÍAS ===== */
+.categories-list__table {
+  /* Layout - IGUAL QUE users-list__table */
+  width: 100%;
+  position: relative;
+}
+
+/* Estado de eliminación */
+.categories-list__table--deleting {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+/* ===== CELDAS PERSONALIZADAS ===== */
+.categories-list__id {
+  /* Estilo para ID - IGUAL QUE users-list__id */
+  font-family: var(--font-family-mono, 'Courier New', monospace);
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+}
+
+.categories-list__name {
+  /* Layout para nombre de categoría */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.categories-list__name-text {
+  /* Texto principal del nombre */
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.categories-list__name-badge {
+  /* Badge de categoría */
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  font-weight: var(--font-weight-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.categories-list__date {
+  /* Estilo para fechas - IGUAL QUE users-list */
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  font-family: var(--font-family-mono, 'Courier New', monospace);
+  white-space: nowrap;
+}
+
+.categories-list__actions {
+  /* Contenedor de acciones - IGUAL QUE users-list__actions */
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  justify-content: flex-end;
+}
+
+/* ===== ESTADOS DE FILAS ===== */
+.categories-list__row--deleting {
+  /* Fila siendo eliminada */
+  opacity: 0.5;
+  background-color: var(--color-danger-light);
+}
+
+/* ===== RESPONSIVE DESIGN - IGUAL QUE USERS LIST ===== */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .categories-list {
+    gap: var(--space-md);
+  }
+  
+  .categories-list__header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .categories-list__header-actions > * {
+    width: 100%;
+  }
+  
+  .categories-list__stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .categories-list__summary {
+    padding: var(--space-md);
+  }
+  
+  .categories-list__actions {
+    flex-direction: column;
+    gap: var(--space-xs);
+  }
+  
+  .categories-list__name {
+    align-items: flex-start;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .categories-list {
+    gap: var(--space-sm);
+  }
+  
+  .categories-list__stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .categories-list__stat {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+    padding: var(--space-sm);
+    background-color: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    border: 0.1rem solid var(--border-primary);
+  }
+  
+  .categories-list__stat-value {
+    font-size: var(--font-size-lg);
+  }
+  
+  .categories-list__stat-label {
+    font-size: var(--font-size-xs);
+  }
+  
+  .categories-list__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+  
+  .categories-list__actions > * {
+    flex: 1;
+    min-width: auto;
+  }
+}
+
+/* ===== ACCESIBILIDAD - IGUAL QUE USERS LIST ===== */
+
+/* Focus visible mejorado */
+.categories-list__actions button:focus-visible {
+  outline: 0.2rem solid var(--color-primary);
+  outline-offset: 0.2rem;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .categories-list__summary {
+    border-width: 0.2rem;
+  }
+  
+  .categories-list__stat {
+    border-width: 0.2rem;
+  }
+  
+  .categories-list__row--deleting {
+    border: 0.2rem solid var(--color-danger);
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .categories-list__table--deleting {
+    transition: none;
+  }
+  
+  .categories-list__row--deleting {
+    transition: none;
+  }
+}
+
+/* ===== MODO OSCURO - IGUAL QUE USERS LIST ===== */
+@media (prefers-color-scheme: dark) {
+  .categories-list__summary {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-default);
+  }
+  
+  .categories-list__row--deleting {
+    background-color: rgba(239, 68, 68, 0.1);
+  }
+}
+
+/* Forzar modo oscuro con clase */
+.dark .categories-list__summary {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-default);
+}
+
+.dark .categories-list__row--deleting {
+  background-color: rgba(239, 68, 68, 0.1);
+}
+
+/* ===== ESTADOS ESPECIALES ===== */
+
+/* Cuando está cargando */
+.categories-list--loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Estado de error */
+.categories-list--error .categories-list__summary {
+  border-color: var(--color-danger);
+  background-color: var(--color-danger-light);
+}
+
+/* ===== UTILIDADES ESPECÍFICAS DE CATEGORÍAS ===== */
+
+/* Resaltar categorías recientes */
+.categories-list__row--recent {
+  background-color: var(--color-success-light);
+  border-left: 0.3rem solid var(--color-success);
+}
+
+.categories-list__row--recent .categories-list__name-badge::after {
+  content: ' • NUEVA';
+  color: var(--color-success);
+  font-weight: var(--font-weight-bold);
+}
+
+/* Categorías con nombres largos */
+.categories-list__name-text--long {
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .categories-list__header-actions,
+  .categories-list__actions {
+    display: none;
+  }
+  
+  .categories-list {
+    gap: var(--space-md);
+  }
+  
+  .categories-list__summary {
+    break-inside: avoid;
+    box-shadow: none;
+    border: 0.1rem solid #000;
+  }
+  
+  .categories-list__table {
+    break-inside: avoid;
+  }
+}
