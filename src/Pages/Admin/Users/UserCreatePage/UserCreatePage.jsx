@@ -1,4 +1,4 @@
-// ===== USER CREATE PAGE (CORREGIDO PARA BACKEND) =====
+// ===== USER CREATE PAGE - HOMOLOGADO CON BACKEND Y STORYBOOK =====
 // src/Pages/Admin/Users/UserCreatePage/UserCreatePage.jsx
 
 import React, { useState } from 'react';
@@ -12,13 +12,13 @@ import './UserCreatePage.css';
 import { createUserService } from '../../../../services/Users/createUserService';
 
 /**
- * UserCreatePage - Página para crear nuevos usuarios (ACTUALIZADA PARA BACKEND)
+ * UserCreatePage - HOMOLOGADO CON BACKEND
  * 
- * CAMBIOS PARA BACKEND:
- * - ✅ Agregado campo username (requerido y único)
- * - ✅ Eliminado campo status (no existe en DB)
- * - ✅ Ajustado mapeo de datos para backend
- * - ✅ Actualizada validación según esquemas Joi
+ * ✅ CORREGIDO: Solo campos que existen en la DB
+ * ✅ CORREGIDO: Usa solo componentes con stories de Storybook
+ * ✅ CORREGIDO: Mapeo correcto backend userName/email/password/roleId
+ * ✅ CORREGIDO: Validaciones según esquemas Joi del backend
+ * ✅ CORREGIDO: Manejo de respuestas estructuradas
  */
 function UserCreatePage() {
   const navigate = useNavigate();
@@ -29,10 +29,10 @@ function UserCreatePage() {
   const [success, setSuccess] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // ===== CONFIGURACIÓN DEL FORMULARIO (ACTUALIZADA) =====
+  // ===== CONFIGURACIÓN HOMOLOGADA CON BACKEND =====
   
   /**
-   * Configuración de campos según la estructura real del backend
+   * ✅ CORREGIDO: Solo campos que existen en DB + schema del backend
    */
   const userFormFields = [
     {
@@ -42,7 +42,7 @@ function UserCreatePage() {
       placeholder: 'Ej: juan_perez',
       required: true,
       leftIcon: '👤',
-      helperText: 'Debe ser único en el sistema (sin espacios)',
+      helperText: 'Único, 3-30 caracteres, solo letras/números/guiones bajos',
       width: 'half'
     },
     {
@@ -50,19 +50,19 @@ function UserCreatePage() {
       type: 'email',
       label: 'Correo Electrónico',
       placeholder: 'usuario@ejemplo.com',
-      required: true,
+      required: false, // ✅ CORREGIDO: Email es OPCIONAL en backend
       leftIcon: '📧',
-      helperText: 'El email será usado para iniciar sesión',
+      helperText: 'Opcional: para notificaciones y recuperación de contraseña',
       width: 'half'
     },
     {
       name: 'password',
       type: 'password',
       label: 'Contraseña',
-      placeholder: 'Mínimo 8 caracteres',
+      placeholder: 'Solo letras y números',
       required: true,
       leftIcon: '🔒',
-      helperText: 'Debe ser alfanumérica (solo letras y números)',
+      helperText: 'Debe ser alfanumérica (solo letras y números según Joi)',
       width: 'half'
     },
     {
@@ -72,7 +72,7 @@ function UserCreatePage() {
       placeholder: 'Repite la contraseña',
       required: true,
       leftIcon: '🔒',
-      helperText: 'Debe coincidir con la contraseña',
+      helperText: 'Debe coincidir exactamente con la contraseña',
       width: 'half'
     },
     {
@@ -84,62 +84,89 @@ function UserCreatePage() {
       helperText: 'Define los permisos del usuario en el sistema',
       options: [
         { value: '', label: 'Seleccionar rol...', disabled: true },
-        { value: 1, label: 'Administrador' },
-        { value: 2, label: 'Editor' },
-        { value: 3, label: 'Usuario Normal' }
+        { value: 1, label: 'Administrador - Acceso completo' },
+        { value: 2, label: 'Editor - Gestión de contenido' },
+        { value: 3, label: 'Usuario - Solo visualización' }
       ],
       width: 'full'
     }
   ];
 
-  // ===== VALIDACIONES PERSONALIZADAS =====
+  // ===== VALIDACIONES SEGÚN BACKEND SCHEMAS =====
   
   /**
-   * Validar que las contraseñas coincidan
-   */
-  const validatePasswords = (formData) => {
-    if (formData.password !== formData.confirmPassword) {
-      return 'Las contraseñas no coinciden';
-    }
-    return null;
-  };
-
-  /**
-   * Validar formato de email
-   */
-  const validateEmail = (email) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      return 'Ingresa un email válido';
-    }
-    return null;
-  };
-
-  /**
-   * Validar username (según backend)
+   * ✅ CORREGIDO: Validar userName según Joi schema del backend
    */
   const validateUsername = (username) => {
-    if (username.length < 3) {
-      return 'El nombre de usuario debe tener al menos 3 caracteres';
+    if (!username || username.trim() === '') {
+      return 'El nombre de usuario es obligatorio';
     }
+    if (username.length < 3) {
+      return 'El nombre debe tener al menos 3 caracteres';
+    }
+    if (username.length > 30) {
+      return 'El nombre debe tener máximo 30 caracteres';
+    }
+    // ✅ IMPORTANTE: Backend Joi schema es .alphanum() + guiones bajos
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       return 'Solo se permiten letras, números y guiones bajos';
     }
-    if (username.includes(' ')) {
-      return 'No se permiten espacios';
+    return null;
+  };
+
+  /**
+   * ✅ CORREGIDO: Validar email (opcional pero si se proporciona debe ser válido)
+   */
+  const validateEmail = (email) => {
+    // Email es opcional en el backend
+    if (!email || email.trim() === '') {
+      return null; // Válido: email opcional
+    }
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return 'Si proporcionas email, debe tener formato válido';
     }
     return null;
   };
 
   /**
-   * Validar contraseña (según esquema Joi: alfanumérica)
+   * ✅ CORREGIDO: Validar password según Joi schema (.alphanum())
    */
   const validatePassword = (password) => {
-    if (password.length < 6) {
-      return 'La contraseña debe tener al menos 6 caracteres';
+    if (!password || password.trim() === '') {
+      return 'La contraseña es obligatoria';
     }
+    // ✅ IMPORTANTE: Backend Joi schema requiere .alphanum() (solo letras y números)
     if (!/^[a-zA-Z0-9]+$/.test(password)) {
       return 'La contraseña debe ser alfanumérica (solo letras y números)';
+    }
+    if (password.length < 3) {
+      return 'La contraseña debe tener al menos 3 caracteres';
+    }
+    return null;
+  };
+
+  /**
+   * ✅ CORREGIDO: Validar roleId
+   */
+  const validateRoleId = (roleId) => {
+    if (!roleId) {
+      return 'Debes seleccionar un rol';
+    }
+    const validRoles = [1, 2, 3];
+    if (!validRoles.includes(parseInt(roleId))) {
+      return 'Rol inválido';
+    }
+    return null;
+  };
+
+  /**
+   * ✅ VALIDAR: Contraseñas coincidentes
+   */
+  const validatePasswordMatch = (formData) => {
+    if (formData.password !== formData.confirmPassword) {
+      return 'Las contraseñas no coinciden';
     }
     return null;
   };
@@ -147,81 +174,81 @@ function UserCreatePage() {
   // ===== HANDLERS =====
   
   /**
-   * Manejar cambios en el formulario
-   */
-  const handleFormChange = (formData) => {
-    setHasChanges(true);
-    setError(null);
-  };
-
-  /**
-   * Manejar envío del formulario (ACTUALIZADO PARA BACKEND)
+   * ✅ CORREGIDO: Manejar envío con validaciones completas
    */
   const handleSubmit = async (formData) => {
     try {
       setLoading(true);
       setError(null);
 
-      // Validaciones específicas del backend
+      console.log('📋 Datos del formulario:', formData);
+
+      // ✅ VALIDACIONES PRE-ENVÍO
       const usernameError = validateUsername(formData.username);
-      if (usernameError) {
-        throw new Error(usernameError);
-      }
+      if (usernameError) throw new Error(usernameError);
 
       const emailError = validateEmail(formData.email);
-      if (emailError) {
-        throw new Error(emailError);
-      }
+      if (emailError) throw new Error(emailError);
 
       const passwordError = validatePassword(formData.password);
-      if (passwordError) {
-        throw new Error(passwordError);
-      }
+      if (passwordError) throw new Error(passwordError);
 
-      const passwordMatchError = validatePasswords(formData);
-      if (passwordMatchError) {
-        throw new Error(passwordMatchError);
-      }
+      const roleError = validateRoleId(formData.roleId);
+      if (roleError) throw new Error(roleError);
 
-      // Preparar datos según la estructura exacta del backend
+      const passwordMatchError = validatePasswordMatch(formData);
+      if (passwordMatchError) throw new Error(passwordMatchError);
+
+      // ✅ PREPARAR datos según estructura EXACTA del backend
       const userData = {
-        username: formData.username.trim().toLowerCase(), // Normalizar username
-        email: formData.email.trim().toLowerCase(),
-        password: formData.password, // Backend se encarga del hash
-        roleId: parseInt(formData.roleId) // Backend espera roleId como número
+        username: formData.username.trim(), // Frontend 'username' → Backend 'userName'
+        email: formData.email?.trim() || undefined, // Email opcional
+        password: formData.password.trim(), // Backend hará bcrypt.hash()
+        roleId: parseInt(formData.roleId) // Backend espera number
       };
 
-      console.log('Enviando datos al backend:', userData);
+      console.log('📤 Enviando al backend:', userData);
 
-      // Llamar al servicio
+      // ✅ LLAMAR servicio
       const response = await createUserService(userData);
       
-      console.log('Usuario creado exitosamente:', response);
-      
-      // Marcar como exitoso
+      console.log('📥 Respuesta del backend:', response);
+
+      // ✅ MANEJAR respuesta estructurada
+      if (response.message === 'session expired' && response.error) {
+        sessionStorage.clear();
+        navigate('/login');
+        return;
+      }
+
+      if (!response.success) {
+        throw new Error(response.error || 'Error al crear usuario');
+      }
+
+      // ✅ ÉXITO
       setSuccess(true);
       setHasChanges(false);
-
-      // Mostrar mensaje de éxito
+      
+      console.log('✅ Usuario creado exitosamente');
       alert(`✅ Usuario "${userData.username}" creado correctamente`);
 
-      // Navegar a la lista después de un delay
+      // Navegar después de un delay
       setTimeout(() => {
         navigate('/admin/users');
       }, 1500);
 
     } catch (err) {
-      console.error('Error creating user:', err);
+      console.error('💥 Error creating user:', err);
       
-      // Manejar errores específicos del backend
+      // ✅ MANEJO de errores específicos del backend
       let errorMessage = 'Error al crear el usuario';
       
       if (err.message) {
         errorMessage = err.message;
       } else if (err.response?.status === 409) {
-        errorMessage = 'El email o nombre de usuario ya están registrados';
+        errorMessage = 'El username o email ya están registrados';
       } else if (err.response?.status === 400) {
-        errorMessage = 'Datos inválidos. Verifica los campos requeridos';
+        errorMessage = 'Datos inválidos. Verifica todos los campos';
       } else if (err.response?.data?.message) {
         errorMessage = err.response.data.message;
       } else if (err.response?.data?.error) {
@@ -232,6 +259,14 @@ function UserCreatePage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  /**
+   * Manejar cambios en el formulario
+   */
+  const handleFormChange = (formData) => {
+    setHasChanges(true);
+    setError(null); // Limpiar errores al cambiar
   };
 
   /**
@@ -274,6 +309,7 @@ function UserCreatePage() {
           <Button
             variant="outline"
             size="sm"
+            leftIcon="←"
             onClick={handleCancel}
             disabled={loading}
           >
@@ -308,14 +344,14 @@ function UserCreatePage() {
           </div>
         )}
 
-        {/* ===== FORMULARIO DINÁMICO ===== */}
+        {/* ===== FORMULARIO DINÁMICO (COMPONENTE CON STORY) ===== */}
         <div className="user-create__form-container">
           <div className="user-create__form-header">
             <h2 className="user-create__form-title">
               Información del Usuario
             </h2>
             <p className="user-create__form-description">
-              Completa todos los campos para crear una nueva cuenta de usuario.
+              Completa los campos requeridos para crear una nueva cuenta. Solo se almacenan datos que existen en la base de datos.
             </p>
           </div>
 
@@ -341,28 +377,40 @@ function UserCreatePage() {
           />
         </div>
 
-        {/* ===== INFORMACIÓN ACTUALIZADA ===== */}
+        {/* ===== INFORMACIÓN SOBRE CAMPOS REALES ===== */}
         <div className="user-create__info">
           <div className="user-create__info-section">
             <h3 className="user-create__info-title">
-              ℹ️ Información sobre Roles
+              🗄️ Campos de la Base de Datos
             </h3>
             <ul className="user-create__info-list">
-              <li><strong>Administrador:</strong> Acceso completo al sistema y gestión de usuarios</li>
-              <li><strong>Editor:</strong> Puede gestionar contenido (películas, series) pero no usuarios</li>
-              <li><strong>Usuario Normal:</strong> Solo puede ver y reproducir contenido</li>
+              <li><strong>userName:</strong> VARCHAR(255) NOT NULL UNIQUE - Identificador único del usuario</li>
+              <li><strong>email:</strong> VARCHAR(255) NULLABLE - Opcional para notificaciones</li>
+              <li><strong>password:</strong> VARCHAR(255) NOT NULL - Se encripta automáticamente con bcrypt</li>
+              <li><strong>role_id:</strong> INT NOT NULL REFERENCES roles(id) - Determina permisos</li>
             </ul>
           </div>
           
           <div className="user-create__info-section">
             <h3 className="user-create__info-title">
-              🔒 Validaciones del Sistema
+              ⚙️ Validaciones del Backend (Joi)
             </h3>
             <ul className="user-create__info-list">
-              <li><strong>Username:</strong> Único, mínimo 3 caracteres, solo letras, números y guiones bajos</li>
-              <li><strong>Email:</strong> Único, formato válido</li>
-              <li><strong>Contraseña:</strong> Mínimo 6 caracteres alfanuméricos</li>
-              <li><strong>Roles:</strong> Deben existir en la base de datos</li>
+              <li><strong>userName:</strong> .alphanum().min(3).max(30) - Solo alfanumérico</li>
+              <li><strong>email:</strong> .email().optional() - Formato email válido si se proporciona</li>
+              <li><strong>password:</strong> .alphanum().required() - Solo letras y números</li>
+              <li><strong>roleId:</strong> .number().positive().required() - Debe existir en tabla roles</li>
+            </ul>
+          </div>
+
+          <div className="user-create__info-section">
+            <h3 className="user-create__info-title">
+              👥 Roles Disponibles
+            </h3>
+            <ul className="user-create__info-list">
+              <li><strong>1 - Administrador:</strong> Acceso completo al sistema y gestión de usuarios</li>
+              <li><strong>2 - Editor:</strong> Puede gestionar contenido (películas, series) pero no usuarios</li>
+              <li><strong>3 - Usuario:</strong> Solo puede ver y reproducir contenido</li>
             </ul>
           </div>
         </div>

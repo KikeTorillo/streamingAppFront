@@ -1,60 +1,89 @@
-// ===== DATA TABLE ORGANISM =====
+// ===== DATA TABLE ORGANISM - ACTUALIZADO CON ACTIONS DROPDOWN =====
 // src/components/organism/DataTable/DataTable.jsx
 
 import React, { useState, useMemo } from 'react';
-import { useDebounce } from 'use-debounce';
 import {
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
-  getSortedRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
   flexRender,
 } from '@tanstack/react-table';
+
+// Componentes del sistema de diseño
 import { Button } from '../../atoms/Button/Button';
 import { TextInput } from '../../molecules/TextInput/TextInput';
 import { Select } from '../../atoms/Select/Select';
 import { EmptyState } from '../../molecules/EmptyState/EmptyState';
+import { ActionsDropdown } from '../../molecules/ActionsDropdown/ActionsDropdown'; // ✅ NUEVO IMPORT
+
 import './DataTable.css';
 
+// Hook personalizado para debounce
+function useDebounce(value, delay) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return [debouncedValue];
+}
+
 /**
- * DataTable - Organismo para tablas de datos con funcionalidades avanzadas
+ * DataTable - Organismo completo para mostrar datos tabulares
  * 
- * REFACTORIZADO PARA SER UN ORGANISMO CORRECTO:
- * - ✅ Movido de atoms/ a organism/
- * - ✅ Usa componentes del sistema de diseño (Button, TextInput, Select)
- * - ✅ Variables CSS del sistema
- * - ✅ Estados loading/empty/error
- * - ✅ Accesibilidad completa
- * - ✅ Responsive design
- * - ✅ Elimina dependencia de @headlessui/react
+ * ✅ ACTUALIZADO: Ahora usa ActionsDropdown independiente con story
+ * 
+ * @param {Object} props - Props del componente
+ * @param {Array} props.data - Datos a mostrar en la tabla
+ * @param {Array} props.columns - Configuración de columnas (TanStack format)
+ * @param {boolean} props.loading - Estado de carga
+ * @param {string} props.error - Mensaje de error
+ * @param {boolean} props.showActions - Mostrar columna de acciones
+ * @param {function} props.onEdit - Callback para editar fila
+ * @param {function} props.onDelete - Callback para eliminar fila
+ * @param {function} props.onView - Callback para ver fila
+ * @param {string} props.searchPlaceholder - Placeholder del campo de búsqueda
+ * @param {Array} props.pageSizeOptions - Opciones de tamaño de página
+ * @param {number} props.defaultPageSize - Tamaño inicial de página
+ * @param {string} props.variant - Variante visual
+ * @param {string} props.emptyTitle - Título del estado vacío
+ * @param {string} props.emptyDescription - Descripción del estado vacío
+ * @param {string} props.emptyIcon - Ícono del estado vacío
+ * @param {string} props.className - Clases CSS adicionales
  */
 function DataTable({
-  // Datos y configuración
+  // Props de datos
   data = [],
   columns = [],
   
-  // Handlers de acciones
-  onEdit,
-  onDelete,
-  onView,
-  
-  // Estados
+  // Props de estado
   loading = false,
   error = null,
   
-  // Configuración de la tabla
-  searchPlaceholder = "Buscar...",
-  pageSizeOptions = [10, 25, 50, 100],
-  defaultPageSize = 10,
-  
-  // Configuración de acciones
+  // Props de acciones
   showActions = true,
-  actionsColumnHeader = "Acciones",
+  onEdit,
+  onDelete,
+  onView,
+  actionsColumnHeader = 'Acciones',
   
-  // Estados vacío
-  emptyTitle = "No hay datos disponibles",
-  emptyDescription = "No se encontraron resultados para mostrar",
+  // Props de búsqueda y paginación
+  searchPlaceholder = 'Buscar...',
+  pageSizeOptions = [10, 25, 50, 100],
+  defaultPageSize = 25,
+  
+  // Props de estados vacíos
+  emptyTitle = 'No hay datos',
+  emptyDescription = 'No se encontraron resultados',
   emptyIcon = "📋",
   
   // Props de customización
@@ -69,21 +98,57 @@ function DataTable({
   const [debouncedGlobalFilter] = useDebounce(globalFilter, 300);
   const [pageSize, setPageSize] = useState(defaultPageSize);
 
-  // ===== COLUMNAS CON ACCIONES =====
+  // ===== COLUMNAS CON ACCIONES - ACTUALIZADO =====
   const actionColumn = useMemo(() => {
     if (!showActions) return null;
     
+    // ✅ ACTUALIZADO: Usar ActionsDropdown independiente
     return {
       id: 'actions',
       header: actionsColumnHeader,
-      cell: ({ row }) => (
-        <ActionsDropdown
-          row={row.original}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onView={onView}
-        />
-      ),
+      cell: ({ row }) => {
+        // Crear array de acciones dinámicamente
+        const actions = [];
+        
+        if (onView) {
+          actions.push({
+            label: 'Ver detalle',
+            icon: '👁️',
+            onClick: onView,
+            description: 'Ver información completa'
+          });
+        }
+        
+        if (onEdit) {
+          actions.push({
+            label: 'Editar',
+            icon: '✏️', 
+            onClick: onEdit,
+            description: 'Modificar este elemento'
+          });
+        }
+        
+        if (onDelete) {
+          actions.push({
+            label: 'Eliminar',
+            icon: '🗑️',
+            variant: 'danger',
+            onClick: onDelete,
+            description: 'Eliminar permanentemente'
+          });
+        }
+
+        return (
+          <ActionsDropdown
+            actions={actions}
+            data={row.original}
+            size="sm"
+            variant="ghost"
+            position="bottom-right"
+            triggerLabel={`Acciones para fila ${row.index + 1}`}
+          />
+        );
+      },
       size: 120,
       enableSorting: false,
       enableGlobalFilter: false,
@@ -115,25 +180,14 @@ function DataTable({
     },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    globalFilterFn: 'includesString',
+    getSortedRowModel: getSortedRowModel(),
   });
 
-  // ===== CLASES CSS =====
-  const tableClasses = [
-    'data-table',
-    `data-table--${variant}`,
-    loading && 'data-table--loading',
-    className
-  ].filter(Boolean).join(' ');
-
-  // ===== RENDER ESTADOS ESPECIALES =====
-  
-  // Estado de error
+  // ===== MANEJO DE ERRORES =====
   if (error) {
     return (
-      <div className={tableClasses} {...restProps}>
+      <div className={`data-table ${className}`} {...restProps}>
         <div className="data-table__error">
           <EmptyState
             icon="❌"
@@ -141,7 +195,7 @@ function DataTable({
             description={error}
             action={
               <Button 
-                variant="primary" 
+                variant="outline" 
                 size="sm"
                 onClick={() => window.location.reload()}
               >
@@ -154,10 +208,10 @@ function DataTable({
     );
   }
 
-  // Estado vacío (sin datos)
+  // ===== ESTADO VACÍO =====
   if (!loading && (!data || data.length === 0)) {
     return (
-      <div className={tableClasses} {...restProps}>
+      <div className={`data-table ${className}`} {...restProps}>
         <div className="data-table__empty">
           <EmptyState
             icon={emptyIcon}
@@ -171,77 +225,78 @@ function DataTable({
 
   // ===== RENDER PRINCIPAL =====
   return (
-    <div className={tableClasses} {...restProps}>
+    <div className={`data-table data-table--${variant} ${className}`} {...restProps}>
       {/* ===== CONTROLES SUPERIORES ===== */}
       <div className="data-table__controls">
-        <div className="data-table__controls-left">
+        {/* Búsqueda */}
+        <div className="data-table__search">
           <TextInput
-            type="search"
             placeholder={searchPlaceholder}
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             leftIcon="🔍"
             size="sm"
-            className="data-table__search"
-            aria-label="Buscar en la tabla"
+            disabled={loading}
           />
         </div>
-        
-        <div className="data-table__controls-right">
+
+        {/* Selector de tamaño de página */}
+        <div className="data-table__page-size">
           <Select
-            value={pageSize.toString()}
+            value={pageSize}
             onChange={(e) => setPageSize(Number(e.target.value))}
-            options={pageSizeOptions.map(size => ({
-              value: size.toString(),
-              label: `${size} por página`
-            }))}
             size="sm"
-            className="data-table__page-size"
-            aria-label="Elementos por página"
-          />
+            disabled={loading}
+          >
+            {pageSizeOptions.map(size => (
+              <option key={size} value={size}>
+                {size} filas
+              </option>
+            ))}
+          </Select>
         </div>
       </div>
 
       {/* ===== TABLA ===== */}
-      <div className="data-table__wrapper">
-        <table className="data-table__table" role="table">
+      <div className="data-table__container">
+        <table className="data-table__table">
           {/* Header */}
           <thead className="data-table__thead">
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className="data-table__header-row">
-                {headerGroup.headers.map((header) => (
-                  <th
+                {headerGroup.headers.map(header => (
+                  <th 
                     key={header.id}
-                    className={[
-                      'data-table__th',
-                      header.column.getCanSort() && 'data-table__th--sortable'
-                    ].filter(Boolean).join(' ')}
-                    style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}
+                    className={`data-table__th ${
+                      header.column.getCanSort() ? 'data-table__th--sortable' : ''
+                    }`}
+                    style={{ width: header.getSize() }}
                   >
-                    {!header.isPlaceholder && (
-                      <button
-                        className="data-table__header-button"
-                        onClick={header.column.getToggleSortingHandler()}
-                        disabled={!header.column.getCanSort()}
-                        aria-label={
-                          header.column.getCanSort()
-                            ? `Ordenar por ${header.column.columnDef.header}`
-                            : undefined
-                        }
-                      >
-                        <span className="data-table__header-text">
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                        </span>
-                        {header.column.getCanSort() && (
-                          <span className="data-table__sort-icon">
-                            {header.column.getIsSorted() === 'asc' ? '🔼' :
-                             header.column.getIsSorted() === 'desc' ? '🔽' : '↕️'}
+                    {header.isPlaceholder ? null : (
+                      header.column.getCanSort() ? (
+                        <button
+                          className="data-table__header-button"
+                          onClick={header.column.getToggleSortingHandler()}
+                          disabled={loading}
+                          aria-label={`Ordenar por ${header.column.columnDef.header}`}
+                        >
+                          <span className="data-table__header-text">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
                           </span>
-                        )}
-                      </button>
+                          <span className="data-table__sort-icon">
+                            {{
+                              asc: '↑',
+                              desc: '↓',
+                            }[header.column.getIsSorted()] ?? '↕️'}
+                          </span>
+                        </button>
+                      ) : (
+                        <div className="data-table__header-button" style={{ cursor: 'default' }}>
+                          <span className="data-table__header-text">
+                            {flexRender(header.column.columnDef.header, header.getContext())}
+                          </span>
+                        </div>
+                      )
                     )}
                   </th>
                 ))}
@@ -252,24 +307,21 @@ function DataTable({
           {/* Body */}
           <tbody className="data-table__tbody">
             {loading ? (
-              // Skeleton rows durante loading
+              // Skeleton loading
               Array.from({ length: pageSize }).map((_, index) => (
                 <tr key={`skeleton-${index}`} className="data-table__row data-table__row--skeleton">
                   {memoColumns.map((_, colIndex) => (
-                    <td key={colIndex} className="data-table__td">
+                    <td key={`skeleton-cell-${index}-${colIndex}`} className="data-table__td">
                       <div className="data-table__skeleton" />
                     </td>
                   ))}
                 </tr>
               ))
             ) : (
-              // Filas reales
-              table.getRowModel().rows.map((row) => (
-                <tr 
-                  key={row.id} 
-                  className="data-table__row"
-                >
-                  {row.getVisibleCells().map((cell) => (
+              // Datos reales
+              table.getRowModel().rows.map(row => (
+                <tr key={row.id} className="data-table__row">
+                  {row.getVisibleCells().map(cell => (
                     <td key={cell.id} className="data-table__td">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -281,127 +333,46 @@ function DataTable({
         </table>
       </div>
 
-      {/* ===== INFORMACIÓN Y PAGINACIÓN ===== */}
-      <div className="data-table__footer">
-        <div className="data-table__info">
-          <span className="data-table__results-count">
-            {loading ? 'Cargando...' : (
-              <>
-                Mostrando {table.getRowModel().rows.length} de{' '}
-                {table.getFilteredRowModel().rows.length} resultados
-                {globalFilter && ` (filtrados de ${data.length} totales)`}
-              </>
-            )}
-          </span>
-        </div>
-
-        <div className="data-table__pagination">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage() || loading}
-            aria-label="Página anterior"
-          >
-            ← Anterior
-          </Button>
-          
-          <span className="data-table__page-info">
-            Página {table.getState().pagination.pageIndex + 1} de{' '}
-            {table.getPageCount() || 1}
-          </span>
-
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage() || loading}
-            aria-label="Página siguiente"
-          >
-            Siguiente →
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/**
- * ActionsDropdown - Menú de acciones sin dependencias externas
- */
-function ActionsDropdown({ row, onEdit, onDelete, onView }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleAction = (action, actionFn) => {
-    setIsOpen(false);
-    if (actionFn) {
-      actionFn(row);
-    }
-  };
-
-  return (
-    <div className="data-table__actions">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsOpen(!isOpen)}
-        className="data-table__actions-trigger"
-        aria-label="Opciones de fila"
-        aria-expanded={isOpen}
-        aria-haspopup="menu"
-      >
-        ⋮
-      </Button>
-
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div 
-            className="data-table__actions-backdrop"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
-          
-          {/* Menu */}
-          <div 
-            className="data-table__actions-menu"
-            role="menu"
-            aria-label="Acciones de fila"
-          >
-            {onView && (
-              <button
-                className="data-table__actions-item"
-                onClick={() => handleAction('view', onView)}
-                role="menuitem"
-              >
-                <span className="data-table__actions-icon">👁️</span>
-                Ver detalle
-              </button>
-            )}
-            
-            {onEdit && (
-              <button
-                className="data-table__actions-item"
-                onClick={() => handleAction('edit', onEdit)}
-                role="menuitem"
-              >
-                <span className="data-table__actions-icon">✏️</span>
-                Editar
-              </button>
-            )}
-            
-            {onDelete && (
-              <button
-                className="data-table__actions-item data-table__actions-item--danger"
-                onClick={() => handleAction('delete', onDelete)}
-                role="menuitem"
-              >
-                <span className="data-table__actions-icon">🗑️</span>
-                Eliminar
-              </button>
-            )}
+      {/* ===== PAGINACIÓN ===== */}
+      {!loading && data && data.length > 0 && (
+        <div className="data-table__footer">
+          {/* Info de resultados */}
+          <div className="data-table__info">
+            <span className="data-table__info-text">
+              Mostrando {table.getRowModel().rows.length} de {table.getFilteredRowModel().rows.length} resultados
+              {table.getFilteredRowModel().rows.length !== data.length && 
+                ` (filtrados de ${data.length} totales)`
+              }
+            </span>
           </div>
-        </>
+
+          {/* Controles de paginación */}
+          <div className="data-table__pagination">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              aria-label="Página anterior"
+            >
+              ←
+            </Button>
+            
+            <span className="data-table__page-info">
+              Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+            </span>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              aria-label="Página siguiente"
+            >
+              →
+            </Button>
+          </div>
+        </div>
       )}
     </div>
   );
