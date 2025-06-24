@@ -1,4 +1,5 @@
-/* ===== MOVIE CREATE FORM - SISTEMA DE DISEÑO ===== */
+
+/* ===== MOVIE CREATE FORM - SISTEMA DE DISEÑO CON TEXTINPUT ===== */
 /* components/organism/MovieCreateForm/MovieCreateForm.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
@@ -57,7 +58,7 @@
   gap: var(--space-lg);
 }
 
-/* Controles de búsqueda */
+/* ===== CONTROLES DE BÚSQUEDA CON TEXTINPUT ===== */
 .movie-form-search-controls {
   padding: var(--space-lg);
   background-color: var(--bg-secondary);
@@ -72,43 +73,18 @@
   align-items: end;
 }
 
+/* ✅ NUEVO: Wrapper específico para TextInput */
 .movie-form-search-input-wrapper {
   flex: 1;
+  min-width: 0; /* Permite que el TextInput se encoja correctamente */
 }
 
-.movie-form-search-input {
-  width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  border: 0.1rem solid var(--border-default);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-family-base);
-  transition: all var(--transition-normal);
-  outline: none;
-  box-sizing: border-box;
-  min-height: 4.0rem;
-}
+/* ✅ ELIMINADO: Estilos del input nativo ya no son necesarios */
+/* .movie-form-search-input - YA NO SE USA */
 
-.movie-form-search-input:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
-  outline: 0.2rem solid var(--border-focus);
-  outline-offset: 0.1rem;
-}
-
-.movie-form-search-input:hover:not(:focus) {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-sm);
-}
-
-.movie-form-search-input::placeholder {
-  color: var(--text-placeholder);
-}
-
+/* ===== SELECT DE ORDENAMIENTO (temporal, después sustituir por TextSelect) ===== */
 .movie-form-sort-wrapper {
-  min-width: 20rem;
+  min-width: 18rem;
 }
 
 .movie-form-sort-select {
@@ -125,6 +101,8 @@
   box-sizing: border-box;
   cursor: pointer;
   min-height: 4.0rem;
+  
+  /* Flecha del select */
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
   background-position: right var(--space-sm) center;
   background-repeat: no-repeat;
@@ -132,204 +110,37 @@
   padding-right: calc(var(--space-md) + 2.4rem);
 }
 
-.movie-form-sort-select:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
-  outline: 0.2rem solid var(--border-focus);
-  outline-offset: 0.1rem;
-}
-
-.movie-form-sort-select:hover:not(:focus) {
+.movie-form-sort-select:hover:not(:disabled) {
   border-color: var(--border-hover);
   box-shadow: var(--shadow-sm);
 }
 
+.movie-form-sort-select:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
+}
+
+.movie-form-sort-select:disabled {
+  background-color: var(--bg-disabled);
+  color: var(--text-disabled);
+  border-color: var(--border-primary);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 /* ===== ESTADOS DE CARGA Y ERROR ===== */
-.movie-form-loading-state,
-.movie-form-error-state {
-  text-align: center;
-  padding: var(--space-xl);
-  border-radius: var(--radius-lg);
-}
-
-.movie-form-loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-md);
-  background-color: var(--bg-secondary);
-  border: 0.1rem solid var(--border-secondary);
-}
-
-.movie-form-spinner {
-  width: 4rem;
-  height: 4rem;
-  border: 0.4rem solid var(--border-primary);
-  border-top: 0.4rem solid var(--color-primary);
-  border-radius: 50%;
-  animation: movieFormSpin 1s linear infinite;
-}
-
-@keyframes movieFormSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.movie-form-error-state {
-  background-color: var(--color-danger-light);
-  border: 0.1rem solid var(--color-danger);
-}
-
-.movie-form-error-state p {
-  color: var(--color-danger);
-  font-weight: var(--font-weight-medium);
-  margin: 0;
-}
-
-/* ===== GRID DE RESULTADOS ===== */
-.movie-form-results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
-  gap: var(--space-lg);
-  margin-bottom: var(--space-lg);
-}
-
-.movie-form-result-card {
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  overflow: hidden;
-  border: 0.1rem solid var(--border-secondary);
-  background-color: var(--bg-primary);
-  border-radius: var(--radius-lg);
-}
-
-.movie-form-result-card:hover {
-  transform: translateY(-0.2rem);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--border-hover);
-}
-
-.movie-form-poster-container {
-  position: relative;
-  margin-bottom: var(--space-md);
-  overflow: hidden;
-}
-
-.movie-form-poster {
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-  display: block;
-}
-
-.movie-form-result-info {
-  padding: 0 var(--space-md) var(--space-md);
-}
-
-.movie-form-result-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  margin-bottom: var(--space-xs);
-  line-height: var(--line-height-tight);
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.movie-form-result-year,
-.movie-form-result-type,
-.movie-form-result-rating {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin: var(--space-xs) 0;
-  line-height: var(--line-height-normal);
-}
-
-.movie-form-result-rating {
-  color: var(--color-warning);
-  font-weight: var(--font-weight-medium);
-}
-
-.movie-form-results-footer {
-  text-align: center;
-  padding: var(--space-md);
-  background-color: var(--bg-secondary);
-  border: 0.1rem solid var(--border-secondary);
-  border-radius: var(--radius-lg);
-}
-
-.movie-form-results-footer p {
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  margin: 0;
-}
-
-/* ===== VISTA DEL FORMULARIO ===== */
-.movie-form-form-view {
-  max-width: 90rem;
-  margin: 0 auto;
-}
-
-.movie-form-form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-lg);
-  gap: var(--space-md);
-  flex-wrap: wrap;
-  padding: var(--space-lg);
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  border: 0.1rem solid var(--border-secondary);
-  border-bottom: none;
-}
-
-.movie-form-form-title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  margin: 0;
-  line-height: var(--line-height-tight);
-}
-
-/* ===== PREVIEW DEL POSTER ===== */
-.movie-form-poster-preview {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-lg);
-  padding: var(--space-lg);
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-}
-
-.movie-form-poster-large {
-  width: 100%;
-  max-width: 30rem;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 0.1rem solid var(--border-secondary);
-}
-
-/* ===== MENSAJES DE ESTADO ===== */
+.movie-form-loading,
+.movie-form-error-message,
 .movie-form-success-message,
-.movie-form-error-message {
-  margin-bottom: var(--space-lg);
+.movie-form-no-results {
+  padding: var(--space-lg);
   text-align: center;
-  padding: var(--space-md);
-  border-radius: var(--radius-md);
-  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-lg);
 }
 
-.movie-form-success-message {
-  background-color: var(--color-success-light);
-  border: 0.1rem solid var(--color-success);
-  color: var(--color-success-dark);
-}
-
-.movie-form-success-message p {
-  margin: 0;
+.movie-form-loading {
+  background-color: var(--bg-secondary);
+  border: 0.1rem solid var(--border-secondary);
 }
 
 .movie-form-error-message {
@@ -338,221 +149,189 @@
   color: var(--color-danger-dark);
 }
 
-.movie-form-error-message p {
+.movie-form-success-message {
+  background-color: var(--color-success-light);
+  border: 0.1rem solid var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.movie-form-no-results {
+  background-color: var(--bg-secondary);
+  border: 0.1rem solid var(--border-secondary);
+  color: var(--text-muted);
+}
+
+/* ===== SPINNER DE CARGA ===== */
+.movie-form-spinner {
+  width: 4rem;
+  height: 4rem;
+  border: 0.4rem solid var(--border-secondary);
+  border-top: 0.4rem solid var(--color-primary);
+  border-radius: 50%;
+  animation: movieFormSpin 1s linear infinite;
+  margin: 0 auto var(--space-md) auto;
+}
+
+@keyframes movieFormSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== GRID DE RESULTADOS ===== */
+.movie-form-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+/* ===== CARDS DE RESULTADOS ===== */
+.movie-form-result-card {
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.movie-form-result-card:hover {
+  transform: translateY(-0.4rem);
+  box-shadow: var(--shadow-lg);
+}
+
+.movie-form-result-poster {
+  width: 100%;
+  height: 20rem;
+  overflow: hidden;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.movie-form-result-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-normal);
+}
+
+.movie-form-result-card:hover .movie-form-result-image {
+  transform: scale(1.05);
+}
+
+.movie-form-result-info {
+  padding: var(--space-md);
+}
+
+.movie-form-result-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  margin: 0 0 var(--space-xs) 0;
+  line-height: var(--line-height-tight);
+  
+  /* Truncar títulos largos */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.movie-form-result-year {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0 0 var(--space-xs) 0;
+}
+
+.movie-form-result-rating {
+  font-size: var(--font-size-sm);
+  color: var(--color-warning);
+  font-weight: var(--font-weight-medium);
+  margin: 0 0 var(--space-sm) 0;
+}
+
+.movie-form-result-overview {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  line-height: var(--line-height-relaxed);
   margin: 0;
+}
+
+/* ===== VISTA DE FORMULARIO ===== */
+.movie-form-form-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.movie-form-form-card {
+  padding: var(--space-xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+}
+
+.movie-form-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 0.1rem solid var(--border-secondary);
+}
+
+.movie-form-form-title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.movie-form-back-button {
+  font-size: var(--font-size-sm);
+}
+
+/* ===== PREVIEW DEL POSTER ===== */
+.movie-form-poster-preview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-xl);
+}
+
+.movie-form-poster-large {
+  max-width: 30rem;
+  height: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 /* ===== BOTONES DE ACCIÓN ===== */
 .movie-form-actions {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: var(--space-md);
-  margin-top: var(--space-lg);
+  margin-top: var(--space-xl);
   padding-top: var(--space-lg);
   border-top: 0.1rem solid var(--border-secondary);
 }
 
-/* ===== RESPONSIVE DESIGN ===== */
-@media (max-width: 768px) {
-  .movie-form-container {
-    padding: var(--space-md);
-  }
-
-  .movie-form-title {
-    font-size: var(--font-size-2xl);
-  }
-
-  .movie-form-subtitle {
-    font-size: var(--font-size-base);
-  }
-
-  .movie-form-navigation {
-    flex-direction: column;
-    gap: var(--space-sm);
-  }
-
-  .movie-form-nav-button {
-    max-width: none;
-  }
-
-  .movie-form-search-inputs {
-    grid-template-columns: 1fr;
-    gap: var(--space-sm);
-  }
-
-  .movie-form-sort-wrapper {
-    min-width: auto;
-  }
-
-  .movie-form-results-grid {
-    grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
-    gap: var(--space-md);
-  }
-
-  .movie-form-form-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-sm);
-  }
-
-  .movie-form-actions {
-    flex-direction: column-reverse;
-    gap: var(--space-sm);
-  }
-}
-
-@media (max-width: 480px) {
-  .movie-form-container {
-    padding: var(--space-sm);
-  }
-
-  .movie-form-title {
-    font-size: var(--font-size-xl);
-  }
-
-  .movie-form-results-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-sm);
-  }
-
-  .movie-form-search-controls {
-    padding: var(--space-md);
-  }
-
-  .movie-form-poster-large {
-    max-width: 25rem;
-  }
-}
-
-/* ===== ANIMACIONES ===== */
-.movie-form-results-grid .movie-form-result-card {
-  animation: movieFormFadeIn 0.4s ease-out;
-}
-
-@keyframes movieFormFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== ACCESIBILIDAD ===== */
-@media (prefers-reduced-motion: reduce) {
-  .movie-form-spinner {
-    animation: none;
-  }
-  
-  .movie-form-result-card {
-    animation: none;
-  }
-  
-  .movie-form-result-card:hover {
-    transform: none;
-  }
-}
-
-/* ===== FOCUS VISIBLE ===== */
-.movie-form-search-input:focus-visible,
-.movie-form-sort-select:focus-visible {
-  outline: 0.3rem solid var(--border-focus);
-  outline-offset: 0.2rem;
-}
-
-.movie-form-result-card:focus-visible {
-  outline: 0.3rem solid var(--border-focus);
-  outline-offset: 0.2rem;
-}
-
-/* ===== MODO OSCURO ===== */
-.dark .movie-form-search-input,
-.dark .movie-form-sort-select {
-  background-color: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: var(--border-secondary);
-}
-
-.dark .movie-form-spinner {
-  border-color: var(--border-secondary);
-  border-top-color: var(--color-primary);
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-  .movie-form-navigation,
-  .movie-form-search-controls,
-  .movie-form-actions {
-    display: none;
-  }
-  
-  .movie-form-container {
-    padding: 0;
-    max-width: none;
-  }
-  
-  .movie-form-results-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-sm);
-  }
-  
-  .movie-form-result-card {
-    break-inside: avoid;
-    box-shadow: none;
-    border: 0.1rem solid var(--border-primary);
-  }
-}
-
-/* ===== HIGH CONTRAST MODE ===== */
-@media (prefers-contrast: high) {
-  .movie-form-search-input,
-  .movie-form-sort-select {
-    border-width: 0.2rem;
-  }
-  
-  .movie-form-result-title {
-    font-weight: var(--font-weight-bold);
-  }
-  
-  .movie-form-spinner {
-    border-width: 0.6rem;
-  }
-  
-  .movie-form-form-header {
-    border-width: 0.2rem;
-  }
-}
-
-/* ===== UTILIDADES DE DISEÑO ===== */
-.movie-form-sr-only {
-  position: absolute;
-  width: 0.1rem;
-  height: 0.1rem;
-  padding: 0;
-  margin: -0.1rem;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-.movie-form-hidden {
-  display: none !important;
-}
-
-.movie-form-visually-hidden {
-  clip: rect(0 0 0 0);
-  clip-path: inset(50%);
-  height: 0.1rem;
-  overflow: hidden;
-  position: absolute;
-  white-space: nowrap;
-  width: 0.1rem;
+.movie-form-cancel-button {
+  flex: 1;
+  max-width: 20rem;
 }
 
 /* ===== INTEGRACIÓN CON COMPONENTES DEL SISTEMA ===== */
+
+/* ✅ TextInput Integration - El componente ya viene con sus estilos */
+.movie-form-container .text-input {
+  /* Los estilos del TextInput se heredan automáticamente */
+  /* Solo añadimos overrides específicos si es necesario */
+}
+
+/* TextInput con iconos clickeables - Mejora UX */
+.movie-form-container .text-input__icon--clickable {
+  cursor: pointer;
+  transition: color var(--transition-normal);
+}
+
+.movie-form-container .text-input__icon--clickable:hover {
+  color: var(--color-primary);
+}
 
 /* Card Integration */
 .movie-form-container .card {
@@ -582,94 +361,4 @@
   font-weight: var(--font-weight-medium);
   border-radius: var(--radius-md);
   transition: all var(--transition-normal);
-}
-
-.movie-form-container .button--primary {
-  background-color: var(--color-primary);
-  color: var(--color-primary-contrast);
-  border: 0.1rem solid var(--color-primary);
-}
-
-.movie-form-container .button--outline {
-  background-color: transparent;
-  color: var(--color-primary);
-  border: 0.1rem solid var(--color-primary);
-}
-
-.movie-form-container .button--ghost {
-  background-color: transparent;
-  color: var(--text-secondary);
-  border: 0.1rem solid transparent;
-}
-
-.movie-form-container .button--success {
-  background-color: var(--color-success);
-  color: var(--color-success-contrast);
-  border: 0.1rem solid var(--color-success);
-}
-
-/* ContentImage Integration */
-.movie-form-container .content-image {
-  display: block;
-  width: 100%;
-  height: auto;
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-}
-
-.movie-form-container .content-image--fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--bg-secondary);
-  border: 0.1rem dashed var(--border-secondary);
-  color: var(--text-muted);
-  font-size: var(--font-size-2xl);
-  min-height: 20rem;
-}
-
-/* DynamicForm Integration */
-.movie-form-container .dynamic-form {
-  background-color: transparent;
-}
-
-.movie-form-container .dynamic-form__grid {
-  gap: var(--space-lg);
-}
-
-.movie-form-container .dynamic-form__field {
-  margin-bottom: 0;
-}
-
-.movie-form-container .dynamic-form__submit-container {
-  margin-top: var(--space-xl);
-  display: flex;
-  justify-content: center;
-  gap: var(--space-md);
-}
-
-/* ===== FINALIZADOR DE ESTILOS ===== */
-/* Asegurar que todos los elementos heredan box-sizing */
-.movie-form-container *,
-.movie-form-container *::before,
-.movie-form-container *::after {
-  box-sizing: border-box;
-}
-
-/* Smooth scroll para navegación interna */
-.movie-form-container {
-  scroll-behavior: smooth;
-}
-
-/* Reset de margins para elementos internos */
-.movie-form-container h1,
-.movie-form-container h2,
-.movie-form-container h3,
-.movie-form-container p {
-  margin-top: 0;
-}
-
-/* Últimos ajustes de accesibilidad */
-.movie-form-container [tabindex="-1"]:focus:not(:focus-visible) {
-  outline: 0 !important;
 }
