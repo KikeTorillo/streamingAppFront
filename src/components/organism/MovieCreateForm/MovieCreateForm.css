@@ -1,5 +1,4 @@
-
-/* ===== MOVIE CREATE FORM - SISTEMA DE DISEÑO CON TEXTINPUT ===== */
+/* ===== MOVIE CREATE FORM - SISTEMA DE DISEÑO LIMPIO ===== */
 /* components/organism/MovieCreateForm/MovieCreateForm.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
@@ -58,7 +57,7 @@
   gap: var(--space-lg);
 }
 
-/* ===== CONTROLES DE BÚSQUEDA CON TEXTINPUT ===== */
+/* ===== CONTROLES DE BÚSQUEDA ===== */
 .movie-form-search-controls {
   padding: var(--space-lg);
   background-color: var(--bg-secondary);
@@ -73,108 +72,13 @@
   align-items: end;
 }
 
-/* ✅ NUEVO: Wrapper específico para TextInput */
 .movie-form-search-input-wrapper {
   flex: 1;
-  min-width: 0; /* Permite que el TextInput se encoja correctamente */
+  min-width: 0;
 }
 
-/* ✅ ELIMINADO: Estilos del input nativo ya no son necesarios */
-/* .movie-form-search-input - YA NO SE USA */
-
-/* ===== SELECT DE ORDENAMIENTO (temporal, después sustituir por TextSelect) ===== */
 .movie-form-sort-wrapper {
   min-width: 18rem;
-}
-
-.movie-form-sort-select {
-  width: 100%;
-  padding: var(--space-sm) var(--space-md);
-  border: 0.1rem solid var(--border-default);
-  border-radius: var(--radius-md);
-  font-size: var(--font-size-base);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-family-base);
-  transition: all var(--transition-normal);
-  outline: none;
-  box-sizing: border-box;
-  cursor: pointer;
-  min-height: 4.0rem;
-  
-  /* Flecha del select */
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right var(--space-sm) center;
-  background-repeat: no-repeat;
-  background-size: 1.5rem 1.5rem;
-  padding-right: calc(var(--space-md) + 2.4rem);
-}
-
-.movie-form-sort-select:hover:not(:disabled) {
-  border-color: var(--border-hover);
-  box-shadow: var(--shadow-sm);
-}
-
-.movie-form-sort-select:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
-}
-
-.movie-form-sort-select:disabled {
-  background-color: var(--bg-disabled);
-  color: var(--text-disabled);
-  border-color: var(--border-primary);
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-/* ===== ESTADOS DE CARGA Y ERROR ===== */
-.movie-form-loading,
-.movie-form-error-message,
-.movie-form-success-message,
-.movie-form-no-results {
-  padding: var(--space-lg);
-  text-align: center;
-  border-radius: var(--radius-lg);
-}
-
-.movie-form-loading {
-  background-color: var(--bg-secondary);
-  border: 0.1rem solid var(--border-secondary);
-}
-
-.movie-form-error-message {
-  background-color: var(--color-danger-light);
-  border: 0.1rem solid var(--color-danger);
-  color: var(--color-danger-dark);
-}
-
-.movie-form-success-message {
-  background-color: var(--color-success-light);
-  border: 0.1rem solid var(--color-success);
-  color: var(--color-success-dark);
-}
-
-.movie-form-no-results {
-  background-color: var(--bg-secondary);
-  border: 0.1rem solid var(--border-secondary);
-  color: var(--text-muted);
-}
-
-/* ===== SPINNER DE CARGA ===== */
-.movie-form-spinner {
-  width: 4rem;
-  height: 4rem;
-  border: 0.4rem solid var(--border-secondary);
-  border-top: 0.4rem solid var(--color-primary);
-  border-radius: 50%;
-  animation: movieFormSpin 1s linear infinite;
-  margin: 0 auto var(--space-md) auto;
-}
-
-@keyframes movieFormSpin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
 
 /* ===== GRID DE RESULTADOS ===== */
@@ -183,74 +87,6 @@
   grid-template-columns: repeat(auto-fill, minmax(28rem, 1fr));
   gap: var(--space-lg);
   margin-top: var(--space-lg);
-}
-
-/* ===== CARDS DE RESULTADOS ===== */
-.movie-form-result-card {
-  cursor: pointer;
-  transition: all var(--transition-normal);
-  overflow: hidden;
-}
-
-.movie-form-result-card:hover {
-  transform: translateY(-0.4rem);
-  box-shadow: var(--shadow-lg);
-}
-
-.movie-form-result-poster {
-  width: 100%;
-  height: 20rem;
-  overflow: hidden;
-  border-radius: var(--radius-md) var(--radius-md) 0 0;
-}
-
-.movie-form-result-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform var(--transition-normal);
-}
-
-.movie-form-result-card:hover .movie-form-result-image {
-  transform: scale(1.05);
-}
-
-.movie-form-result-info {
-  padding: var(--space-md);
-}
-
-.movie-form-result-title {
-  font-size: var(--font-size-lg);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  margin: 0 0 var(--space-xs) 0;
-  line-height: var(--line-height-tight);
-  
-  /* Truncar títulos largos */
-  overflow: hidden;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.movie-form-result-year {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin: 0 0 var(--space-xs) 0;
-}
-
-.movie-form-result-rating {
-  font-size: var(--font-size-sm);
-  color: var(--color-warning);
-  font-weight: var(--font-weight-medium);
-  margin: 0 0 var(--space-sm) 0;
-}
-
-.movie-form-result-overview {
-  font-size: var(--font-size-sm);
-  color: var(--text-muted);
-  line-height: var(--line-height-relaxed);
-  margin: 0;
 }
 
 /* ===== VISTA DE FORMULARIO ===== */
@@ -315,50 +151,96 @@
   max-width: 20rem;
 }
 
-/* ===== INTEGRACIÓN CON COMPONENTES DEL SISTEMA ===== */
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .movie-form-container {
+    padding: var(--space-md);
+  }
 
-/* ✅ TextInput Integration - El componente ya viene con sus estilos */
-.movie-form-container .text-input {
-  /* Los estilos del TextInput se heredan automáticamente */
-  /* Solo añadimos overrides específicos si es necesario */
+  .movie-form-title {
+    font-size: var(--font-size-2xl);
+  }
+
+  .movie-form-subtitle {
+    font-size: var(--font-size-base);
+  }
+
+  .movie-form-navigation {
+    flex-direction: column;
+    gap: var(--space-sm);
+  }
+
+  .movie-form-nav-button {
+    max-width: none;
+  }
+
+  .movie-form-search-inputs {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .movie-form-sort-wrapper {
+    min-width: auto;
+  }
+
+  .movie-form-results-grid {
+    grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+    gap: var(--space-md);
+  }
+
+  .movie-form-form-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-sm);
+  }
+
+  .movie-form-actions {
+    flex-direction: column-reverse;
+    gap: var(--space-sm);
+  }
 }
 
-/* TextInput con iconos clickeables - Mejora UX */
-.movie-form-container .text-input__icon--clickable {
-  cursor: pointer;
-  transition: color var(--transition-normal);
+@media (max-width: 480px) {
+  .movie-form-container {
+    padding: var(--space-sm);
+  }
+
+  .movie-form-title {
+    font-size: var(--font-size-xl);
+  }
+
+  .movie-form-results-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+  }
+
+  .movie-form-search-controls {
+    padding: var(--space-md);
+  }
+
+  .movie-form-poster-large {
+    max-width: 25rem;
+  }
 }
 
-.movie-form-container .text-input__icon--clickable:hover {
-  color: var(--color-primary);
+/* ===== FINALIZADOR DE ESTILOS ===== */
+.movie-form-container *,
+.movie-form-container *::before,
+.movie-form-container *::after {
+  box-sizing: border-box;
 }
 
-/* Card Integration */
-.movie-form-container .card {
-  border: 0.1rem solid var(--border-secondary);
-  border-radius: var(--radius-lg);
-  background-color: var(--bg-primary);
-  box-shadow: var(--shadow-sm);
-  transition: all var(--transition-normal);
+.movie-form-container {
+  scroll-behavior: smooth;
 }
 
-.movie-form-container .card--elevated {
-  box-shadow: var(--shadow-md);
+.movie-form-container h1,
+.movie-form-container h2,
+.movie-form-container h3,
+.movie-form-container p {
+  margin-top: 0;
 }
 
-.movie-form-container .card--outlined {
-  border: 0.2rem solid var(--border-secondary);
-  box-shadow: none;
-}
-
-.movie-form-container .card:hover {
-  box-shadow: var(--shadow-md);
-}
-
-/* Button Integration */
-.movie-form-container .button {
-  font-family: var(--font-family-base);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
+.movie-form-container [tabindex="-1"]:focus:not(:focus-visible) {
+  outline: 0 !important;
 }

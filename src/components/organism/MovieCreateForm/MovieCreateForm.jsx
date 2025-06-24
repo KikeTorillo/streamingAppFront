@@ -1,7 +1,10 @@
 // components/organism/MovieCreateForm/MovieCreateForm.jsx
 import React, { useState, useEffect } from 'react';
 import { DynamicForm } from '../../molecules/DynamicForm/DynamicForm';
-import { TextInput } from '../../molecules/TextInput/TextInput'; // ← NUEVA IMPORTACIÓN
+import { TextInput } from '../../molecules/TextInput/TextInput';
+import { TextSelect } from '../../molecules/TextSelect/TextSelect';
+import { ContentCard } from '../../molecules/ContentCard/ContentCard';
+import { Badge } from '../../atoms/Badge/Badge'; // ← NUEVA IMPORTACIÓN
 import { Button } from '../../atoms/Button/Button';
 import { Card } from '../../atoms/Card/Card';
 import { ContentImage } from '../../atoms/ContentImage/ContentImage';
@@ -15,7 +18,7 @@ const BASE_URL = "https://api.themoviedb.org/3/search/multi";
  * 
  * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
  * ✅ PATRÓN: Mismo flujo que CategoryCreatePage/UserCreatePage
- * ✅ COMPONENTES: DynamicForm + TextInput + Button + Card + ContentImage
+ * ✅ COMPONENTES: DynamicForm + TextInput + TextSelect + ContentCard + Badge + Button + Card + ContentImage
  * ✅ ESTILOS: Variables CSS del sistema (app.css)
  */
 function MovieCreateForm() {
@@ -29,6 +32,13 @@ function MovieCreateForm() {
   const [sortBy, setSortBy] = useState("year-desc");
   const [formLoading, setFormLoading] = useState(false);
   const [formSuccess, setFormSuccess] = useState(false);
+
+  // ===== CONFIGURACIÓN DE OPCIONES PARA TEXTSELECT =====
+  const sortOptions = [
+    { value: "year-desc", label: "Más recientes" },
+    { value: "year-asc", label: "Más antiguos" },
+    { value: "rating-desc", label: "Mejor puntuados" }
+  ];
 
   // ===== CONFIGURACIÓN DE CAMPOS PARA DYNAMICFORM =====
   const movieFormFields = [
@@ -111,6 +121,41 @@ function MovieCreateForm() {
     }
   ];
 
+  // ===== FUNCIÓN PARA TRANSFORMAR DATOS DE TMDB A FORMATO CONTENTCARD =====
+  const transformTMDBToContentCard = (item) => {
+    // Determinar el tipo basado en media_type o si tiene title/name
+    const type = item.media_type === 'tv' || item.name ? 'series' : 'movie';
+    
+    // Obtener el año de lanzamiento
+    const releaseDate = item.release_date || item.first_air_date || '';
+    const year = releaseDate ? new Date(releaseDate).getFullYear() : null;
+    
+    // Obtener categoría principal de los géneros (simplificado para el ejemplo)
+    const getMainCategory = (genreIds) => {
+      const genreMap = {
+        28: 'Acción', 35: 'Comedia', 18: 'Drama', 27: 'Terror',
+        10749: 'Romance', 878: 'Ciencia Ficción', 53: 'Thriller',
+        16: 'Animación', 99: 'Documental', 10751: 'Familiar'
+      };
+      return genreIds && genreIds.length > 0 ? genreMap[genreIds[0]] || 'Entretenimiento' : 'General';
+    };
+
+    return {
+      id: item.id,
+      title: item.title || item.name,
+      cover: item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : null,
+      category: getMainCategory(item.genre_ids),
+      year: year,
+      rating: item.vote_average ? Math.round(item.vote_average * 10) / 10 : null,
+      type: type,
+      // Para películas, podríamos estimar duración, pero TMDB search no la incluye
+      // Para series, podríamos estimar temporadas, pero tampoco está en search
+      overview: item.overview,
+      // Datos originales para usar en el formulario
+      _original: item
+    };
+  };
+
   // ===== FUNCIONES DE API =====
   const searchTMDB = async (query) => {
     if (!query.trim()) {
@@ -133,7 +178,12 @@ function MovieCreateForm() {
       const data = await response.json();
       
       if (data.results) {
-        const sortedResults = sortResults(data.results, sortBy);
+        // Transformar los resultados de TMDB al formato ContentCard
+        const transformedResults = data.results
+          .filter(item => item.poster_path) // Solo mostrar elementos con poster
+          .map(transformTMDBToContentCard);
+        
+        const sortedResults = sortResults(transformedResults, sortBy);
         setResults(sortedResults);
       } else {
         setResults([]);
@@ -152,19 +202,11 @@ function MovieCreateForm() {
     
     switch (sortBy) {
       case "year-desc":
-        return sorted.sort((a, b) => {
-          const yearA = (a.release_date || a.first_air_date || "").slice(0, 4);
-          const yearB = (b.release_date || b.first_air_date || "").slice(0, 4);
-          return yearB.localeCompare(yearA);
-        });
+        return sorted.sort((a, b) => (b.year || 0) - (a.year || 0));
       case "year-asc":
-        return sorted.sort((a, b) => {
-          const yearA = (a.release_date || a.first_air_date || "").slice(0, 4);
-          const yearB = (b.release_date || b.first_air_date || "").slice(0, 4);
-          return yearA.localeCompare(yearB);
-        });
+        return sorted.sort((a, b) => (a.year || 0) - (b.year || 0));
       case "rating-desc":
-        return sorted.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+        return sorted.sort((a, b) => (b.rating || 0) - (a.rating || 0));
       default:
         return sorted;
     }
@@ -175,8 +217,10 @@ function MovieCreateForm() {
     searchTMDB(searchQuery);
   };
 
-  const handleSelectItem = (item) => {
-    setSelectedItem(item);
+  const handleSelectItem = (contentCardData) => {
+    // Usar los datos originales de TMDB para el formulario
+    const originalItem = contentCardData._original;
+    setSelectedItem(originalItem);
     setCurrentView("form");
     setError(null);
   };
@@ -260,7 +304,7 @@ function MovieCreateForm() {
         <div className="movie-form-search-view">
           <Card variant="outlined" className="movie-form-search-controls">
             <div className="movie-form-search-inputs">
-              {/* ✅ SUSTITUIDO: input nativo → TextInput del sistema */}
+              {/* ✅ TextInput del sistema */}
               <div className="movie-form-search-input-wrapper">
                 <TextInput
                   value={searchQuery}
@@ -277,18 +321,19 @@ function MovieCreateForm() {
                 />
               </div>
               
-              {/* Select de ordenamiento (por ahora mantener nativo, después sustituir) */}
+              {/* ✅ TextSelect del sistema */}
               <div className="movie-form-sort-wrapper">
-                <select
-                  className="movie-form-sort-select"
+                <TextSelect
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
+                  options={sortOptions}
+                  placeholder="Ordenar por..."
+                  leftIcon="🔄"
+                  size="md"
+                  rounded="md"
                   disabled={loading || results.length === 0}
-                >
-                  <option value="year-desc">Más recientes</option>
-                  <option value="year-asc">Más antiguos</option>
-                  <option value="rating-desc">Mejor puntuados</option>
-                </select>
+                  helperText="Cambia el orden de los resultados"
+                />
               </div>
             </div>
 
@@ -305,63 +350,89 @@ function MovieCreateForm() {
             </div>
           </Card>
 
-          {/* Estados de loading y error */}
+          {/* ✅ SUSTITUIDO: Estados de loading → Badge con loading */}
           {loading && (
-            <Card variant="outlined" className="movie-form-loading">
-              <div className="movie-form-spinner"></div>
-              <p>Buscando en TMDB...</p>
-            </Card>
+            <div className="movie-form-loading-container" style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              padding: 'var(--space-xl)' 
+            }}>
+              <Badge 
+                variant="primary" 
+                size="lg"
+                loading={true}
+                icon="🔍"
+                style="soft"
+              >
+                Buscando en TMDB...
+              </Badge>
+            </div>
           )}
 
+          {/* ✅ SUSTITUIDO: Mensaje de error → Badge danger */}
           {error && (
-            <Card variant="outlined" className="movie-form-error-message">
-              <p>❌ {error}</p>
-            </Card>
+            <div className="movie-form-error-container" style={{ 
+              display: 'flex', 
+              justifyContent: 'center', 
+              padding: 'var(--space-lg)' 
+            }}>
+              <Badge 
+                variant="danger" 
+                size="lg"
+                icon="❌"
+                style="soft"
+              >
+                {error}
+              </Badge>
+            </div>
           )}
 
-          {/* Resultados de búsqueda */}
+          {/* ✅ ContentCard del sistema */}
           {results.length > 0 && !loading && (
             <div className="movie-form-results-grid">
-              {results.map((item) => (
-                <Card
-                  key={item.id}
+              {results.map((contentData) => (
+                <ContentCard
+                  key={contentData.id}
+                  content={contentData}
+                  onClick={handleSelectItem}
+                  size="md"
                   variant="elevated"
-                  className="movie-form-result-card"
-                  onClick={() => handleSelectItem(item)}
-                >
-                  <div className="movie-form-result-poster">
-                    <ContentImage
-                      src={item.poster_path ? `https://image.tmdb.org/t/p/w300${item.poster_path}` : null}
-                      alt={`Poster de ${item.title || item.name}`}
-                      aspectRatio="2:3"
-                      className="movie-form-result-image"
-                    />
-                  </div>
-                  <div className="movie-form-result-info">
-                    <h3 className="movie-form-result-title">
-                      {item.title || item.name}
-                    </h3>
-                    <p className="movie-form-result-year">
-                      {(item.release_date || item.first_air_date || "").slice(0, 4)}
-                    </p>
-                    <p className="movie-form-result-rating">
-                      ⭐ {item.vote_average ? item.vote_average.toFixed(1) : 'N/A'}
-                    </p>
-                    <p className="movie-form-result-overview">
-                      {item.overview ? item.overview.slice(0, 150) + '...' : 'Sin descripción disponible'}
-                    </p>
-                  </div>
-                </Card>
+                  rounded="lg"
+                  showRating={true}
+                  showMeta={true}
+                  showCategory={true}
+                  className="movie-form-content-card"
+                />
               ))}
             </div>
           )}
 
-          {/* No hay resultados */}
-          {!loading && searchQuery && results.length === 0 && (
-            <Card variant="outlined" className="movie-form-no-results">
-              <p>🔍 No se encontraron resultados para "{searchQuery}"</p>
-              <p>Intenta con otro término de búsqueda</p>
-            </Card>
+          {/* ✅ SUSTITUIDO: Sin resultados → Badge info */}
+          {!loading && searchQuery && results.length === 0 && !error && (
+            <div className="movie-form-no-results-container" style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center', 
+              gap: 'var(--space-md)',
+              padding: 'var(--space-xl)' 
+            }}>
+              <Badge 
+                variant="info" 
+                size="lg"
+                icon="🔍"
+                style="soft"
+              >
+                No se encontraron resultados para "{searchQuery}"
+              </Badge>
+              <Badge 
+                variant="neutral" 
+                size="md"
+                icon="💡"
+                style="outline"
+              >
+                Intenta con otro término de búsqueda
+              </Badge>
+            </div>
           )}
         </div>
       )}
@@ -398,17 +469,41 @@ function MovieCreateForm() {
               </div>
             )}
 
-            {/* Estados de éxito y error */}
+            {/* ✅ SUSTITUIDO: Mensaje de éxito → Badge success */}
             {formSuccess && (
-              <Card variant="outlined" className="movie-form-success-message">
-                <p>✅ ¡Película guardada exitosamente!</p>
-              </Card>
+              <div className="movie-form-success-container" style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                padding: 'var(--space-lg)' 
+              }}>
+                <Badge 
+                  variant="success" 
+                  size="xl"
+                  icon="✅"
+                  style="soft"
+                  pulse={true}
+                >
+                  ¡Película guardada exitosamente!
+                </Badge>
+              </div>
             )}
 
-            {error && (
-              <Card variant="outlined" className="movie-form-error-message">
-                <p>❌ {error}</p>
-              </Card>
+            {/* ✅ SUSTITUIDO: Mensaje de error del formulario → Badge danger */}
+            {error && !loading && (
+              <div className="movie-form-form-error-container" style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                padding: 'var(--space-lg)' 
+              }}>
+                <Badge 
+                  variant="danger" 
+                  size="lg"
+                  icon="❌"
+                  style="soft"
+                >
+                  {error}
+                </Badge>
+              </div>
             )}
 
             {/* Formulario dinámico */}
