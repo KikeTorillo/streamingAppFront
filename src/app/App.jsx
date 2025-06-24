@@ -14,6 +14,7 @@ import { UserCreatePage } from "../Pages/Admin/Users/UserCreatePage/UserCreatePa
 import { UserEditPage } from "../Pages/Admin/Users/UserEditPage/UserEditPage";
 import { CategoryCreatePage } from "../Pages/Admin/Categories/CategoryCreatePage/CategoryCreatePage";
 import { CategoriesListPage } from "../Pages/Admin/Categories/CategoriesListPage/CategoriesListPage";
+import { MovieCreateForm } from "../components/organism/MovieCreateForm/MovieCreateForm";
 
 import "./App.css";
 
@@ -151,28 +152,7 @@ function AppRoutes() {
       path: "/admin/movies/create",
       element: (
         <AdminRoute>
-          {/* TODO: Crear MovieCreatePage */}
-          <div style={{
-            padding: '2rem',
-            textAlign: 'center',
-            fontFamily: 'var(--font-family-base)'
-          }}>
-            <h2>Crear Película</h2>
-            <p>Funcionalidad en desarrollo...</p>
-            <button
-              onClick={() => window.location.href = '/admin/movies'}
-              style={{
-                padding: '1rem 2rem',
-                backgroundColor: 'var(--color-primary)',
-                color: 'white',
-                border: 'none',
-                borderRadius: 'var(--radius-md)',
-                cursor: 'pointer'
-              }}
-            >
-              Volver
-            </button>
-          </div>
+          <MovieCreateForm/>
         </AdminRoute>
       )
     },
