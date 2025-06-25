@@ -7,8 +7,6 @@ import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminL
 import { DynamicForm } from '../../../../components/molecules/DynamicForm/DynamicForm';
 import { Button } from '../../../../components/atoms/Button/Button';
 import './UserCreatePage.css';
-
-// Importar servicio para crear usuarios
 import { createUserService } from '../../../../services/Users/createUserService';
 
 /**
@@ -31,7 +29,7 @@ function UserCreatePage() {
   const [hasChanges, setHasChanges] = useState(false);
 
   // ===== CONFIGURACIÓN HOMOLOGADA CON BACKEND =====
-  
+
   /**
    * ✅ CAMPOS según schema del backend: solo campos que existen en DB
    */
@@ -134,19 +132,19 @@ function UserCreatePage() {
    */
   const cleanFormData = (formData) => {
     const cleanData = { ...formData };
-    
+
     // Eliminar confirmPassword (no va al backend)
     delete cleanData.confirmPassword;
-    
+
     // Convertir valores string a boolean/number según corresponda
     cleanData.roleId = parseInt(cleanData.roleId);
     cleanData.isActive = cleanData.isActive === 'true' || cleanData.isActive === true;
-    
+
     // Si email está vacío, no enviarlo (es opcional)
     if (!cleanData.email || cleanData.email.trim() === '') {
       delete cleanData.email;
     }
-    
+
     return cleanData;
   };
 
@@ -182,7 +180,7 @@ function UserCreatePage() {
 
     } catch (err) {
       console.error('❌ Error al crear usuario:', err);
-      
+
       // Manejar diferentes tipos de errores
       if (err.message === 'Las contraseñas no coinciden') {
         setError(err.message);
@@ -217,12 +215,12 @@ function UserCreatePage() {
       );
       if (!confirmCancel) return;
     }
-    
+
     navigate('/admin/users');
   };
 
   // ===== RENDER =====
-  
+
   return (
     <AdminLayout
       title="Crear Nuevo Usuario"
@@ -232,31 +230,22 @@ function UserCreatePage() {
         { label: 'Usuarios', href: '/admin/users' },
         { label: 'Crear' }
       ]}
-      headerActions={
-        <div className="user-create__header-actions">
+    >
+      <div className="page-container page-container--wide">
+
+        {/* 🔧 HEADER ACTIONS - USANDO SISTEMA DE DISEÑO */}
+        <div className="page-header-actions">
           <Button
             variant="outline"
             size="sm"
+            leftIcon="←"
             onClick={handleCancel}
             disabled={loading}
           >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => document.getElementById('user-create-form')?.requestSubmit()}
-            loading={loading}
-            disabled={!hasChanges || loading}
-            leftIcon="👤"
-          >
-            {loading ? 'Creando...' : 'Crear Usuario'}
+            Volver a Usuarios
           </Button>
         </div>
-      }
-    >
-      <div className="user-create">
-        
+
         {/* ===== NOTIFICACIONES ===== */}
         {success && (
           <div className="user-create__success">

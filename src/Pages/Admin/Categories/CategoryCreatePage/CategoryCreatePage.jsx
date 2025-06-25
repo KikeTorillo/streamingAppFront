@@ -152,7 +152,7 @@ function CategoryCreatePage() {
       ]}
     >
       {/* 🎯 CONTENEDOR PRINCIPAL - USANDO SISTEMA DE DISEÑO */}
-      <div className="page-container page-container--normal">
+      <div className="page-container page-container--wide">
         
         {/* 🔧 HEADER ACTIONS - USANDO SISTEMA DE DISEÑO */}
         <div className="page-header-actions">
@@ -200,7 +200,7 @@ function CategoryCreatePage() {
         )}
 
         {/* 📝 CONTENEDOR DEL FORMULARIO - USANDO SISTEMA DE DISEÑO */}
-        <div className="form-container form-container--lg">
+        <div className="form-container">
           <div className="form-header">
             <h2 className="form-title">
               🎭 Información de la Categoría

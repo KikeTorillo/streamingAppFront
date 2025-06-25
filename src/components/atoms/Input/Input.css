@@ -3,41 +3,28 @@
 
 /* Clase base del input - Usando variables del sistema */
 .input-base {
-  /* Layout */
   display: block;
   width: 100%;
   position: relative;
-  
-  /* Tipografía - Usando variables del sistema */
   font-family: var(--font-family-base);
   font-weight: var(--font-weight-normal);
   color: var(--text-primary);
-  
-  /* Bordes - Usando variables del sistema */
   border: 0.1rem solid var(--border-default);
   border-radius: var(--radius-md);
-  
-  /* Fondo - Usando variables del sistema */
   background-color: var(--bg-primary);
-  
-  /* Transiciones - Usando variables del sistema */
   transition: all var(--transition-normal);
-  
-  /* Eliminar estilos por defecto */
   outline: none;
   appearance: none;
   box-sizing: border-box;
-  
-  /* Mejorar UX móvil */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* TAMAÑOS - Usando variables del sistema de espaciado */
 .input-base--xs {
-  padding: var(--space-xs) var(--space-sm);    /* 4px 8px */
-  font-size: var(--font-size-xs);              /* 12px */
-  min-height: 2.4rem;
+  padding: var(--space-xs) var(--space-sm);
+  font-size: var(--font-size-xs);
+  min-height: 2.8rem;
   line-height: var(--line-height-tight);
 }
 

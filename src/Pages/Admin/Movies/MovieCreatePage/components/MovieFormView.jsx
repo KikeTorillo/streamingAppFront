@@ -1,4 +1,4 @@
-// ===== MOVIE FORM VIEW - COMPONENTE ESPECÍFICO CON SISTEMA DE DISEÑO =====
+// ===== MOVIE FORM VIEW - HOMOLOGADO CON SISTEMA DE DISEÑO =====
 // src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.jsx
 
 import React from 'react';
@@ -9,29 +9,15 @@ import { ContentImage } from '../../../../../components/atoms/ContentImage/Conte
 import './MovieFormView.css';
 
 /**
- * MovieFormView - COMPONENTE ESPECÍFICO HOMOLOGADO CON SISTEMA DE DISEÑO
+ * MovieFormView - HOMOLOGADO CON SISTEMA DE DISEÑO
  * 
  * ✅ ESPECÍFICO: Solo para creación de películas en MovieCreatePage
  * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ RESPONSABILIDAD: Formulario + vista previa + información adicional
- * ✅ PROPS CLARAS: Recibe configuración y handlers desde MovieCreatePage
- * ✅ PATRÓN: Sigue el mismo patrón que CategoryCreatePage y UserCreatePage
+ * ✅ PATRÓN: Sigue exactamente CategoryCreatePage y UserCreatePage
  * ✅ ESTRUCTURA: Usa form-container en lugar de Cards para el formulario principal
+ * ✅ CSS: Variables del sistema y clases unificadas
  * 
  * @param {Object} props - Propiedades del componente
- * @param {Object} props.selectedItem - Item seleccionado de TMDB (opcional)
- * @param {Array} props.formFields - Configuración de campos del formulario
- * @param {Object} props.initialFormData - Datos iniciales del formulario
- * @param {boolean} props.formLoading - Estado de carga del formulario
- * @param {boolean} props.success - Estado de éxito
- * @param {boolean} props.hasChanges - Si hay cambios sin guardar
- * @param {Function} props.onSubmit - Handler para envío del formulario
- * @param {Function} props.onChange - Handler para cambios en el formulario
- * @param {Function} props.onBackToSearch - Handler para volver a la búsqueda
- * @param {Array} props.typeOptions - Opciones de tipo (película/serie)
- * @param {Array} props.categoryOptions - Opciones de categoría
- * @param {boolean} props.showBackButton - Mostrar botón de volver a búsqueda
- * @param {boolean} props.categoriesLoading - Estado de carga de categorías
  */
 function MovieFormView({
   // Item seleccionado de TMDB (opcional)
@@ -68,21 +54,10 @@ function MovieFormView({
   const getFormDescription = () => {
     return selectedItem ? 
       'Revisa y completa los datos obtenidos de TMDB. Los campos se rellenan automáticamente pero puedes modificarlos.' :
-      'Completa los campos requeridos para agregar el contenido manualmente al catálogo.';
+      'Completa todos los campos requeridos para agregar la película o serie al catálogo.';
   };
 
-  const getItemTypeLabel = (type) => {
-    switch (type) {
-      case 'movie':
-        return '🎬 Película';
-      case 'tv':
-        return '📺 Serie';
-      default:
-        return '🎭 Contenido';
-    }
-  };
-
-  // ===== HANDLERS LOCALES =====
+  // ===== HANDLERS =====
   const handleFormSubmit = (formData) => {
     if (onSubmit) {
       onSubmit(formData);
@@ -95,101 +70,85 @@ function MovieFormView({
     }
   };
 
-  const handleBackClick = () => {
-    if (hasChanges) {
-      const confirmLeave = window.confirm(
-        "Tienes cambios sin guardar. ¿Estás seguro de que quieres volver a la búsqueda?\n\n" +
-        "Se perderán los cambios no guardados."
-      );
-      if (!confirmLeave) return;
-    }
-    
+  const handleBackToSearch = () => {
     if (onBackToSearch) {
       onBackToSearch();
     }
   };
 
   // ===== RENDER =====
-  
   return (
     <div className="movie-form-view">
       
-      {/* ===== VISTA PREVIA DEL ITEM SELECCIONADO (TMDB) ===== */}
+      {/* ===== VISTA PREVIA DEL ITEM SELECCIONADO (OPCIONAL) ===== */}
       {selectedItem && (
         <Card className="movie-form-view__preview-card">
           <CardHeader>
             <div className="movie-form-view__preview-header">
               <CardTitle>
-                Vista Previa de TMDB
+                🎬 Contenido Seleccionado de TMDB
               </CardTitle>
               {showBackButton && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={handleBackClick}
-                  leftIcon="🔍"
-                  disabled={formLoading}
+                  leftIcon="←"
+                  onClick={handleBackToSearch}
+                  disabled={formLoading || success}
                 >
-                  Volver a Búsqueda
+                  Cambiar Selección
                 </Button>
               )}
             </div>
           </CardHeader>
           <CardBody>
             <div className="movie-form-view__preview">
+              {/* Poster */}
               <div className="movie-form-view__preview-poster">
                 <ContentImage
-                  src={selectedItem.poster}
-                  alt={selectedItem.title}
-                  width={120}
-                  height={180}
-                  fallbackIcon="🎬"
+                  src={selectedItem.poster_path ? 
+                    `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}` : 
+                    null
+                  }
+                  alt={selectedItem.title || selectedItem.name}
+                  fallback="🎬"
                   className="movie-form-view__poster-image"
                 />
               </div>
+              
+              {/* Información */}
               <div className="movie-form-view__preview-info">
                 <h3 className="movie-form-view__preview-title">
-                  {selectedItem.title}
+                  {selectedItem.title || selectedItem.name}
                 </h3>
-                <p className="movie-form-view__preview-meta">
-                  {getItemTypeLabel(selectedItem.type)} • {selectedItem.year}
-                </p>
-                <p className="movie-form-view__preview-overview">
-                  {selectedItem.overview || 'Sin descripción disponible'}
-                </p>
+                
+                <div className="movie-form-view__preview-meta">
+                  {selectedItem.release_date && (
+                    <span>📅 {new Date(selectedItem.release_date).getFullYear()}</span>
+                  )}
+                  {selectedItem.first_air_date && (
+                    <span>📅 {new Date(selectedItem.first_air_date).getFullYear()}</span>
+                  )}
+                  {selectedItem.media_type && (
+                    <span>🎭 {selectedItem.media_type === 'movie' ? 'Película' : 'Serie'}</span>
+                  )}
+                  {selectedItem.vote_average && (
+                    <span>⭐ {selectedItem.vote_average.toFixed(1)}</span>
+                  )}
+                </div>
+                
+                {selectedItem.overview && (
+                  <p className="movie-form-view__preview-overview">
+                    {selectedItem.overview}
+                  </p>
+                )}
               </div>
             </div>
           </CardBody>
         </Card>
       )}
 
-      {/* ===== INFORMACIÓN ADICIONAL (SIN ITEM SELECCIONADO) ===== */}
-      {!selectedItem && (
-        <Card className="movie-form-view__info-card">
-          <CardHeader>
-            <CardTitle>
-              💡 Crear Contenido Manualmente
-            </CardTitle>
-          </CardHeader>
-          <CardBody>
-            <p className="movie-form-view__info-text">
-              Estás creando contenido sin usar la búsqueda de TMDB. 
-              Completa todos los campos requeridos para agregar la película o serie al catálogo.
-            </p>
-            <div className="movie-form-view__info-tips">
-              <h4>💡 Consejos:</h4>
-              <ul>
-                <li>Asegúrate de que el título sea preciso</li>
-                <li>Selecciona la categoría correcta</li>
-                <li>Verifica que la URL del video sea válida</li>
-                <li>La imagen del poster es opcional pero recomendada</li>
-              </ul>
-            </div>
-          </CardBody>
-        </Card>
-      )}
-
-      {/* ===== FORMULARIO DINÁMICO (SISTEMA DE DISEÑO - SIN CARD) ===== */}
+      {/* ===== FORMULARIO DINÁMICO - SISTEMA DE DISEÑO (SIN CARD) ===== */}
       <div className="form-container">
         <div className="form-header">
           <h2 className="form-title">
@@ -220,58 +179,9 @@ function MovieFormView({
           validateOnBlur={true}
           validateOnChange={false}
           showSubmit={!success} // Ocultar botón cuando hay éxito
-          className={`movie-form-view__form ${success ? 'movie-form-view__form--success' : ''}`}
+          className={`movie-form-view__form ${success ? 'form--success' : ''}`}
         />
-      </div>
-
-      {/* ===== INFORMACIÓN DE AYUDA (OPCIONAL - SOLO CARD INFORMATIVA) ===== */}
-      <Card className="movie-form-view__help-card">
-        <CardHeader>
-          <CardTitle>
-            📋 Información sobre los Campos
-          </CardTitle>
-        </CardHeader>
-        <CardBody>
-          <div className="movie-form-view__help-content">
-            <div className="movie-form-view__help-section">
-              <h4>🎬 Tipo de Contenido</h4>
-              <p>
-                <strong>Película:</strong> Contenido de duración completa, típicamente 90-180 minutos.<br/>
-                <strong>Serie:</strong> Contenido episódico, duración por episodio.
-              </p>
-            </div>
-            
-            <div className="movie-form-view__help-section">
-              <h4>🎭 Categorías</h4>
-              <p>
-                {categoriesLoading ? (
-                  'Cargando categorías...'
-                ) : categoryOptions.length > 0 ? (
-                  `Selecciona entre ${categoryOptions.length} categorías disponibles para clasificar el contenido.`
-                ) : (
-                  'No hay categorías disponibles. Crea categorías primero en el panel de administración.'
-                )}
-              </p>
-            </div>
-            
-            <div className="movie-form-view__help-section">
-              <h4>⏱️ Duración</h4>
-              <p>
-                <strong>Películas:</strong> Duración total en minutos.<br/>
-                <strong>Series:</strong> Duración promedio por episodio.
-              </p>
-            </div>
-
-            <div className="movie-form-view__help-section">
-              <h4>🔗 URLs</h4>
-              <p>
-                <strong>Video:</strong> URL directa al archivo de video o stream.<br/>
-                <strong>Poster:</strong> URL de la imagen (opcional, mejora la presentación).
-              </p>
-            </div>
-          </div>
-        </CardBody>
-      </Card>
+      </div>      
     </div>
   );
 }

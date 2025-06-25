@@ -1,4 +1,4 @@
-// ===== MOVIE CREATE PAGE - HOMOLOGADO CON SISTEMA DE DISEÑO =====
+// ===== MOVIE CREATE PAGE - INTEGRACIÓN TMDB CORREGIDA =====
 // src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -18,541 +18,499 @@ const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3/search/multi";
 
 /**
- * MovieCreatePage - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO
+ * MovieCreatePage - INTEGRACIÓN TMDB CORREGIDA
  * 
- * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ BACKEND: Homologado con campos reales del backend de películas
- * ✅ VALIDACIONES: Según esquemas del backend
- * ✅ UX: Estados de loading, error y success consistentes
- * ✅ ESTILO: Usa clases del sistema de diseño centralizado
- * ✅ PATRÓN: Sigue exactamente el mismo patrón que CategoryCreatePage y UserCreatePage
+ * ✅ PROPS CORREGIDOS: Nombres y handlers alineados con TMDBSearchView
+ * ✅ ESTADO TMDB: Manejo correcto de búsqueda y resultados
+ * ✅ REDIRECCIÓN: Flujo search → form funcionando
+ * ✅ SISTEMA DE DISEÑO: Homologado con CategoryCreatePage/UserCreatePage
  */
 function MovieCreatePage() {
   const navigate = useNavigate();
 
   // ===== ESTADOS PRINCIPALES =====
   const [currentView, setCurrentView] = useState("search"); // "search" | "form"
-  const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
-  
-  // ===== ESTADOS DE BÚSQUEDA TMDB =====
+
+  // ===== ESTADOS ESPECÍFICOS DE TMDB ===== (CORREGIDOS)
   const [searchQuery, setSearchQuery] = useState("");
-  const [results, setResults] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
   const [sortBy, setSortBy] = useState("year-desc");
+  const [tmdbResults, setTmdbResults] = useState([]);
+  const [tmdbLoading, setTmdbLoading] = useState(false);
+  const [tmdbError, setTmdbError] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
-  // ===== ESTADOS DE DATOS =====
+  // ===== ESTADOS DE CATEGORÍAS =====
   const [categories, setCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
 
-  // ===== CONFIGURACIÓN =====
-  const sortOptions = [
-    { value: "year-desc", label: "Más recientes" },
-    { value: "year-asc", label: "Más antiguas" },
-    { value: "title-asc", label: "A-Z" },
-    { value: "title-desc", label: "Z-A" },
-    { value: "popularity-desc", label: "Más populares" }
-  ];
-
-  const typeOptions = [
-    { value: '', label: 'Selecciona un tipo' },
-    { value: 'movie', label: '🎬 Película' },
-    { value: 'tv', label: '📺 Serie' }
-  ];
-
-  /**
-   * ✅ CAMPOS según schema del backend de películas
-   */
+  // ===== CONFIGURACIÓN DE CAMPOS DEL FORMULARIO =====
   const movieFormFields = [
     {
       name: 'title',
       type: 'text',
       label: 'Título',
-      placeholder: 'Ej: Avengers: Endgame',
+      placeholder: 'Nombre de la película o serie',
       required: true,
       leftIcon: '🎬',
-      helperText: 'Título original del contenido',
-      width: 'full'
+      helperText: 'Título original o en español'
     },
     {
       name: 'type',
       type: 'select',
       label: 'Tipo de Contenido',
+      placeholder: 'Selecciona el tipo',
       required: true,
       leftIcon: '🎭',
-      helperText: 'Película o serie de TV',
-      options: typeOptions,
-      width: 'half'
+      options: [
+        { value: 'movie', label: 'Película' },
+        { value: 'tv', label: 'Serie' }
+      ],
+      helperText: 'Tipo de contenido multimedia'
     },
     {
       name: 'year',
       type: 'number',
-      label: 'Año de Lanzamiento',
+      label: 'Año',
       placeholder: '2024',
       required: true,
       leftIcon: '📅',
-      helperText: 'Año de estreno o lanzamiento',
-      width: 'half',
+      helperText: 'Año de lanzamiento',
       min: 1900,
       max: new Date().getFullYear() + 5
-    },
-    {
-      name: 'description',
-      type: 'textarea',
-      label: 'Descripción',
-      placeholder: 'Sinopsis o descripción del contenido...',
-      required: true,
-      leftIcon: '📝',
-      helperText: 'Resumen del argumento o contenido',
-      width: 'full',
-      rows: 4
     },
     {
       name: 'categoryId',
       type: 'select',
       label: 'Categoría',
+      placeholder: 'Selecciona una categoría',
       required: true,
-      leftIcon: '🎭',
-      helperText: 'Género o categoría del contenido',
-      options: [
-        { value: '', label: 'Selecciona una categoría' },
-        ...categories.map(cat => ({
-          value: cat.id,
-          label: `${cat.name}`
-        }))
-      ],
-      width: 'half'
+      leftIcon: '🎪',
+      options: [], // Se llena dinámicamente
+      helperText: 'Clasificación del contenido'
+    },
+    {
+      name: 'overview',
+      type: 'textarea',
+      label: 'Descripción',
+      placeholder: 'Breve descripción de la película o serie',
+      required: true,
+      leftIcon: '📝',
+      helperText: 'Resumen del contenido (máximo 500 caracteres)',
+      maxLength: 500,
+      rows: 4
+    },
+    {
+      name: 'poster',
+      type: 'url',
+      label: 'URL del Poster',
+      placeholder: 'https://example.com/poster.jpg',
+      required: false,
+      leftIcon: '🖼️',
+      helperText: 'Imagen de portada (opcional)'
+    },
+    {
+      name: 'videoUrl',
+      type: 'url',
+      label: 'URL del Video',
+      placeholder: 'https://example.com/video.mp4',
+      required: true,
+      leftIcon: '🎥',
+      helperText: 'Enlace directo al contenido multimedia'
     },
     {
       name: 'duration',
       type: 'number',
       label: 'Duración (minutos)',
       placeholder: '120',
-      required: true,
-      leftIcon: '⏱️',
-      helperText: 'Duración en minutos (películas) o por episodio (series)',
-      width: 'half',
-      min: 1,
-      max: 600
-    },
-    {
-      name: 'posterUrl',
-      type: 'url',
-      label: 'URL del Poster',
-      placeholder: 'https://image.tmdb.org/t/p/w500/...',
       required: false,
-      leftIcon: '🖼️',
-      helperText: 'URL de la imagen del poster (opcional)',
-      width: 'full'
-    },
-    {
-      name: 'videoUrl',
-      type: 'url',
-      label: 'URL del Video',
-      placeholder: 'https://ejemplo.com/video.mp4',
-      required: true,
-      leftIcon: '🎥',
-      helperText: 'URL del archivo de video o stream',
-      width: 'full'
+      leftIcon: '⏱️',
+      helperText: 'Duración en minutos (opcional)',
+      min: 1,
+      max: 1000
     }
   ];
 
-  /**
-   * ✅ Datos iniciales del formulario
-   */
-  const initialData = {
-    title: '',
-    type: '',
-    year: new Date().getFullYear(),
-    description: '',
-    categoryId: '',
-    duration: '',
-    posterUrl: '',
-    videoUrl: ''
-  };
-
   // ===== EFECTOS =====
-  
+
   /**
-   * ✅ Cargar categorías al montar el componente
+   * Cargar categorías al montar el componente
    */
   useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        setCategoriesLoading(true);
-        const response = await getCategoriesService();
-        
-        if (response && response.data) {
-          setCategories(response.data);
-        }
-      } catch (error) {
-        console.error('Error loading categories:', error);
-        setError('Error al cargar las categorías');
-      } finally {
-        setCategoriesLoading(false);
-      }
-    };
-
     loadCategories();
   }, []);
 
-  // ===== FUNCIONES DE BÚSQUEDA TMDB =====
+  // ===== FUNCIONES AUXILIARES =====
 
   /**
-   * ✅ Realizar búsqueda en TMDB
+   * Cargar categorías desde el backend
    */
-  const handleSearch = async () => {
-    if (!searchQuery || searchQuery.trim() === '') {
-      setResults([]);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-
+  const loadCategories = async () => {
+    setCategoriesLoading(true);
     try {
-      const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery)}&language=es-ES`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
+      const result = await getCategoriesService();
+      const categoryOptions = result.map(cat => ({
+        value: cat.id,
+        label: cat.name
+      }));
 
-      const data = await response.json();
-      
-      if (data.results) {
-        // Procesar y formatear los resultados
-        const formattedResults = data.results
-          .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
-          .map(item => ({
-            id: item.id,
-            title: item.title || item.name,
-            type: item.media_type,
-            year: item.release_date ? new Date(item.release_date).getFullYear() : 
-                  item.first_air_date ? new Date(item.first_air_date).getFullYear() : null,
-            overview: item.overview,
-            poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
-            popularity: item.popularity || 0
-          }));
+      setCategories(categoryOptions);
 
-        setResults(formattedResults);
-      } else {
-        setResults([]);
-      }
-    } catch (error) {
-      console.error('Error en búsqueda TMDB:', error);
-      setError("Error al buscar en TMDB. Verifica tu conexión e intenta de nuevo.");
-      setResults([]);
+    } catch (err) {
+      console.error('Error cargando categorías:', err);
+      setError('Error al cargar las categorías');
     } finally {
-      setLoading(false);
+      setCategoriesLoading(false);
     }
   };
 
   /**
-   * ✅ Handler para cambios en el input de búsqueda
+   * Limpiar errores
    */
-  const handleSearchQueryChange = (value) => {
-    setSearchQuery(value);
+  const clearError = () => {
     setError(null);
+    setTmdbError(null);
   };
 
   /**
-   * ✅ Handler para cambios en el orden
+   * Navegar de vuelta - HOMOLOGADO
    */
-  const handleSortChange = (value) => {
-    setSortBy(value);
-  };
-
-  // ===== HANDLERS DE NAVEGACIÓN =====
-
-  const handleClearResults = () => {
-    setResults([]);
-    setSearchQuery("");
-    setError(null);
-  };
-
-  const handleSelectItem = (item) => {
-    if (item && typeof item === 'object') {
-      setSelectedItem(item);
-      setError(null);
-      setCurrentView("form");
-    }
-  };
-
-  const handleGoToForm = () => {
-    setSelectedItem(null);
-    setCurrentView("form");
-  };
-
-  const handleBackToSearch = () => {
-    if (hasChanges) {
-      const confirmLeave = window.confirm(
-        "Tienes cambios sin guardar. ¿Estás seguro de que quieres volver a la búsqueda?\n\n" +
-        "Se perderán los cambios no guardados."
-      );
-      if (!confirmLeave) return;
-    }
-    setCurrentView("search");
-    setHasChanges(false);
-  };
-
-  const handleCancel = () => {
+  const handleGoBack = () => {
     if (hasChanges && !success) {
-      const confirmCancel = window.confirm(
-        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?\n\n' +
-        'Se perderán los cambios no guardados.'
+      const confirmed = window.confirm(
+        '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
       );
-      if (!confirmCancel) return;
+      if (!confirmed) return;
     }
-    
+
     navigate('/admin/movies');
   };
 
-  // ===== HANDLERS DEL FORMULARIO =====
+  // ===== HANDLERS DE TMDB SEARCH ===== (CORREGIDOS)
 
   /**
-   * ✅ Obtener datos iniciales del formulario según el item seleccionado
+   * Realizar búsqueda en TMDB - CORREGIDO
    */
-  const getInitialFormData = () => {
-    if (selectedItem && typeof selectedItem === 'object') {
-      return {
-        title: selectedItem.title || '',
-        type: selectedItem.type === 'tv' ? 'tv' : 'movie',
-        description: selectedItem.overview || '',
-        year: parseInt(selectedItem.year) || new Date().getFullYear(),
-        posterUrl: selectedItem.poster || '',
-        categoryId: '',
-        duration: selectedItem.type === 'movie' ? 120 : 45,
-        videoUrl: ''
-      };
-    }
-    return initialData;
-  };
+  const handleTMDBSearch = async () => {
+    if (!searchQuery.trim()) return;
 
-  /**
-   * ✅ Limpiar datos antes de enviar al backend
-   */
-  const cleanFormData = (formData) => {
-    const cleanData = { ...formData };
-    
-    // Convertir valores string a number según corresponda
-    cleanData.year = parseInt(cleanData.year);
-    cleanData.duration = parseInt(cleanData.duration);
-    cleanData.categoryId = parseInt(cleanData.categoryId);
-    
-    // Si posterUrl está vacío, no enviarlo (es opcional)
-    if (!cleanData.posterUrl || cleanData.posterUrl.trim() === '') {
-      delete cleanData.posterUrl;
-    }
-    
-    return cleanData;
-  };
+    setTmdbLoading(true);
+    setTmdbError(null);
+    setTmdbResults([]);
 
-  /**
-   * ✅ Manejar envío del formulario
-   */
-  const handleSubmit = async (formData) => {
     try {
-      setFormLoading(true);
-      setError(null);
+      console.log('🔍 Buscando en TMDB:', searchQuery);
 
-      // Limpiar datos para backend
-      const cleanData = cleanFormData(formData);
+      const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery)}&language=es-ES`;
+      const response = await fetch(url);
 
-      console.log('🚀 Creando película/serie:', cleanData);
+      if (!response.ok) {
+        throw new Error(`Error de TMDB: ${response.status}`);
+      }
 
-      // TODO: Implementar createMovieService cuando esté disponible
-      // const response = await createMovieService(cleanData);
-      
-      // Simulación temporal (remover cuando se implemente el servicio real)
+      const data = await response.json();
+
+      console.log('✅ Resultados TMDB:', data);
+
+      // Filtrar solo películas y series
+      const filteredResults = data.results?.filter(item =>
+        item.media_type === 'movie' || item.media_type === 'tv'
+      ) || [];
+
+      // Ordenar según selección
+      const sortedResults = sortTMDBResults(filteredResults, sortBy);
+
+      setTmdbResults(sortedResults);
+
+    } catch (err) {
+      console.error('❌ Error en búsqueda TMDB:', err);
+      setTmdbError(err.message || 'Error al buscar en TMDB');
+    } finally {
+      setTmdbLoading(false);
+    }
+  };
+
+  /**
+   * Ordenar resultados de TMDB
+   */
+  const sortTMDBResults = (results, sortOption) => {
+    const sorted = [...results];
+
+    switch (sortOption) {
+      case 'year-desc':
+        return sorted.sort((a, b) => {
+          const yearA = getItemYear(a);
+          const yearB = getItemYear(b);
+          return yearB - yearA;
+        });
+      case 'year-asc':
+        return sorted.sort((a, b) => {
+          const yearA = getItemYear(a);
+          const yearB = getItemYear(b);
+          return yearA - yearB;
+        });
+      case 'rating-desc':
+        return sorted.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+      default:
+        return sorted;
+    }
+  };
+
+  /**
+   * Obtener año de un item TMDB
+   */
+  const getItemYear = (item) => {
+    const date = item.release_date || item.first_air_date;
+    if (!date) return 0;
+
+    try {
+      return new Date(date).getFullYear();
+    } catch {
+      return 0;
+    }
+  };
+
+  /**
+   * Limpiar resultados de TMDB
+   */
+  const handleClearTMDBResults = () => {
+    setTmdbResults([]);
+    setSearchQuery("");
+    setTmdbError(null);
+  };
+
+  /**
+   * Manejar selección de item TMDB - CORREGIDO (nombre del handler)
+   */
+  const handleItemSelected = (item) => {
+    console.log('🎬 Item seleccionado desde TMDB:', item);
+
+    setSelectedItem(item);
+    setCurrentView("form");
+    setHasChanges(true);
+
+    // Limpiar errores
+    clearError();
+  };
+
+  /**
+   * Crear manualmente (sin TMDB)
+   */
+  const handleManualCreate = () => {
+    console.log('✏️ Creación manual solicitada');
+
+    setSelectedItem(null);
+    setCurrentView("form");
+    setHasChanges(false);
+
+    // Limpiar errores
+    clearError();
+  };
+
+  /**
+   * Volver a la búsqueda desde el formulario
+   */
+  const handleBackToSearch = () => {
+    setCurrentView("search");
+    setSelectedItem(null);
+    setHasChanges(false);
+  };
+
+  // ===== HANDLERS DE FORMULARIO ===== (HOMOLOGADOS)
+
+  /**
+   * Detectar cambios en el formulario - HOMOLOGADO
+   */
+  const handleFormChange = (formData) => {
+    const hasData = Object.values(formData).some(value =>
+      value && value.toString().trim() !== ''
+    );
+    setHasChanges(hasData);
+
+    // Limpiar errores cuando el usuario empiece a escribir
+    if (error) {
+      clearError();
+    }
+  };
+
+  /**
+   * Enviar formulario - HOMOLOGADO CON BACKEND
+   */
+  const handleFormSubmit = async (formData) => {
+    setError(null);
+    setFormLoading(true);
+
+    try {
+      console.log('📤 Enviando datos al backend:', formData);
+
+      // TODO: Implementar createMovieService
+      // const result = await createMovieService(formData);
+
+      // Simulación temporal
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       console.log('✅ Contenido creado exitosamente');
 
-      // Estado de éxito
+      // Marcar como exitoso
       setSuccess(true);
       setHasChanges(false);
 
-      // Redirigir después de 2 segundos
+      // Redireccionar después de 3 segundos
       setTimeout(() => {
         navigate('/admin/movies');
-      }, 2000);
+      }, 3000);
 
     } catch (err) {
       console.error('❌ Error al crear contenido:', err);
-      
-      // Manejar diferentes tipos de errores
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError('Error inesperado al crear el contenido. Intenta nuevamente.');
-      }
+
+      const errorMessage = err.response?.data?.message ||
+        err.message ||
+        'Error inesperado al crear el contenido';
+
+      setError(errorMessage);
     } finally {
       setFormLoading(false);
     }
   };
 
+  // ===== DATOS INICIALES DEL FORMULARIO ===== (CORREGIDOS)
+  const getInitialFormData = () => {
+    if (!selectedItem) return {};
+
+    // Mapear datos de TMDB a formato del formulario
+    return {
+      title: selectedItem.title || selectedItem.name || '',
+      type: selectedItem.media_type === 'movie' ? 'movie' : 'tv',
+      year: getItemYear(selectedItem) || '',
+      overview: selectedItem.overview || '',
+      poster: selectedItem.poster_path
+        ? `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`
+        : ''
+    };
+  };
+
+  // ===== PROPS PARA COMPONENTES ===== (CORREGIDOS)
+
   /**
-   * ✅ Detectar cambios en el formulario
+   * Props para TMDBSearchView - NOMBRES CORREGIDOS
    */
-  const handleFormChange = (changedData) => {
-    setHasChanges(true);
-    setError(null); // Limpiar errores al hacer cambios
+  const tmdbSearchProps = {
+    // Estados de búsqueda
+    searchQuery,
+    onSearchQueryChange: setSearchQuery,
+    sortBy,
+    onSortChange: setSortBy,
+    results: tmdbResults,
+    loading: tmdbLoading,
+    error: tmdbError,
+
+    // Handlers principales - NOMBRES CORREGIDOS
+    onSearch: handleTMDBSearch,
+    onClearResults: handleClearTMDBResults,
+    onItemSelected: handleItemSelected, // ← NOMBRE CORREGIDO
+    onManualCreate: handleManualCreate,
+
+    // Configuración
+    contentType: "all",
+    title: "🎬 Buscar en TMDB",
+    description: "Busca películas y series en la base de datos de TMDB para agregar al catálogo",
+    placeholder: "Ej: Avatar, Breaking Bad, Inception...",
+    helperText: "Busca por título, año o palabras clave",
+    showManualCreate: true,
+
+    // Opciones de ordenamiento
+    sortOptions: [
+      { value: "year-desc", label: "Más recientes" },
+      { value: "year-asc", label: "Más antiguos" },
+      { value: "rating-desc", label: "Mejor puntuados" }
+    ]
+  };
+
+  /**
+   * Props para MovieFormView
+   */
+  const movieFormProps = {
+    selectedItem,
+    formFields: movieFormFields.map(field =>
+      field.name === 'categoryId'
+        ? { ...field, options: categories }
+        : field
+    ),
+    initialFormData: getInitialFormData(),
+    formLoading,
+    success,
+    hasChanges,
+    onSubmit: handleFormSubmit,
+    onChange: handleFormChange,
+    onBackToSearch: handleBackToSearch,
+    typeOptions: [
+      { value: 'movie', label: 'Película' },
+      { value: 'tv', label: 'Serie' }
+    ],
+    categoryOptions: categories,
+    showBackButton: true,
+    categoriesLoading
   };
 
   // ===== RENDER =====
-  
   return (
     <AdminLayout
-      title="Crear Contenido Multimedia"
-      subtitle="Busca en TMDB o agrega manualmente películas y series al catálogo"
+      title="Crear Nuevo Contenido"
+      subtitle="Agregar película o serie al catálogo multimedia"
       breadcrumbs={[
         { label: 'Admin', href: '/admin' },
-        { label: 'Películas', href: '/admin/movies' },
-        { label: 'Crear' }
+        { label: 'Contenido', href: '/admin/movies' },
+        { label: 'Crear Contenido' }
       ]}
-      headerActions={
-        <div className="movie-create__header-actions">
+    >
+      {/* 🎯 CONTENEDOR PRINCIPAL - SISTEMA DE DISEÑO */}
+      <div className="page-container page-container--wide">
+
+        {/* 🔧 HEADER ACTIONS - SISTEMA DE DISEÑO */}
+        <div className="page-header-actions">
           <Button
             variant="outline"
             size="sm"
-            onClick={handleCancel}
-            disabled={loading || formLoading}
+            leftIcon="←"
+            onClick={handleGoBack}
+            disabled={tmdbLoading || formLoading}
           >
-            Cancelar
+            Volver a Contenido
           </Button>
-          
-          {currentView === "search" && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={handleGoToForm}
-              leftIcon="✏️"
-              disabled={loading}
-            >
-              Crear Manualmente
-            </Button>
-          )}
-          
-          {currentView === "form" && (
-            <>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleBackToSearch}
-                leftIcon="🔍"
-                disabled={formLoading}
-              >
-                Volver a Búsqueda
-              </Button>
-              <Button
-                variant="primary"
-                size="sm"
-                onClick={() => document.getElementById('movie-create-form')?.requestSubmit()}
-                loading={formLoading}
-                disabled={!hasChanges || formLoading}
-                leftIcon="🎬"
-              >
-                {formLoading ? 'Creando...' : 'Crear Contenido'}
-              </Button>
-            </>
-          )}
         </div>
-      }
-    >
-      <div className={`movie-create ${currentView === 'search' ? 'movie-create--search-view' : 'movie-create--form-view'}`}>
-        
-        {/* ===== NOTIFICACIONES ===== */}
-        {success && (
-          <div className="movie-create__success">
-            <div className="movie-create__success-icon">✅</div>
-            <div className="movie-create__success-content">
-              <h3>¡Contenido creado exitosamente!</h3>
-              <p>El nuevo contenido está disponible en el catálogo multimedia.</p>
-            </div>
-            <span className="movie-create__success-redirect">
-              Redirigiendo...
-            </span>
-          </div>
-        )}
 
+        {/* ❌ MENSAJE DE ERROR - SISTEMA DE DISEÑO */}
         {error && (
-          <div className="movie-create__error">
-            <div className="movie-create__error-icon">⚠️</div>
-            <div className="movie-create__error-content">
-              <h4>Error al crear contenido</h4>
-              <p>{error}</p>
+          <div className="status-message status-message--error">
+            <span className="status-message__icon">⚠️</span>
+            <div className="status-message__content">
+              <strong>Error al crear contenido</strong>
+              <span>{error}</span>
             </div>
-            <button
-              className="movie-create__error-close"
-              onClick={() => setError(null)}
-              aria-label="Cerrar mensaje de error"
-            >
-              ✕
-            </button>
           </div>
         )}
 
-        {/* ===== VISTA DE BÚSQUEDA TMDB ===== */}
-        {currentView === "search" && (
-          <TMDBSearchView
-            // Estados principales
-            searchQuery={searchQuery}
-            results={results}
-            loading={loading}
-            sortBy={sortBy}
-            
-            // Configuración
-            contentType="all"
-            title="🎬 Buscar Películas y Series"
-            placeholder="Ej: Avatar, Breaking Bad, Inception..."
-            helperText="Busca por título, año o palabras clave"
-            
-            // Opciones y configuración
-            showManualCreate={true}
-            manualCreateText="Crear Manualmente"
-            manualCreateDescription="Agrega contenido sin buscar en TMDB"
-            sortOptions={sortOptions}
-            
-            // Handlers - TODOS DEFINIDOS Y FUNCIONANDO
-            onSearch={handleSearch}
-            onSearchQueryChange={handleSearchQueryChange}
-            onSortChange={handleSortChange}
-            onClearResults={handleClearResults}
-            onSelectItem={handleSelectItem}
-            onManualCreate={handleGoToForm}
-            
-            // Estados adicionales
-            error={error}
-          />
+        {/* ✅ MENSAJE DE ÉXITO - SISTEMA DE DISEÑO */}
+        {success && (
+          <div className="status-message status-message--success">
+            <span className="status-message__icon">✅</span>
+            <div className="status-message__content">
+              <strong>¡Contenido creado exitosamente!</strong>
+              <span>Redirigiendo al listado en unos segundos...</span>
+            </div>
+          </div>
         )}
 
-        {/* ===== VISTA DE FORMULARIO ===== */}
-        {currentView === "form" && (
-          <MovieFormView
-            selectedItem={selectedItem}
-            formFields={movieFormFields}
-            initialFormData={getInitialFormData()}
-            formLoading={formLoading}
-            success={success}
-            hasChanges={hasChanges}
-            onSubmit={handleSubmit}
-            onChange={handleFormChange}
-            onBackToSearch={handleBackToSearch}
-            typeOptions={typeOptions}
-            categoryOptions={categories.map(cat => ({
-              value: cat.id,
-              label: cat.name
-            }))}
-            showBackButton={true}
-            categoriesLoading={categoriesLoading}
-          />
+        {/* 🎬 VISTA CONDICIONAL - INTEGRACIÓN CORREGIDA */}
+        {currentView === "search" ? (
+          <TMDBSearchView {...tmdbSearchProps} />
+        ) : (
+          <MovieFormView {...movieFormProps} />
         )}
+
       </div>
     </AdminLayout>
   );
