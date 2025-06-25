@@ -190,7 +190,7 @@ function AdminSidebar({
    */
   const handleBackToHome = () => {
     if (navigate) {
-      navigate('/');
+      navigate('/main-page');
     }
   };
 

@@ -26,49 +26,77 @@ import './Button.css';
  * @param {string} [props.ariaLabel] - Label para accesibilidad (requerido si iconOnly=true)
  * @param {string} [props.ariaDescribedBy] - ID del elemento que describe el botón
  */
+
 function Button({
+    // Props funcionales
     children,
-    text,
     onClick,
-    className = '',
-    size = 'md',
-    variant = 'primary',
     type = 'button',
     disabled = false,
     loading = false,
-    icon,
-    iconPosition = 'left',
-    fullWidth = false,
+    
+    // Props de estilo
+    variant = 'primary',
+    size = 'md',
     rounded = 'md',
+    fullWidth = false,
     compact = false,
+    
+    // Props de iconos
+    icon,
+    leftIcon, // ← PROP PERSONALIZADA
+    rightIcon, // ← PROP PERSONALIZADA
+    iconPosition = 'left',
     iconOnly = false,
+    
+    // Props de accesibilidad
     ariaLabel,
     ariaDescribedBy,
-    ...restProps // Props adicionales controladas
+    
+    // Props adicionales
+    className = '',
+    text, // ← PROP PERSONALIZADA
+    
+    // ✅ SEPARAR TODAS LAS PROPS PERSONALIZADAS
+    ...restProps
 }) {
-    // Validación: iconOnly requiere ariaLabel
-    if (iconOnly && !ariaLabel && !children && !text) {
-        console.warn('Button: iconOnly=true requiere ariaLabel para accesibilidad');
-    }
+    // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
+    const {
+        leftIcon: _leftIcon,
+        rightIcon: _rightIcon,
+        text: _text,
+        variant: _variant,
+        size: _size,
+        rounded: _rounded,
+        fullWidth: _fullWidth,
+        compact: _compact,
+        iconPosition: _iconPosition,
+        iconOnly: _iconOnly,
+        ...domProps // ✅ Solo props válidas para el DOM
+    } = restProps;
 
-    // Construir clases CSS dinámicamente
+    // Determinar el contenido del botón
+    const buttonContent = text || children;
+    
+    // Determinar el icono final a usar
+    const finalIcon = leftIcon || rightIcon || icon;
+    const finalIconPosition = leftIcon ? 'left' : (rightIcon ? 'right' : iconPosition);
+
+    // Clases CSS
     const buttonClasses = [
-        'btn', // Clase base
-        `btn--${variant}`, // Variante de color
-        `btn--${size}`, // Tamaño
-        rounded !== 'md' && `btn--rounded-${rounded}`, // Radio personalizado
-        fullWidth && 'btn--full-width', // Ancho completo
-        loading && 'btn--loading', // Estado de carga
-        disabled && 'btn--disabled', // Estado deshabilitado
-        compact && 'btn--compact', // Padding reducido
-        iconOnly && 'btn--icon-only', // Solo icono
-        className // Clases adicionales
+        'btn',
+        `btn--variant-${variant}`,
+        `btn--size-${size}`,
+        `btn--rounded-${rounded}`,
+        fullWidth && 'btn--full-width',
+        compact && 'btn--compact',
+        loading && 'btn--loading',
+        disabled && 'btn--disabled',
+        iconOnly && 'btn--icon-only',
+        className
     ].filter(Boolean).join(' ');
 
-    // Contenido del botón (priorizar children sobre text)
-    const buttonContent = children || text;
-
-    // Manejar click (no ejecutar si está disabled o loading)
+    // Handler para click
     const handleClick = (e) => {
         if (disabled || loading) {
             e.preventDefault();
@@ -77,24 +105,24 @@ function Button({
         onClick?.(e);
     };
 
-    // Función para renderizar el icono
-    const renderIcon = (icon) => {
-        // Si es un componente React, renderizarlo directamente
-        if (React.isValidElement(icon)) {
-            return icon;
+    // Función para renderizar iconos
+    const renderIcon = (iconValue) => {
+        if (!iconValue) return null;
+        
+        if (React.isValidElement(iconValue)) {
+            return iconValue;
         }
         
-        // Si es string, verificar si es una clase CSS o texto/emoji
-        if (typeof icon === 'string') {
-            // Si contiene clases típicas de iconos (fa-, icon-, etc.), usar <i>
-            if (icon.includes('fa-') || icon.includes('icon-') || icon.includes('bi-') || icon.includes('material-icons')) {
-                return <i className={icon} aria-hidden="true" />;
+        if (typeof iconValue === 'string') {
+            // Si incluye clases CSS (fa-, icon-, bi-, material-icons), usar <i>
+            if (iconValue.includes('fa-') || iconValue.includes('icon-') || iconValue.includes('bi-') || iconValue.includes('material-icons')) {
+                return <i className={iconValue} aria-hidden="true" />;
             }
             // Si no, es texto/emoji, renderizar directamente
-            return <span aria-hidden="true">{icon}</span>;
+            return <span aria-hidden="true">{iconValue}</span>;
         }
         
-        return icon;
+        return iconValue;
     };
 
     // Determinar aria-label final
@@ -110,12 +138,12 @@ function Button({
             aria-busy={loading}
             aria-label={finalAriaLabel}
             aria-describedby={ariaDescribedBy}
-            {...restProps} // Spread controlado al final
+            {...domProps} // ✅ Solo props válidas del DOM
         >
             {/* Icono izquierdo */}
-            {icon && iconPosition === 'left' && !iconOnly && (
+            {finalIcon && finalIconPosition === 'left' && !iconOnly && (
                 <span className="btn__icon btn__icon--left">
-                    {renderIcon(icon)}
+                    {renderIcon(finalIcon)}
                 </span>
             )}
             
@@ -127,16 +155,16 @@ function Button({
             )}
             
             {/* Solo icono (para botones icon-only) */}
-            {iconOnly && icon && (
+            {iconOnly && finalIcon && (
                 <span className="btn__icon">
-                    {renderIcon(icon)}
+                    {renderIcon(finalIcon)}
                 </span>
             )}
             
             {/* Icono derecho */}
-            {icon && iconPosition === 'right' && !iconOnly && (
+            {finalIcon && finalIconPosition === 'right' && !iconOnly && (
                 <span className="btn__icon btn__icon--right">
-                    {renderIcon(icon)}
+                    {renderIcon(finalIcon)}
                 </span>
             )}
             
@@ -158,5 +186,4 @@ function Button({
     );
 }
 
-// Exportar componente
 export { Button };

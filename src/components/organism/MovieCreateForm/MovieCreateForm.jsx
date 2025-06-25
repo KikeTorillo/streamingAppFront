@@ -336,18 +336,6 @@ function MovieCreateForm() {
                 />
               </div>
             </div>
-
-            {/* Botón de búsqueda */}
-            <div style={{ marginTop: 'var(--space-md)' }}>
-              <Button
-                onClick={handleSearch}
-                variant="primary"
-                text={loading ? "Buscando..." : "🔍 Buscar"}
-                disabled={!searchQuery.trim() || loading}
-                loading={loading}
-                size="md"
-              />
-            </div>
           </Card>
 
           {/* ✅ SUSTITUIDO: Estados de loading → Badge con loading */}

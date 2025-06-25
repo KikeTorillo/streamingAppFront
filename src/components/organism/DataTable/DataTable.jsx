@@ -1,4 +1,4 @@
-// ===== DATA TABLE ORGANISM - ACTUALIZADO CON ACTIONS DROPDOWN =====
+// ===== DATA TABLE ORGANISM - FIXED PROPS =====
 // src/components/organism/DataTable/DataTable.jsx
 
 import React, { useState, useMemo } from 'react';
@@ -16,7 +16,7 @@ import { Button } from '../../atoms/Button/Button';
 import { TextInput } from '../../molecules/TextInput/TextInput';
 import { Select } from '../../atoms/Select/Select';
 import { EmptyState } from '../../molecules/EmptyState/EmptyState';
-import { ActionsDropdown } from '../../molecules/ActionsDropdown/ActionsDropdown'; // ✅ NUEVO IMPORT
+import { ActionsDropdown } from '../../molecules/ActionsDropdown/ActionsDropdown';
 
 import './DataTable.css';
 
@@ -40,25 +40,7 @@ function useDebounce(value, delay) {
 /**
  * DataTable - Organismo completo para mostrar datos tabulares
  * 
- * ✅ ACTUALIZADO: Ahora usa ActionsDropdown independiente con story
- * 
- * @param {Object} props - Props del componente
- * @param {Array} props.data - Datos a mostrar en la tabla
- * @param {Array} props.columns - Configuración de columnas (TanStack format)
- * @param {boolean} props.loading - Estado de carga
- * @param {string} props.error - Mensaje de error
- * @param {boolean} props.showActions - Mostrar columna de acciones
- * @param {function} props.onEdit - Callback para editar fila
- * @param {function} props.onDelete - Callback para eliminar fila
- * @param {function} props.onView - Callback para ver fila
- * @param {string} props.searchPlaceholder - Placeholder del campo de búsqueda
- * @param {Array} props.pageSizeOptions - Opciones de tamaño de página
- * @param {number} props.defaultPageSize - Tamaño inicial de página
- * @param {string} props.variant - Variante visual
- * @param {string} props.emptyTitle - Título del estado vacío
- * @param {string} props.emptyDescription - Descripción del estado vacío
- * @param {string} props.emptyIcon - Ícono del estado vacío
- * @param {string} props.className - Clases CSS adicionales
+ * ✅ CORREGIDO: Props filtradas para evitar errores de DOM
  */
 function DataTable({
   // Props de datos
@@ -77,32 +59,71 @@ function DataTable({
   actionsColumnHeader = 'Acciones',
   
   // Props de búsqueda y paginación
+  searchable = true,
   searchPlaceholder = 'Buscar...',
+  pageSize = 25,
   pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 25,
   
-  // Props de estados vacíos
+  // ✅ PROPS DE ESTADOS VACÍOS - FILTRADAS
   emptyTitle = 'No hay datos',
   emptyDescription = 'No se encontraron resultados',
   emptyIcon = "📋",
+  emptyAction = null,
   
   // Props de customización
   className = '',
   variant = 'default', // 'default' | 'striped' | 'bordered' | 'compact'
   
-  // Props adicionales
+  // ✅ FILTRAR TODAS LAS PROPS PERSONALIZADAS
   ...restProps
 }) {
+  
+  // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
+  const {
+    // Props de datos
+    data: _data,
+    columns: _columns,
+    
+    // Props de estado
+    loading: _loading,
+    error: _error,
+    
+    // Props de acciones
+    showActions: _showActions,
+    onEdit: _onEdit,
+    onDelete: _onDelete,
+    onView: _onView,
+    actionsColumnHeader: _actionsColumnHeader,
+    
+    // Props de búsqueda y paginación
+    searchable: _searchable,
+    searchPlaceholder: _searchPlaceholder,
+    pageSize: _pageSize,
+    pageSizeOptions: _pageSizeOptions,
+    defaultPageSize: _defaultPageSize,
+    
+    // Props de estados vacíos
+    emptyTitle: _emptyTitle,
+    emptyDescription: _emptyDescription,
+    emptyIcon: _emptyIcon,
+    emptyAction: _emptyAction,
+    
+    // Props de customización
+    variant: _variant,
+    
+    ...domProps // ✅ Solo props válidas para el DOM
+  } = restProps;
+
   // ===== ESTADOS =====
   const [globalFilter, setGlobalFilter] = useState('');
   const [debouncedGlobalFilter] = useDebounce(globalFilter, 300);
-  const [pageSize, setPageSize] = useState(defaultPageSize);
+  const [currentPageSize, setCurrentPageSize] = useState(defaultPageSize || pageSize);
 
-  // ===== COLUMNAS CON ACCIONES - ACTUALIZADO =====
+  // ===== COLUMNAS CON ACCIONES =====
   const actionColumn = useMemo(() => {
     if (!showActions) return null;
     
-    // ✅ ACTUALIZADO: Usar ActionsDropdown independiente
     return {
       id: 'actions',
       header: actionsColumnHeader,
@@ -169,13 +190,13 @@ function DataTable({
     columns: memoColumns,
     state: { 
       globalFilter: debouncedGlobalFilter,
-      pagination: { pageIndex: 0, pageSize }
+      pagination: { pageIndex: 0, pageSize: currentPageSize }
     },
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: (updater) => {
       if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: 0, pageSize });
-        setPageSize(newState.pageSize);
+        const newState = updater({ pageIndex: 0, pageSize: currentPageSize });
+        setCurrentPageSize(newState.pageSize);
       }
     },
     getCoreRowModel: getCoreRowModel(),
@@ -187,7 +208,10 @@ function DataTable({
   // ===== MANEJO DE ERRORES =====
   if (error) {
     return (
-      <div className={`data-table ${className}`} {...restProps}>
+      <div 
+        className={`data-table ${className}`} 
+        {...domProps} // ✅ Solo props válidas del DOM
+      >
         <div className="data-table__error">
           <EmptyState
             icon="❌"
@@ -211,12 +235,16 @@ function DataTable({
   // ===== ESTADO VACÍO =====
   if (!loading && (!data || data.length === 0)) {
     return (
-      <div className={`data-table ${className}`} {...restProps}>
+      <div 
+        className={`data-table ${className}`} 
+        {...domProps} // ✅ Solo props válidas del DOM
+      >
         <div className="data-table__empty">
           <EmptyState
             icon={emptyIcon}
             title={emptyTitle}
             description={emptyDescription}
+            action={emptyAction}
           />
         </div>
       </div>
@@ -225,37 +253,42 @@ function DataTable({
 
   // ===== RENDER PRINCIPAL =====
   return (
-    <div className={`data-table data-table--${variant} ${className}`} {...restProps}>
+    <div 
+      className={`data-table data-table--${variant} ${className}`} 
+      {...domProps} // ✅ Solo props válidas del DOM
+    >
       {/* ===== CONTROLES SUPERIORES ===== */}
-      <div className="data-table__controls">
-        {/* Búsqueda */}
-        <div className="data-table__search">
-          <TextInput
-            placeholder={searchPlaceholder}
-            value={globalFilter}
-            onChange={(e) => setGlobalFilter(e.target.value)}
-            leftIcon="🔍"
-            size="sm"
-            disabled={loading}
-          />
-        </div>
+      {searchable && (
+        <div className="data-table__controls">
+          {/* Búsqueda */}
+          <div className="data-table__search">
+            <TextInput
+              placeholder={searchPlaceholder}
+              value={globalFilter}
+              onChange={(e) => setGlobalFilter(e.target.value)}
+              leftIcon="🔍"
+              size="sm"
+              disabled={loading}
+            />
+          </div>
 
-        {/* Selector de tamaño de página */}
-        <div className="data-table__page-size">
-          <Select
-            value={pageSize}
-            onChange={(e) => setPageSize(Number(e.target.value))}
-            size="sm"
-            disabled={loading}
-          >
-            {pageSizeOptions.map(size => (
-              <option key={size} value={size}>
-                {size} filas
-              </option>
-            ))}
-          </Select>
+          {/* Selector de tamaño de página */}
+          <div className="data-table__page-size">
+            <Select
+              value={currentPageSize}
+              onChange={(e) => setCurrentPageSize(Number(e.target.value))}
+              size="sm"
+              disabled={loading}
+            >
+              {pageSizeOptions.map(size => (
+                <option key={size} value={size}>
+                  {size} filas
+                </option>
+              ))}
+            </Select>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ===== TABLA ===== */}
       <div className="data-table__container">
@@ -275,27 +308,20 @@ function DataTable({
                     {header.isPlaceholder ? null : (
                       header.column.getCanSort() ? (
                         <button
-                          className="data-table__header-button"
+                          className="data-table__sort-button"
                           onClick={header.column.getToggleSortingHandler()}
-                          disabled={loading}
-                          aria-label={`Ordenar por ${header.column.columnDef.header}`}
+                          aria-label={`Ordenar por ${header.column.id}`}
                         >
-                          <span className="data-table__header-text">
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                          </span>
-                          <span className="data-table__sort-icon">
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          <span className="data-table__sort-indicator">
                             {{
-                              asc: '↑',
-                              desc: '↓',
-                            }[header.column.getIsSorted()] ?? '↕️'}
+                              asc: ' ↑',
+                              desc: ' ↓',
+                            }[header.column.getIsSorted()] ?? ' ↕️'}
                           </span>
                         </button>
                       ) : (
-                        <div className="data-table__header-button" style={{ cursor: 'default' }}>
-                          <span className="data-table__header-text">
-                            {flexRender(header.column.columnDef.header, header.getContext())}
-                          </span>
-                        </div>
+                        flexRender(header.column.columnDef.header, header.getContext())
                       )
                     )}
                   </th>
@@ -308,7 +334,7 @@ function DataTable({
           <tbody className="data-table__tbody">
             {loading ? (
               // Skeleton loading
-              Array.from({ length: pageSize }).map((_, index) => (
+              Array.from({ length: currentPageSize }).map((_, index) => (
                 <tr key={`skeleton-${index}`} className="data-table__row data-table__row--skeleton">
                   {memoColumns.map((_, colIndex) => (
                     <td key={`skeleton-cell-${index}-${colIndex}`} className="data-table__td">
