@@ -1,4 +1,4 @@
-/* ===== USER CREATE PAGE STYLES ===== */
+/* ===== USER CREATE PAGE STYLES - SISTEMA DE DISEÑO ===== */
 /* src/Pages/Admin/Users/UserCreatePage.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
@@ -63,11 +63,42 @@
   flex-shrink: 0;
 }
 
-.user-create__error-text,
-.user-create__success-text {
+.user-create__error-content,
+.user-create__success-content {
   /* Texto */
   flex: 1;
   min-width: 0;
+}
+
+.user-create__error-content h4,
+.user-create__success-content h3 {
+  /* Reset */
+  margin: 0 0 var(--space-xs) 0;
+  
+  /* Tipografía */
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+.user-create__error-content p,
+.user-create__success-content p {
+  /* Reset */
+  margin: 0;
+  
+  /* Tipografía */
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.user-create__success-redirect {
+  /* Layout */
+  flex-shrink: 0;
+  margin-left: var(--space-md);
+  
+  /* Tipografía */
+  font-size: var(--font-size-xs);
+  font-style: italic;
+  color: var(--text-muted);
 }
 
 .user-create__error-close {
@@ -88,105 +119,19 @@
 }
 
 .user-create__error-close:focus-visible {
-  outline: 0.2rem solid currentColor;
+  outline: 0.2rem solid var(--border-focus);
   outline-offset: 0.2rem;
 }
 
-/* ===== CONTENEDOR DEL FORMULARIO ===== */
-.user-create__form-container {
-  /* Layout */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-sm);
+/* ===== ESTADOS DE FORMULARIO ===== */
+.user-create__form {
+  /* Base del formulario */
 }
 
-.user-create__form-header {
-  /* Layout */
-  margin-bottom: var(--space-xl);
-  text-align: center;
-}
-
-.user-create__form-title {
-  /* Reset */
-  margin: 0 0 var(--space-sm) 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-}
-
-.user-create__form-description {
-  /* Reset */
-  margin: 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-base);
-  color: var(--text-secondary);
-  line-height: var(--line-height-normal);
-}
-
-/* ===== ESTADOS DEL FORMULARIO ===== */
 .user-create__form--success {
-  opacity: 0.7;
+  /* Estado de éxito */
+  opacity: 0.8;
   pointer-events: none;
-}
-
-/* ===== INFORMACIÓN ADICIONAL ===== */
-.user-create__info {
-  /* Layout */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-  gap: var(--space-lg);
-}
-
-.user-create__info-section {
-  /* Layout */
-  background-color: var(--bg-tertiary);
-  border-radius: var(--radius-md);
-  border: 0.1rem solid var(--border-light);
-  padding: var(--space-lg);
-}
-
-.user-create__info-title {
-  /* Reset */
-  margin: 0 0 var(--space-md) 0;
-  
-  /* Tipografía */
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-}
-
-.user-create__info-list {
-  /* Reset */
-  margin: 0;
-  padding-left: var(--space-lg);
-  
-  /* Lista */
-  list-style-type: disc;
-  
-  /* Tipografía */
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  line-height: var(--line-height-relaxed);
-}
-
-.user-create__info-list li {
-  margin-bottom: var(--space-xs);
-}
-
-.user-create__info-list li:last-child {
-  margin-bottom: 0;
-}
-
-.user-create__info-list strong {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
 }
 
 /* ===== ANIMACIONES ===== */
@@ -203,86 +148,28 @@
 
 /* ===== RESPONSIVE DESIGN ===== */
 
-/* Tablet (768px - 1199px) */
-@media (max-width: 1199px) {
+/* Tablets */
+@media (max-width: 768px) {
   .user-create {
-    max-width: 70rem;
     gap: var(--space-lg);
-  }
-  
-  .user-create__form-container {
-    padding: var(--space-lg);
-  }
-  
-  .user-create__info {
-    grid-template-columns: 1fr;
-    gap: var(--space-md);
-  }
-  
-  .user-create__info-section {
-    padding: var(--space-md);
-  }
-}
-
-/* Mobile (hasta 767px) */
-@media (max-width: 767px) {
-  .user-create {
     max-width: none;
-    gap: var(--space-md);
+    padding: 0 var(--space-md);
   }
   
   .user-create__header-actions {
     flex-direction: column;
-    align-items: stretch;
+    width: 100%;
   }
   
-  .user-create__form-container {
-    padding: var(--space-md);
-  }
-  
-  .user-create__form-header {
-    margin-bottom: var(--space-lg);
-    text-align: left;
-  }
-  
-  .user-create__form-title {
-    font-size: var(--font-size-lg);
-  }
-  
-  .user-create__form-description {
-    font-size: var(--font-size-sm);
-  }
-  
-  .user-create__error,
-  .user-create__success {
-    padding: var(--space-sm) var(--space-md);
-    gap: var(--space-sm);
-    font-size: var(--font-size-xs);
-  }
-  
-  .user-create__info-section {
-    padding: var(--space-sm);
-  }
-  
-  .user-create__info-list {
-    padding-left: var(--space-md);
-    font-size: var(--font-size-xs);
+  .user-create__header-actions > * {
+    width: 100%;
   }
 }
 
-/* Mobile muy pequeño (hasta 479px) */
-@media (max-width: 479px) {
-  .user-create__form-container {
-    padding: var(--space-sm);
-    border-radius: var(--radius-md);
-  }
-  
-  .user-create__form-header {
-    margin-bottom: var(--space-md);
-  }
-  
-  .user-create__info {
-    gap: var(--space-sm);
+/* Móviles */
+@media (max-width: 480px) {
+  .user-create {
+    gap: var(--space-md);
   }
   
   .user-create__error,
@@ -294,6 +181,11 @@
   
   .user-create__error-close {
     align-self: flex-end;
+    margin-top: var(--space-xs);
+  }
+  
+  .user-create__success-redirect {
+    margin-left: 0;
     margin-top: var(--space-xs);
   }
 }
@@ -314,27 +206,35 @@
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
-  .user-create__form-container {
-    border-width: 0.2rem;
-  }
-  
   .user-create__error,
   .user-create__success {
     border-width: 0.2rem;
     font-weight: var(--font-weight-bold);
   }
+}
+
+/* ===== MODO OSCURO ===== */
+@media (prefers-color-scheme: dark) {
+  .user-create__success {
+    background-color: rgba(34, 197, 94, 0.1);
+    border-color: var(--color-success);
+  }
   
-  .user-create__info-section {
-    border-width: 0.2rem;
+  .user-create__error {
+    background-color: rgba(239, 68, 68, 0.1);
+    border-color: var(--color-danger);
   }
 }
 
-/* ===== FOCUS MANAGEMENT ===== */
+/* Forzar modo oscuro con clase */
+.dark .user-create__success {
+  background-color: rgba(34, 197, 94, 0.1);
+  border-color: var(--color-success);
+}
 
-/* Asegurar focus visible para elementos interactivos */
-.user-create__error-close:focus-visible {
-  outline: 0.2rem solid var(--border-focus);
-  outline-offset: 0.2rem;
+.dark .user-create__error {
+  background-color: rgba(239, 68, 68, 0.1);
+  border-color: var(--color-danger);
 }
 
 /* ===== PRINT STYLES ===== */
@@ -345,38 +245,7 @@
     display: none;
   }
   
-  .user-create__form-container {
-    box-shadow: none;
-    border: 0.1rem solid #ccc;
-    break-inside: avoid;
-  }
-  
-  .user-create__info {
-    grid-template-columns: 1fr;
+  .user-create {
     gap: var(--space-md);
-    break-inside: avoid;
   }
-  
-  .user-create__info-section {
-    border: 0.1rem solid #ccc;
-    break-inside: avoid;
-  }
-}
-
-/* ===== INTEGRACIÓN CON DYNAMIC FORM ===== */
-
-/* Asegurar que DynamicForm se integre bien */
-.user-create__form-container .dynamic-form {
-  margin: 0;
-}
-
-/* Personalizar el botón de submit en este contexto */
-.user-create__form-container .dynamic-form__submit-container {
-  justify-content: center;
-  margin-top: var(--space-xl);
-}
-
-/* Estado de éxito para el formulario */
-.user-create__form--success .dynamic-form {
-  filter: brightness(0.8);
 }

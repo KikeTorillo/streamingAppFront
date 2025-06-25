@@ -12,13 +12,13 @@ import './CategoryCreatePage.css';
 import { createCategoryService } from '../../../../services/Categories/createCategoryService';
 
 /**
- * CategoryCreatePage - HOMOLOGADO CON BACKEND
+ * CategoryCreatePage - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO
  * 
  * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
  * ✅ BACKEND: Homologado con campos reales del backend (solo name)
  * ✅ VALIDACIONES: Según esquemas Joi del backend (max 100 caracteres)
  * ✅ UX: Estados de loading, error y success consistentes
- * ✅ ESTILO: Mismo patrón visual que UserCreatePage
+ * ✅ ESTILO: Usa clases del sistema de diseño centralizado
  */
 function CategoryCreatePage() {
   const navigate = useNavigate();
@@ -42,132 +42,102 @@ function CategoryCreatePage() {
       placeholder: 'Ej: Acción, Drama, Comedia...',
       required: true,
       leftIcon: '🎭',
-      helperText: 'Nombre único de la categoría, máximo 100 caracteres',
-      width: 'full',
-      maxLength: 100
+      helperText: 'Máximo 100 caracteres. Debe ser único y descriptivo',
+      validation: {
+        required: {
+          value: true,
+          message: 'El nombre de la categoría es obligatorio'
+        },
+        maxLength: {
+          value: 100,
+          message: 'El nombre no puede exceder los 100 caracteres'
+        },
+        minLength: {
+          value: 2,
+          message: 'El nombre debe tener al menos 2 caracteres'
+        },
+        pattern: {
+          value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
+          message: 'Solo se permiten letras y espacios'
+        }
+      }
     }
   ];
 
-  // ===== DATOS INICIALES =====
+  /**
+   * ✅ DATOS INICIALES: Objeto vacío para formulario limpio
+   */
   const initialData = {
     name: ''
   };
 
-  // ===== VALIDACIONES =====
-  
-  /**
-   * ✅ Validar nombre según schema del backend
-   */
-  const validateName = (name) => {
-    if (!name || name.trim().length === 0) {
-      return 'El nombre es obligatorio';
-    }
-    
-    if (name.trim().length > 100) {
-      return 'El nombre no debe exceder 100 caracteres';
-    }
-    
-    // Verificar caracteres especiales (solo permitir letras, números, espacios y algunos símbolos)
-    const validNameRegex = /^[a-zA-ZÀ-ÿ0-9\s\-\&\(\)]+$/;
-    if (!validNameRegex.test(name.trim())) {
-      return 'El nombre solo puede contener letras, números, espacios, guiones y paréntesis';
-    }
-    
-    return null;
-  };
-
-  // ===== FUNCIONES DE MANEJO =====
-  
-  /**
-   * Manejar cambios en el formulario
-   */
-  const handleFormChange = (formData) => {
-    console.log('📝 Cambios en formulario de categoría:', formData);
-    
-    // Verificar si hay cambios
-    const hasRealChanges = formData.name && formData.name.trim().length > 0;
-    setHasChanges(hasRealChanges);
-    
-    // Limpiar errores cuando el usuario empiece a escribir
-    if (error && hasRealChanges) {
-      setError(null);
-    }
-  };
+  // ===== HANDLERS =====
 
   /**
-   * ✅ MANEJAR envío con validaciones completas
+   * ✅ HANDLE SUBMIT: Envía datos al backend usando el servicio
    */
   const handleSubmit = async (formData) => {
+    console.log('[CategoryCreate] Submit iniciado:', formData);
+    
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
-
-      console.log('📋 Datos del formulario de categoría:', formData);
-
-      // ✅ VALIDACIONES PRE-ENVÍO
-      const nameError = validateName(formData.name);
-      if (nameError) throw new Error(nameError);
-
-      // ✅ PREPARAR datos según estructura EXACTA del backend
-      const categoryData = {
-        name: formData.name.trim() // Backend espera solo `name` como string
-      };
-
-      console.log('📤 Enviando categoría al backend:', categoryData);
-
-      // ✅ LLAMAR servicio existente (ya recibe el name directamente)
-      const response = await createCategoryService(categoryData.name);
+      // Llamar al servicio del backend
+      const result = await createCategoryService(formData);
       
-      console.log('📥 Respuesta del backend:', response);
-
-      // ✅ El servicio existente devuelve directamente la data o lanza un error
-      // Si llegamos aquí, la categoría se creó exitosamente
-
-      // ✅ ÉXITO
+      console.log('[CategoryCreate] Categoría creada:', result);
+      
+      // Marcar como exitoso
       setSuccess(true);
       setHasChanges(false);
       
-      console.log('✅ Categoría creada exitosamente');
-
-      // Navegar después de un delay
+      // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate('/admin/categories');
-      }, 1500);
-
+      }, 2000);
+      
     } catch (err) {
-      console.error('💥 Error creating category:', err);
-      
-      // ✅ MANEJO de errores específicos del backend
-      let errorMessage = 'Error al crear la categoría';
-      
-      if (err.message) {
-        errorMessage = err.message;
-      } else if (err.response?.status === 409 || err.message?.includes('existe')) {
-        errorMessage = 'Ya existe una categoría con ese nombre';
-      } else if (err.response?.status === 400) {
-        errorMessage = 'Datos inválidos. Verifica que el nombre sea correcto';
-      } else if (err.response?.status === 401) {
-        // Manejar sesión expirada
-        sessionStorage.clear();
-        navigate('/login');
-        return;
-      } else if (err.response?.status === 403) {
-        errorMessage = 'No tienes permisos para crear categorías';
-      }
-      
-      setError(errorMessage);
+      console.error('[CategoryCreate] Error:', err);
+      setError(err.message || 'Error al crear la categoría');
     } finally {
       setLoading(false);
     }
   };
 
   /**
-   * Manejar cancelación
+   * ✅ HANDLE FORM CHANGE: Rastrea cambios para mostrar advertencias
+   * DynamicForm solo pasa formData completo como parámetro único
+   */
+  const handleFormChange = (formData) => {
+    console.log('[CategoryCreate] Datos del formulario cambiados:', formData);
+    
+    // Verificar si formData es válido
+    if (!formData || typeof formData !== 'object') {
+      console.warn('[CategoryCreate] formData no es válido:', formData);
+      return;
+    }
+    
+    // Verificar si hay cambios respecto al estado inicial
+    const hasDataChanges = Object.keys(formData).some(key => 
+      formData[key] !== initialData[key]
+    );
+    
+    setHasChanges(hasDataChanges);
+    
+    // Limpiar errores cuando el usuario modifica algo
+    if (error) {
+      setError(null);
+    }
+  };
+
+  /**
+   * ✅ HANDLE CANCEL: Navegar de vuelta con confirmación si hay cambios
    */
   const handleCancel = () => {
     if (hasChanges) {
       const confirmCancel = window.confirm(
-        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir? ' +
+        '¿Estás seguro de que quieres salir? ' +
         'Se perderán los cambios no guardados.'
       );
       if (!confirmCancel) return;
@@ -236,13 +206,15 @@ function CategoryCreatePage() {
           </div>
         )}
 
-        {/* ===== FORMULARIO DINÁMICO (COMPONENTE CON STORY) ===== */}
-        <div className="category-create__form-container">
-          <div className="category-create__form-header">
-            <h2 className="category-create__form-title">
+
+
+        {/* ===== FORMULARIO DINÁMICO (SISTEMA DE DISEÑO) ===== */}
+        <div className="form-container">
+          <div className="form-header">
+            <h2 className="form-title">
               Información de la Categoría
             </h2>
-            <p className="category-create__form-description">
+            <p className="form-description">
               Completa el nombre de la nueva categoría. Debe ser único y descriptivo para facilitar la organización del contenido.
             </p>
           </div>

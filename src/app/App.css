@@ -264,3 +264,307 @@ body, #root {
   background-color: var(--color-primary-hover);
   box-shadow: var(--shadow-md);
 }
+
+/* ===== CONTENEDORES DE FORMULARIO - SISTEMA DE DISEÑO ===== */
+/* Agregar al final de app.css */
+
+/* ===== CONTENEDOR BASE DE FORMULARIO ===== */
+.form-container {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-lg);
+  border: 0.1rem solid var(--border-default);
+  padding: var(--space-xl);
+  box-shadow: var(--shadow-sm);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== VARIANTES DE TAMAÑO ===== */
+.form-container--xs {
+  padding: var(--space-sm);
+  border-radius: var(--radius-sm);
+}
+
+.form-container--sm {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+}
+
+.form-container--md {
+  padding: var(--space-lg);
+  border-radius: var(--radius-md);
+}
+
+.form-container--lg {
+  padding: var(--space-xl);
+  border-radius: var(--radius-lg);
+}
+
+.form-container--xl {
+  padding: var(--space-2xl);
+  border-radius: var(--radius-xl);
+}
+
+/* ===== VARIANTES DE ESTILO ===== */
+.form-container--elevated {
+  box-shadow: var(--shadow-lg);
+  border: none;
+}
+
+.form-container--outlined {
+  background-color: transparent;
+  box-shadow: none;
+  border: 0.2rem solid var(--border-default);
+}
+
+.form-container--flat {
+  background-color: var(--bg-primary);
+  box-shadow: none;
+  border: 0.1rem solid var(--border-light);
+}
+
+/* ===== HEADER DEL FORMULARIO ===== */
+.form-header {
+  margin-bottom: var(--space-xl);
+  text-align: center;
+}
+
+.form-header--left {
+  text-align: left;
+}
+
+.form-header--right {
+  text-align: right;
+}
+
+.form-title {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.form-description {
+  margin: 0;
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+/* ===== SECCIONES DE INFORMACIÓN ===== */
+.info-section {
+  background-color: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid var(--border-default);
+  padding: var(--space-lg);
+}
+
+.info-section--tertiary {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-light);
+}
+
+.info-section--primary {
+  background-color: var(--bg-primary);
+  border-color: var(--border-secondary);
+}
+
+.info-title {
+  margin: 0 0 var(--space-md) 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+}
+
+.info-list {
+  margin: 0;
+  padding-left: var(--space-lg);
+  list-style-type: disc;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+
+.info-list li {
+  margin-bottom: var(--space-xs);
+}
+
+.info-list li:last-child {
+  margin-bottom: 0;
+}
+
+.info-list strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* ===== GRID DE INFORMACIÓN ===== */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
+  gap: var(--space-lg);
+}
+
+.info-grid--2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.info-grid--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.info-grid--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+/* ===== ESTADOS DEL FORMULARIO ===== */
+.form-container--success {
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.form-container--loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.form-container--error {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 0.1rem rgba(239, 68, 68, 0.2);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .form-container {
+    padding: var(--space-lg);
+  }
+  
+  .form-container--xs {
+    padding: var(--space-xs);
+  }
+  
+  .form-container--sm {
+    padding: var(--space-sm);
+  }
+  
+  .form-container--md {
+    padding: var(--space-md);
+  }
+  
+  .form-container--lg {
+    padding: var(--space-lg);
+  }
+  
+  .form-container--xl {
+    padding: var(--space-xl);
+  }
+  
+  .form-header {
+    margin-bottom: var(--space-lg);
+    text-align: left;
+  }
+  
+  .form-title {
+    font-size: var(--font-size-lg);
+  }
+  
+  .form-description {
+    font-size: var(--font-size-sm);
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .info-section {
+    padding: var(--space-md);
+  }
+}
+
+@media (max-width: 480px) {
+  .form-container {
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+  
+  .form-header {
+    margin-bottom: var(--space-md);
+  }
+  
+  .info-grid {
+    gap: var(--space-sm);
+  }
+  
+  .info-section {
+    padding: var(--space-sm);
+  }
+}
+
+/* ===== MODO OSCURO ===== */
+@media (prefers-color-scheme: dark) {
+  .form-container,
+  .info-section {
+    background-color: var(--bg-secondary);
+    border-color: var(--border-default);
+  }
+  
+  .info-section--tertiary {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-light);
+  }
+  
+  .info-section--primary {
+    background-color: var(--bg-primary);
+    border-color: var(--border-secondary);
+  }
+}
+
+.dark .form-container,
+.dark .info-section {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-default);
+}
+
+.dark .info-section--tertiary {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-light);
+}
+
+.dark .info-section--primary {
+  background-color: var(--bg-primary);
+  border-color: var(--border-secondary);
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-contrast: high) {
+  .form-container,
+  .info-section {
+    border-width: 0.2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .form-container,
+  .info-section {
+    transition: none;
+  }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .form-container,
+  .info-section {
+    box-shadow: none;
+    border: 0.1rem solid #ccc;
+    break-inside: avoid;
+  }
+  
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+    break-inside: avoid;
+  }
+}

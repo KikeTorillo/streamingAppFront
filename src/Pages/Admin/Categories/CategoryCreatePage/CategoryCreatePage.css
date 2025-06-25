@@ -1,4 +1,4 @@
-/* ===== CATEGORY CREATE PAGE STYLES - HOMOLOGADO CON USER CREATE ===== */
+/* ===== CATEGORY CREATE PAGE STYLES - SISTEMA DE DISEÑO ===== */
 /* src/Pages/Admin/Categories/CategoryCreatePage/CategoryCreatePage.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
@@ -101,94 +101,6 @@
   color: var(--text-muted);
 }
 
-/* ===== INFORMACIÓN SOBRE CATEGORÍAS ===== */
-.category-create__info {
-  /* Layout - IGUAL QUE user-create__info */
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(30rem, 1fr));
-  gap: var(--space-lg);
-}
-
-.category-create__info-section {
-  /* Layout - IGUAL QUE user-create__info-section */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-lg);
-}
-
-.category-create__info-title {
-  /* Reset - IGUAL QUE user-create__info-title */
-  margin: 0 0 var(--space-md) 0;
-  
-  /* Tipografía - IGUAL QUE user-create__info-title */
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-}
-
-.category-create__info-list {
-  /* Reset - IGUAL QUE user-create__info-list */
-  margin: 0;
-  padding-left: var(--space-lg);
-  
-  /* Lista - IGUAL QUE user-create__info-list */
-  list-style-type: disc;
-  
-  /* Tipografía - IGUAL QUE user-create__info-list */
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  line-height: var(--line-height-relaxed);
-}
-
-.category-create__info-list li {
-  /* IGUAL QUE user-create__info-list li */
-  margin-bottom: var(--space-xs);
-}
-
-.category-create__info-list li strong {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-bold);
-}
-
-/* ===== CONTENEDOR DEL FORMULARIO ===== */
-.category-create__form-container {
-  /* Layout - EXACTAMENTE IGUAL QUE user-create__form-container */
-  background-color: var(--bg-secondary);
-  border-radius: var(--radius-lg);
-  border: 0.1rem solid var(--border-default);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.category-create__form-header {
-  /* Layout - IGUAL QUE user-create__form-header */
-  margin-bottom: var(--space-xl);
-  text-align: center;
-}
-
-.category-create__form-title {
-  /* Reset - IGUAL QUE user-create__form-title */
-  margin: 0 0 var(--space-sm) 0;
-  
-  /* Tipografía - IGUAL QUE user-create__form-title */
-  font-size: var(--font-size-xl);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  line-height: var(--line-height-tight);
-}
-
-.category-create__form-description {
-  /* Reset - IGUAL QUE user-create__form-description */
-  margin: 0;
-  
-  /* Tipografía - IGUAL QUE user-create__form-description */
-  font-size: var(--font-size-base);
-  color: var(--text-secondary);
-  line-height: var(--line-height-normal);
-}
-
 /* ===== ESTADOS DE FORMULARIO ===== */
 .category-create__form {
   /* Base del formulario */
@@ -200,7 +112,7 @@
   pointer-events: none;
 }
 
-/* ===== ANIMACIONES - IGUAL QUE CREATE ===== */
+/* ===== ANIMACIONES ===== */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -212,7 +124,7 @@
   }
 }
 
-/* ===== RESPONSIVE DESIGN - IGUAL QUE USER CREATE ===== */
+/* ===== RESPONSIVE DESIGN ===== */
 
 /* Tablets */
 @media (max-width: 768px) {
@@ -230,38 +142,12 @@
   .category-create__header-actions > * {
     width: 100%;
   }
-  
-  .category-create__info {
-    grid-template-columns: 1fr;
-  }
-  
-  .category-create__form-container {
-    padding: var(--space-lg);
-  }
 }
 
 /* Móviles */
 @media (max-width: 480px) {
   .category-create {
     gap: var(--space-md);
-  }
-  
-  .category-create__info-section,
-  .category-create__form-container {
-    padding: var(--space-md);
-  }
-  
-  .category-create__form-header {
-    margin-bottom: var(--space-lg);
-    text-align: left;
-  }
-  
-  .category-create__form-title {
-    font-size: var(--font-size-lg);
-  }
-  
-  .category-create__form-description {
-    font-size: var(--font-size-sm);
   }
   
   .category-create__success,
@@ -277,7 +163,7 @@
   }
 }
 
-/* ===== ACCESIBILIDAD - IGUAL QUE USER CREATE ===== */
+/* ===== ACCESIBILIDAD ===== */
 
 /* Focus visible mejorado */
 .category-create__header-actions .button:focus-visible {
@@ -287,11 +173,6 @@
 
 /* High contrast mode */
 @media (prefers-contrast: high) {
-  .category-create__info-section,
-  .category-create__form-container {
-    border-width: 0.2rem;
-  }
-  
   .category-create__success {
     border-width: 0.2rem;
   }
@@ -309,14 +190,8 @@
   }
 }
 
-/* ===== MODO OSCURO - IGUAL QUE USER CREATE ===== */
+/* ===== MODO OSCURO ===== */
 @media (prefers-color-scheme: dark) {
-  .category-create__info-section,
-  .category-create__form-container {
-    background-color: var(--bg-secondary);
-    border-color: var(--border-default);
-  }
-  
   .category-create__success {
     background-color: rgba(34, 197, 94, 0.1);
     border-color: var(--color-success);
@@ -329,12 +204,6 @@
 }
 
 /* Forzar modo oscuro con clase */
-.dark .category-create__info-section,
-.dark .category-create__form-container {
-  background-color: var(--bg-secondary);
-  border-color: var(--border-default);
-}
-
 .dark .category-create__success {
   background-color: rgba(34, 197, 94, 0.1);
   border-color: var(--color-success);
@@ -355,12 +224,5 @@
   
   .category-create {
     gap: var(--space-md);
-  }
-  
-  .category-create__info-section,
-  .category-create__form-container {
-    break-inside: avoid;
-    box-shadow: none;
-    border: 0.1rem solid #000;
   }
 }
