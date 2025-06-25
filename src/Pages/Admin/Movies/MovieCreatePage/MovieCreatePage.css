@@ -1,57 +1,57 @@
-/* ===== MOVIE CREATE PAGE - CSS PRINCIPAL REFACTORIZADO ===== */
+/* ===== MOVIE CREATE PAGE STYLES - SISTEMA DE DISEÑO ===== */
 /* src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.css */
-
-/* 
-🎯 RESPONSABILIDAD: Solo estilos del contenedor principal y mensajes globales
-✅ LIMPIO: 90% menos CSS que la versión original
-✅ SEPARADO: TMDBSearchView y MovieFormView tienen sus propios estilos
-✅ SIN DUPLICACIÓN: Eliminado todo CSS que ya está en app.css
-✅ SISTEMA: Usa variables CSS del sistema de diseño
-✅ MANTENIBLE: Fácil de encontrar y modificar estilos específicos
-
-ANTES: 400+ líneas con duplicación
-DESPUÉS: ~100 líneas, solo lo específico de esta página
-*/
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .movie-create {
+  /* Layout - IGUAL QUE category-create y user-create */
   display: flex;
   flex-direction: column;
-  gap: var(--space-lg);
+  gap: var(--space-xl);
+  max-width: 120rem; /* 1200px - Más ancho para acomodar TMDB búsqueda */
   margin: 0 auto;
+  
+  /* Fuente */
   font-family: var(--font-family-base);
 }
 
 /* ===== HEADER ACTIONS ===== */
 .movie-create__header-actions {
+  /* Layout - IGUAL QUE category-create__header-actions */
   display: flex;
   align-items: center;
   gap: var(--space-sm);
   flex-wrap: wrap;
 }
 
-/* ===== MENSAJES DE ESTADO GLOBALES ===== */
+/* ===== MENSAJES DE ESTADO ===== */
 .movie-create__error,
 .movie-create__success {
+  /* Layout - IGUAL QUE category-create */
   display: flex;
   align-items: center;
   gap: var(--space-md);
   padding: var(--space-md) var(--space-lg);
   border-radius: var(--radius-md);
   border: 0.1rem solid;
+  
+  /* Tipografía - IGUAL QUE category-create */
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-normal);
+  
+  /* Animación - IGUAL QUE category-create */
   animation: slideIn 0.3s ease-out;
 }
 
 .movie-create__error {
+  /* Colores de error - IGUAL QUE category-create */
   background-color: var(--color-danger-light);
   border-color: var(--color-danger);
   color: var(--color-danger-dark);
 }
 
 .movie-create__success {
+  /* Colores de éxito - IGUAL QUE category-create */
   background-color: var(--color-success-light);
   border-color: var(--color-success);
   color: var(--color-success-dark);
@@ -59,45 +59,56 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
 
 .movie-create__error-icon,
 .movie-create__success-icon {
+  /* Iconos - IGUAL QUE category-create */
   font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
 .movie-create__error-content,
 .movie-create__success-content {
+  /* Texto - IGUAL QUE category-create */
   flex: 1;
   min-width: 0;
 }
 
 .movie-create__error-content h4,
 .movie-create__success-content h3 {
+  /* Reset - IGUAL QUE category-create */
   margin: 0 0 var(--space-xs) 0;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  
+  /* Tipografía - IGUAL QUE category-create */
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
 }
 
 .movie-create__error-content p,
 .movie-create__success-content p {
+  /* Reset - IGUAL QUE category-create */
   margin: 0;
-  font-size: var(--font-size-xs);
-  opacity: 0.9;
+  
+  /* Tipografía - IGUAL QUE category-create */
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
 }
 
 .movie-create__success-redirect {
+  /* Layout - IGUAL QUE category-create */
+  flex-shrink: 0;
+  margin-left: var(--space-md);
+  
+  /* Tipografía - IGUAL QUE category-create */
   font-size: var(--font-size-xs);
-  color: var(--color-success);
-  font-weight: var(--font-weight-medium);
-  opacity: 0.8;
-  animation: pulse 1.5s infinite;
-  margin-top: var(--space-xs);
+  font-style: italic;
+  color: var(--text-muted);
 }
 
 .movie-create__error-close {
+  /* Botón de cerrar - IGUAL QUE category-create */
   background: none;
   border: none;
-  color: var(--color-danger);
-  font-size: var(--font-size-sm);
+  color: inherit;
   cursor: pointer;
+  font-size: var(--font-size-lg);
   padding: var(--space-xs);
   border-radius: var(--radius-sm);
   transition: all var(--transition-fast);
@@ -105,16 +116,26 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
 }
 
 .movie-create__error-close:hover {
-  background-color: var(--color-danger);
-  color: var(--color-white);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
-.movie-create__error-close:focus {
-  outline: 0.2rem solid var(--color-danger);
-  outline-offset: 0.1rem;
+.movie-create__error-close:focus-visible {
+  outline: 0.2rem solid var(--border-focus);
+  outline-offset: 0.2rem;
 }
 
-/* ===== ANIMACIONES GLOBALES ===== */
+/* ===== ESTADOS DE FORMULARIO ===== */
+.movie-create__form {
+  /* Base del formulario - IGUAL QUE category-create */
+}
+
+.movie-create__form--success {
+  /* Estado de éxito - IGUAL QUE category-create */
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* ===== ANIMACIONES ===== */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -126,42 +147,44 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
   }
 }
 
-@keyframes pulse {
-  0%, 100% {
-    opacity: 0.8;
-  }
-  50% {
-    opacity: 1;
-  }
+.movie-create__success-redirect {
+  /* Animación de redirect */
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
 
-/* Tablets (768px y menos) */
+/* Tablets */
 @media (max-width: 768px) {
   .movie-create {
-    max-width: 100%;
+    gap: var(--space-lg);
+    max-width: none;
     padding: 0 var(--space-md);
-    gap: var(--space-md);
   }
-
+  
   .movie-create__header-actions {
     flex-direction: column;
-    align-items: stretch;
+    width: 100%;
+    gap: var(--space-sm);
   }
-
+  
   .movie-create__header-actions > * {
     width: 100%;
   }
 }
 
-/* Móviles (480px y menos) */
+/* Móviles */
 @media (max-width: 480px) {
   .movie-create {
-    padding: 0 var(--space-sm);
-    gap: var(--space-sm);
+    gap: var(--space-md);
   }
-
+  
   .movie-create__error,
   .movie-create__success {
     padding: var(--space-sm) var(--space-md);
@@ -169,11 +192,11 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
     flex-direction: column;
     align-items: flex-start;
   }
-
+  
   .movie-create__header-actions {
     gap: var(--space-xs);
   }
-
+  
   .movie-create__error-close {
     align-self: flex-end;
     margin-top: var(--space-xs);
@@ -211,222 +234,43 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
   /* Los elementos específicos ya manejan su estado */
 }
 
-/* ===== SISTEMA DE CONTENEDORES - PAGES LAYOUT ===== */
+/* ===== INTEGRACIÓN CON TMDBSEARCHVIEW ===== */
 
-/* ===== CONTENEDOR BASE DE PÁGINA ===== */
-.page-container {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-lg);
-  margin: 0 auto;
-  font-family: var(--font-family-base);
-  width: 100%;
-  box-sizing: border-box;
+/* El TMDBSearchView ya tiene sus propios estilos */
+/* Solo necesitamos asegurar que se integre bien */
+.movie-create .tmdb-search-view {
+  /* Hereda el sistema de diseño automáticamente */
 }
 
-/* ===== VARIANTES DE ANCHO ===== */
-.page-container--narrow {
-  max-width: 60rem; /* 600px - Para forms simples */
+/* ===== INTEGRACIÓN CON MOVIEFORMVIEW ===== */
+
+/* El MovieFormView ya tiene sus propios estilos */
+/* Solo necesitamos asegurar que se integre bien */
+.movie-create .movie-form-view {
+  /* Hereda el sistema de diseño automáticamente */
 }
-
-.page-container--normal {
-  max-width: 80rem; /* 800px - Para la mayoría de páginas admin */
-}
-
-.page-container--wide {
-  max-width: 120rem; /* 1200px - Para páginas con más contenido como movies */
-}
-
-.page-container--full {
-  max-width: none; /* Sin límite */
-  padding: 0 var(--space-lg);
-}
-
-/* ===== CONTENEDOR DE HEADER ACTIONS ===== */
-.page-header-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex-wrap: wrap;
-}
-
-.page-header-actions--center {
-  justify-content: center;
-}
-
-.page-header-actions--end {
-  justify-content: flex-end;
-}
-
-.page-header-actions--space-between {
-  justify-content: space-between;
-}
-
-/* ===== SISTEMA DE MENSAJES DE ESTADO ===== */
-.status-message {
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-md);
-  border: 0.1rem solid;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-normal);
-  animation: slideIn 0.3s ease-out;
-}
-
-.status-message__icon {
-  font-size: var(--font-size-lg);
-  flex-shrink: 0;
-}
-
-.status-message__content {
-  flex: 1;
-  min-width: 0;
-}
-
-.status-message__content h4,
-.status-message__content h3 {
-  margin: 0 0 var(--space-xs) 0;
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-}
-
-.status-message__content p {
-  margin: 0;
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-/* ===== VARIANTES DE ESTADO ===== */
-.status-message--error {
-  background-color: var(--color-danger-light);
-  border-color: var(--color-danger);
-  color: var(--color-danger-dark);
-}
-
-.status-message--success {
-  background-color: var(--color-success-light);
-  border-color: var(--color-success);
-  color: var(--color-success-dark);
-}
-
-.status-message--warning {
-  background-color: var(--color-warning-light);
-  border-color: var(--color-warning);
-  color: var(--color-warning-dark);
-}
-
-.status-message--info {
-  background-color: var(--color-primary-light);
-  border-color: var(--color-primary);
-  color: var(--color-primary-dark);
-}
-
-/* ===== ANIMACIONES ===== */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-
-/* Tablets */
-@media (max-width: 768px) {
-  .page-container {
-    gap: var(--space-md);
-    padding: 0 var(--space-md);
-  }
-  
-  .page-container--full {
-    padding: 0 var(--space-sm);
-  }
-  
-  .page-header-actions {
-    flex-direction: column;
-    width: 100%;
-  }
-  
-  .page-header-actions > * {
-    width: 100%;
-  }
-  
-  .status-message {
-    padding: var(--space-sm) var(--space-md);
-    gap: var(--space-sm);
-    flex-direction: column;
-    align-items: flex-start;
-  }
-}
-
-/* Móviles */
-@media (max-width: 480px) {
-  .page-container {
-    gap: var(--space-sm);
-  }
-  
-  .page-header-actions {
-    gap: var(--space-xs);
-  }
-  
-  .status-message {
-    gap: var(--space-xs);
-  }
-}
-
-/* ===== ACCESIBILIDAD ===== */
-@media (prefers-reduced-motion: reduce) {
-  .status-message {
-    animation: none;
-  }
-}
-
-/* ===== UTILIDADES DE ESTADO ===== */
-.page-container--loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-.page-container--success {
-  /* Para estados de éxito global */
-}
-
-
 
 /* 
-🎉 RESULTADO DE LA REFACTORIZACIÓN:
+🎯 IMPLEMENTACIÓN DEL SISTEMA DE DISEÑO:
 
-ANTES (MovieCreatePage.css original):
-❌ 400+ líneas de CSS
-❌ Muchos estilos duplicados con app.css
-❌ Estilos mezclados de búsqueda, formulario y página
-❌ Difícil mantenimiento y debugging
-❌ Código no reutilizable
+✅ CONSISTENCIA: Sigue exactamente el mismo patrón que CategoryCreatePage y UserCreatePage
+✅ VARIABLES CSS: Usa todas las variables del sistema de diseño en app.css
+✅ COMPONENTES: Solo usa componentes con stories de Storybook
+✅ RESPONSIVO: Design mobile-first con breakpoints estándar
+✅ ACCESIBILIDAD: Soporte para prefers-reduced-motion y focus-visible
+✅ ESTADOS: Loading, error, success con animaciones consistentes
+✅ LAYOUT: max-width más amplio (120rem) para acomodar la búsqueda TMDB
 
-DESPUÉS (MovieCreatePage.css refactorizado):
-✅ ~100 líneas de CSS limpio
-✅ Zero duplicación con app.css
-✅ Solo estilos específicos de la página principal
-✅ Fácil mantenimiento y debugging
-✅ Componentes reutilizables separados
+PATRÓN SEGUIDO:
+🔄 CategoryCreatePage → UserCreatePage → MovieCreatePage (misma estructura)
+📦 form-container (heredado de TMDBSearchView y MovieFormView)
+🎨 Variables CSS para colores, espaciado, tipografía
+📱 Responsive design consistente
+♿ Accesibilidad integrada
+🔍 Integración especial para búsqueda TMDB
 
-COMPONENTES SEPARADOS:
-✅ TMDBSearchView.css → organism reutilizable
-✅ MovieFormView.css → específico de películas
-✅ MovieCreatePage.css → solo coordinación global
-
-BENEFICIOS:
-🚀 -75% menos código CSS
-🔧 Mantenimiento más fácil
-🎯 Responsabilidades claras
-♻️ Componentes reutilizables
-📱 Mejor responsive design
-🎨 Sistema de diseño respetado
+DIFERENCIAS ESPECÍFICAS:
+📏 max-width: 120rem (vs 80rem) para mejor UX en búsqueda TMDB
+🔗 Integración con dos vistas: TMDBSearchView y MovieFormView
+🎬 Iconografía específica para contenido multimedia
 */

@@ -1,20 +1,15 @@
-/* ===== MOVIE FORM VIEW - ESTILOS ESPECÍFICOS ===== */
+/* ===== MOVIE FORM VIEW STYLES - SISTEMA DE DISEÑO ===== */
 /* src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.css */
-
-/* 
-🎯 RESPONSABILIDAD: Solo estilos específicos para el formulario de películas
-✅ ESPECÍFICO: Vista previa TMDB, form layout, info cards para películas
-✅ SISTEMA: Usa variables CSS del sistema de diseño (app.css)
-✅ COMPONENTES: Los Card, Button, etc. ya tienen sus estilos
-✅ RESPONSIVE: Mobile-first design
-*/
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .movie-form-view {
+  /* Layout */
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
   width: 100%;
+  
+  /* Fuente */
   font-family: var(--font-family-base);
 }
 
@@ -25,6 +20,7 @@
 }
 
 .movie-form-view__preview-header {
+  /* Layout del header */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,17 +30,19 @@
 }
 
 .movie-form-view__preview {
+  /* Layout de la vista previa */
   display: flex;
   gap: var(--space-lg);
   align-items: flex-start;
 }
 
 .movie-form-view__preview-poster {
+  /* Contenedor del poster */
   width: 12rem;
   height: 18rem;
-  object-fit: cover;
-  border-radius: var(--radius-md);
   flex-shrink: 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
   border: 0.1rem solid var(--border-light);
   transition: transform var(--transition-normal);
 }
@@ -53,17 +51,27 @@
   transform: scale(1.02);
 }
 
+.movie-form-view__poster-image {
+  /* Imagen del poster */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .movie-form-view__preview-info {
+  /* Información del contenido */
   flex: 1;
   min-width: 0; /* Para text-overflow */
 }
 
 .movie-form-view__preview-title {
+  /* Título */
   margin: 0 0 var(--space-sm) 0;
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
+  
   /* Truncado elegante para títulos muy largos */
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -72,6 +80,7 @@
 }
 
 .movie-form-view__preview-meta {
+  /* Metadatos */
   margin: 0 0 var(--space-sm) 0;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
@@ -79,338 +88,273 @@
 }
 
 .movie-form-view__preview-overview {
+  /* Descripción */
   margin: 0;
   color: var(--text-tertiary);
   font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
+  
   /* Control de altura para descripciones muy largas */
-  max-height: 10rem;
+  max-height: 12rem;
   overflow-y: auto;
-  padding-right: var(--space-xs);
+  
+  /* Scroll personalizado */
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-default) transparent;
 }
 
-/* ===== FORMULARIO PRINCIPAL ===== */
-.movie-form-view__form-card {
-  /* El Card component ya maneja los estilos base */
-}
-
-.movie-form-view__form-description {
-  margin-top: var(--space-xs);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-}
-
-.movie-form-view__form {
-  /* El DynamicForm component ya maneja sus estilos */
-}
-
-.movie-form-view__form--success {
-  opacity: 0.8;
-  pointer-events: none;
-  transition: opacity var(--transition-normal);
-}
-
-/* ===== GRID DE INFORMACIÓN ADICIONAL ===== */
-.movie-form-view__info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
-  gap: var(--space-md);
-  margin-top: var(--space-md);
-}
-
-/* Variantes específicas de las cards de información */
-.movie-form-view__info-tips {
-  /* Card de consejos - destacada con gradiente sutil */
-  background: linear-gradient(135deg, var(--color-primary-light), var(--bg-secondary));
-  border-color: var(--color-primary);
-}
-
-.movie-form-view__info-technical {
-  /* Card técnica - con borde de accent */
-  border-left: 0.3rem solid var(--color-secondary);
-}
-
-.movie-form-view__info-tmdb {
-  /* Card de TMDB - con borde de success */
-  border-left: 0.3rem solid var(--color-success);
-  background: linear-gradient(135deg, var(--color-success-light), var(--bg-secondary));
-}
-
-/* ===== ELEMENTOS DE INFORMACIÓN ===== */
-.movie-form-view__info-title {
-  margin: 0 0 var(--space-sm) 0;
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-semibold);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: var(--space-xs);
-}
-
-.movie-form-view__info-list {
-  margin: 0;
-  padding-left: var(--space-lg);
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-}
-
-.movie-form-view__info-list li {
-  margin-bottom: var(--space-xs);
-  transition: color var(--transition-fast);
-}
-
-.movie-form-view__info-list li:hover {
-  color: var(--text-primary);
-}
-
-.movie-form-view__info-list strong {
-  color: var(--text-primary);
-  font-weight: var(--font-weight-semibold);
-}
-
-.movie-form-view__info-list em {
-  color: var(--text-tertiary);
-  font-style: italic;
-  font-size: var(--font-size-xs);
-}
-
-/* ===== SCROLLBAR PERSONALIZADO PARA OVERVIEW ===== */
 .movie-form-view__preview-overview::-webkit-scrollbar {
   width: 0.4rem;
 }
 
 .movie-form-view__preview-overview::-webkit-scrollbar-track {
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
+  background: transparent;
 }
 
 .movie-form-view__preview-overview::-webkit-scrollbar-thumb {
-  background: var(--border-light);
+  background-color: var(--border-default);
   border-radius: var(--radius-sm);
-  transition: background var(--transition-fast);
 }
 
-.movie-form-view__preview-overview::-webkit-scrollbar-thumb:hover {
-  background: var(--border-dark);
+/* ===== TARJETA DE INFORMACIÓN ===== */
+.movie-form-view__info-card {
+  /* El Card component ya maneja los estilos base */
+  border-left: 0.4rem solid var(--color-secondary);
 }
 
-/* ===== ANIMACIONES ESPECÍFICAS ===== */
-.movie-form-view__preview-card {
-  animation: slideInLeft 0.4s ease-out;
+.movie-form-view__info-text {
+  /* Texto de información */
+  margin: 0 0 var(--space-md) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
 }
 
-.movie-form-view__form-card {
-  animation: slideInRight 0.4s ease-out 0.1s both;
+.movie-form-view__info-tips {
+  /* Sección de tips */
+  padding: var(--space-md);
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid var(--color-primary);
 }
 
-.movie-form-view__info-grid {
-  animation: fadeInUp 0.4s ease-out 0.2s both;
+.movie-form-view__info-tips h4 {
+  /* Título de tips */
+  margin: 0 0 var(--space-sm) 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
 }
 
-.movie-form-view__info-grid > * {
-  animation: fadeInScale 0.3s ease-out calc(0.3s + var(--delay, 0) * 0.1s) both;
+.movie-form-view__info-tips ul {
+  /* Lista de tips */
+  margin: 0;
+  padding-left: var(--space-lg);
 }
 
-.movie-form-view__info-grid > *:nth-child(1) { --delay: 0; }
-.movie-form-view__info-grid > *:nth-child(2) { --delay: 1; }
-.movie-form-view__info-grid > *:nth-child(3) { --delay: 2; }
-.movie-form-view__info-grid > *:nth-child(4) { --delay: 3; }
-.movie-form-view__info-grid > *:nth-child(5) { --delay: 4; }
-
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-2rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.movie-form-view__info-tips li {
+  /* Items de tips */
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-relaxed);
+  margin-bottom: var(--space-xs);
 }
 
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(2rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.movie-form-view__info-tips li:last-child {
+  margin-bottom: 0;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ===== ESTADOS DE FORMULARIO ===== */
+.movie-form-view__form {
+  /* Base del formulario */
 }
 
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+.movie-form-view__form--success {
+  /* Estado de éxito */
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+/* ===== TARJETA DE AYUDA ===== */
+.movie-form-view__help-card {
+  /* El Card component ya maneja los estilos base */
+  border-left: 0.4rem solid var(--color-warning);
+}
+
+.movie-form-view__help-content {
+  /* Contenido de ayuda */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.movie-form-view__help-section {
+  /* Sección individual de ayuda */
+  padding: var(--space-sm) 0;
+  border-bottom: 0.1rem solid var(--border-light);
+}
+
+.movie-form-view__help-section:last-child {
+  border-bottom: none;
+}
+
+.movie-form-view__help-section h4 {
+  /* Título de sección */
+  margin: 0 0 var(--space-xs) 0;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+}
+
+.movie-form-view__help-section p {
+  /* Texto de sección */
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-relaxed);
+}
+
+.movie-form-view__help-section strong {
+  /* Texto destacado */
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
 
-/* Tablets (768px y menos) */
+/* Tablets */
 @media (max-width: 768px) {
   .movie-form-view {
     gap: var(--space-md);
   }
-
+  
   .movie-form-view__preview {
     flex-direction: column;
-    text-align: center;
     align-items: center;
+    text-align: center;
     gap: var(--space-md);
   }
-
-  .movie-form-view__preview-poster {
-    align-self: center;
-  }
-
-  .movie-form-view__preview-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .movie-form-view__info-grid {
-    grid-template-columns: 1fr;
-    gap: var(--space-sm);
-    margin-top: var(--space-sm);
-  }
-}
-
-/* Móviles (480px y menos) */
-@media (max-width: 480px) {
-  .movie-form-view {
-    gap: var(--space-sm);
-  }
-
+  
   .movie-form-view__preview-poster {
     width: 10rem;
     height: 15rem;
   }
-
-  .movie-form-view__preview {
+  
+  .movie-form-view__preview-info {
+    text-align: left;
+  }
+  
+  .movie-form-view__preview-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .movie-form-view__help-content {
     gap: var(--space-sm);
   }
+}
 
+/* Móviles */
+@media (max-width: 480px) {
+  .movie-form-view {
+    gap: var(--space-sm);
+  }
+  
+  .movie-form-view__preview-poster {
+    width: 8rem;
+    height: 12rem;
+  }
+  
+  .movie-form-view__preview-title {
+    font-size: var(--font-size-base);
+  }
+  
   .movie-form-view__preview-overview {
-    max-height: 8rem; /* Menos altura en móviles */
+    max-height: 8rem;
   }
-
-  .movie-form-view__info-grid {
-    gap: var(--space-xs);
+  
+  .movie-form-view__info-tips {
+    padding: var(--space-sm);
   }
-
-  .movie-form-view__info-title {
-    font-size: var(--font-size-sm);
-  }
-
-  .movie-form-view__info-list {
-    font-size: var(--font-size-xs);
-    padding-left: var(--space-md);
+  
+  .movie-form-view__help-section {
+    padding: var(--space-xs) 0;
   }
 }
 
-/* ===== ESTADOS ESPECÍFICOS ===== */
+/* ===== ACCESIBILIDAD ===== */
 
-/* Estado de carga del formulario */
-.movie-form-view--loading .movie-form-view__preview-card,
-.movie-form-view--loading .movie-form-view__info-grid {
-  opacity: 0.6;
-  pointer-events: none;
+/* Reducir animaciones si el usuario lo prefiere */
+@media (prefers-reduced-motion: reduce) {
+  .movie-form-view__preview-poster {
+    transition: none;
+  }
 }
 
-/* Estado de éxito */
-.movie-form-view--success .movie-form-view__preview-card {
-  border-left-color: var(--color-success);
-}
-
-.movie-form-view--success .movie-form-view__info-grid {
-  opacity: 0.8;
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .movie-form-view__preview-card,
+  .movie-form-view__info-card,
+  .movie-form-view__help-card {
+    border-left-width: 0.6rem;
+  }
+  
+  .movie-form-view__info-tips {
+    border-width: 0.2rem;
+  }
 }
 
 /* ===== MODO OSCURO ===== */
 @media (prefers-color-scheme: dark) {
   .movie-form-view__info-tips {
-    background: linear-gradient(135deg, var(--color-primary-dark), var(--bg-tertiary));
-  }
-
-  .movie-form-view__info-tmdb {
-    background: linear-gradient(135deg, var(--color-success-dark), var(--bg-tertiary));
-  }
-
-  .movie-form-view__preview-card {
-    border-left-color: var(--color-primary-light);
-  }
-}
-
-/* ===== ACCESIBILIDAD ===== */
-.movie-form-view__preview-overview:focus {
-  outline: 0.2rem solid var(--color-primary);
-  outline-offset: 0.2rem;
-}
-
-/* Reducir movimiento para usuarios con preferencias de accesibilidad */
-@media (prefers-reduced-motion: reduce) {
-  .movie-form-view__preview-card,
-  .movie-form-view__form-card,
-  .movie-form-view__info-grid,
-  .movie-form-view__info-grid > * {
-    animation: none;
+    background-color: rgba(59, 130, 246, 0.1);
   }
   
-  .movie-form-view__preview-poster:hover {
-    transform: none;
+  .movie-form-view__preview-overview::-webkit-scrollbar-thumb {
+    background-color: var(--border-default);
+  }
+}
+
+/* Forzar modo oscuro con clase */
+.dark .movie-form-view__info-tips {
+  background-color: rgba(59, 130, 246, 0.1);
+}
+
+.dark .movie-form-view__preview-overview::-webkit-scrollbar-thumb {
+  background-color: var(--border-default);
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .movie-form-view__preview-poster {
+    width: 6rem;
+    height: 9rem;
   }
   
-  .movie-form-view__form--success {
-    transition: none;
+  .movie-form-view__help-card {
+    display: none;
+  }
+  
+  .movie-form-view {
+    gap: var(--space-sm);
   }
 }
 
-/* ===== UTILIDADES ESPECÍFICAS ===== */
+/* 
+🎯 IMPLEMENTACIÓN DEL SISTEMA DE DISEÑO:
 
-/* Variante sin vista previa (cuando no hay item seleccionado) */
-.movie-form-view--no-preview .movie-form-view__preview-card {
-  display: none;
-}
+✅ CONSISTENCIA: Sigue el patrón de sistema de diseño establecido
+✅ VARIABLES CSS: Usa todas las variables del sistema (colores, espaciado, tipografía)
+✅ COMPONENTES: Integra Card, Button, ContentImage, DynamicForm con stories
+✅ RESPONSIVO: Design mobile-first con breakpoints estándar
+✅ ACCESIBILIDAD: prefers-reduced-motion, prefers-contrast, focus-visible
+✅ ESTADOS: Hover, loading, success con transiciones suaves
+✅ LAYOUT: Grid flexible que se adapta al contenido
 
-/* Variante compacta para espacios reducidos */
-.movie-form-view--compact .movie-form-view__info-grid {
-  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
-  gap: var(--space-xs);
-}
-
-.movie-form-view--compact .movie-form-view__preview {
-  gap: var(--space-md);
-}
-
-.movie-form-view--compact .movie-form-view__preview-poster {
-  width: 10rem;
-  height: 15rem;
-}
-
-/* Estado de solo lectura */
-.movie-form-view--readonly .movie-form-view__form-card {
-  opacity: 0.8;
-}
-
-.movie-form-view--readonly .movie-form-view__info-grid {
-  filter: grayscale(0.2);
-}
+CARACTERÍSTICAS ESPECÍFICAS:
+🎬 Vista previa de contenido TMDB con poster e información
+📋 Tarjetas informativas con tips y ayuda contextual
+🎨 Bordes coloreados para diferentes tipos de información
+📱 Layout responsivo que colapsa en móviles
+♿ Scrollbars personalizados y accesibilidad mejorada
+*/

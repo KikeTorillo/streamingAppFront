@@ -1,12 +1,13 @@
 /* ===== USER CREATE PAGE STYLES - SISTEMA DE DISEÑO ===== */
-/* src/Pages/Admin/Users/UserCreatePage.css */
+/* src/Pages/Admin/Users/UserCreatePage/UserCreatePage.css */
 
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .user-create {
-  /* Layout */
+  /* Layout - EXACTAMENTE IGUAL QUE category-create */
   display: flex;
   flex-direction: column;
   gap: var(--space-xl);
+  max-width: 80rem; /* 800px */
   margin: 0 auto;
   
   /* Fuente */
@@ -15,7 +16,7 @@
 
 /* ===== HEADER ACTIONS ===== */
 .user-create__header-actions {
-  /* Layout */
+  /* Layout - IGUAL QUE category-create__header-actions */
   display: flex;
   align-items: center;
   gap: var(--space-sm);
@@ -24,7 +25,7 @@
 /* ===== MENSAJES DE ESTADO ===== */
 .user-create__error,
 .user-create__success {
-  /* Layout */
+  /* Layout - IGUAL QUE category-create */
   display: flex;
   align-items: center;
   gap: var(--space-md);
@@ -32,24 +33,24 @@
   border-radius: var(--radius-md);
   border: 0.1rem solid;
   
-  /* Tipografía */
+  /* Tipografía - IGUAL QUE category-create */
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
   line-height: var(--line-height-normal);
   
-  /* Animación */
+  /* Animación - IGUAL QUE category-create */
   animation: slideIn 0.3s ease-out;
 }
 
 .user-create__error {
-  /* Colores de error */
+  /* Colores de error - IGUAL QUE category-create */
   background-color: var(--color-danger-light);
   border-color: var(--color-danger);
   color: var(--color-danger-dark);
 }
 
 .user-create__success {
-  /* Colores de éxito */
+  /* Colores de éxito - IGUAL QUE category-create */
   background-color: var(--color-success-light);
   border-color: var(--color-success);
   color: var(--color-success-dark);
@@ -57,51 +58,51 @@
 
 .user-create__error-icon,
 .user-create__success-icon {
-  /* Iconos */
+  /* Iconos - IGUAL QUE category-create */
   font-size: var(--font-size-lg);
   flex-shrink: 0;
 }
 
 .user-create__error-content,
 .user-create__success-content {
-  /* Texto */
+  /* Texto - IGUAL QUE category-create */
   flex: 1;
   min-width: 0;
 }
 
 .user-create__error-content h4,
 .user-create__success-content h3 {
-  /* Reset */
+  /* Reset - IGUAL QUE category-create */
   margin: 0 0 var(--space-xs) 0;
   
-  /* Tipografía */
+  /* Tipografía - IGUAL QUE category-create */
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-bold);
 }
 
 .user-create__error-content p,
 .user-create__success-content p {
-  /* Reset */
+  /* Reset - IGUAL QUE category-create */
   margin: 0;
   
-  /* Tipografía */
+  /* Tipografía - IGUAL QUE category-create */
   font-size: var(--font-size-sm);
   color: var(--text-secondary);
 }
 
 .user-create__success-redirect {
-  /* Layout */
+  /* Layout - IGUAL QUE category-create */
   flex-shrink: 0;
   margin-left: var(--space-md);
   
-  /* Tipografía */
+  /* Tipografía - IGUAL QUE category-create */
   font-size: var(--font-size-xs);
   font-style: italic;
   color: var(--text-muted);
 }
 
 .user-create__error-close {
-  /* Botón de cerrar */
+  /* Botón de cerrar - IGUAL QUE category-create */
   background: none;
   border: none;
   color: inherit;
@@ -124,11 +125,11 @@
 
 /* ===== ESTADOS DE FORMULARIO ===== */
 .user-create__form {
-  /* Base del formulario */
+  /* Base del formulario - IGUAL QUE category-create */
 }
 
 .user-create__form--success {
-  /* Estado de éxito */
+  /* Estado de éxito - IGUAL QUE category-create */
   opacity: 0.8;
   pointer-events: none;
 }
@@ -145,6 +146,17 @@
   }
 }
 
+.user-create__success-redirect {
+  /* Animación de redirect */
+  animation: fadeInOut 2s ease-in-out;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; }
+}
+
 /* ===== RESPONSIVE DESIGN ===== */
 
 /* Tablets */
@@ -158,6 +170,7 @@
   .user-create__header-actions {
     flex-direction: column;
     width: 100%;
+    gap: var(--space-sm);
   }
   
   .user-create__header-actions > * {
@@ -173,28 +186,32 @@
   
   .user-create__error,
   .user-create__success {
+    padding: var(--space-sm) var(--space-md);
+    gap: var(--space-sm);
     flex-direction: column;
     align-items: flex-start;
-    text-align: left;
+  }
+  
+  .user-create__header-actions {
+    gap: var(--space-xs);
   }
   
   .user-create__error-close {
     align-self: flex-end;
     margin-top: var(--space-xs);
   }
-  
-  .user-create__success-redirect {
-    margin-left: 0;
-    margin-top: var(--space-xs);
-  }
 }
 
 /* ===== ACCESIBILIDAD ===== */
 
-/* Reducir animaciones si el usuario lo prefiere */
+/* Reducir movimiento para usuarios con preferencias de accesibilidad */
 @media (prefers-reduced-motion: reduce) {
   .user-create__error,
   .user-create__success {
+    animation: none;
+  }
+  
+  .user-create__success-redirect {
     animation: none;
   }
   
@@ -203,48 +220,15 @@
   }
 }
 
-/* High contrast mode */
-@media (prefers-contrast: high) {
-  .user-create__error,
-  .user-create__success {
-    border-width: 0.2rem;
-    font-weight: var(--font-weight-bold);
-  }
+/* ===== UTILIDADES ESPECÍFICAS ===== */
+
+/* Estado global de la página cuando está en loading */
+.user-create--loading {
+  pointer-events: none;
+  opacity: 0.8;
 }
 
-/* ===== MODO OSCURO ===== */
-@media (prefers-color-scheme: dark) {
-  .user-create__success {
-    background-color: rgba(34, 197, 94, 0.1);
-    border-color: var(--color-success);
-  }
-  
-  .user-create__error {
-    background-color: rgba(239, 68, 68, 0.1);
-    border-color: var(--color-danger);
-  }
-}
-
-/* Forzar modo oscuro con clase */
-.dark .user-create__success {
-  background-color: rgba(34, 197, 94, 0.1);
-  border-color: var(--color-success);
-}
-
-.dark .user-create__error {
-  background-color: rgba(239, 68, 68, 0.1);
-  border-color: var(--color-danger);
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-  .user-create__header-actions,
-  .user-create__error,
-  .user-create__success {
-    display: none;
-  }
-  
-  .user-create {
-    gap: var(--space-md);
-  }
+/* Estado global cuando se completó exitosamente */
+.user-create--success {
+  /* Los elementos específicos ya manejan su estado */
 }

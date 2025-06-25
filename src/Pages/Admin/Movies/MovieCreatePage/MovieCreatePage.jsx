@@ -1,7 +1,7 @@
-// ===== MOVIE CREATE PAGE - USO CORRECTO DEL TMDBSEARCHVIEW =====
+// ===== MOVIE CREATE PAGE - HOMOLOGADO CON SISTEMA DE DISEÑO =====
 // src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminLayout';
 import { Button } from '../../../../components/atoms/Button/Button';
@@ -9,82 +9,105 @@ import { TMDBSearchView } from '../../../../components/organism/TMDBSearchView/T
 import { MovieFormView } from './components/MovieFormView';
 import './MovieCreatePage.css';
 
+// Importar servicios
+import { getCategoriesService } from '../../../../services/Categories/getCategoriesService';
+// import { createMovieService } from '../../../../services/Movies/createMovieService'; // Para implementar
+
+// Configuración de TMDB API
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3/search/multi";
 
 /**
- * MovieCreatePage - USO CORRECTO Y SEGURO DEL TMDBSEARCHVIEW
+ * MovieCreatePage - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO
  * 
- * ✅ PROPS CORRECTOS: Todos los props necesarios se pasan correctamente
- * ✅ MANEJO DE ERRORES: Try-catch en todos los handlers
- * ✅ VALIDACIONES: Verificaciones antes de usar datos
+ * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
+ * ✅ BACKEND: Homologado con campos reales del backend de películas
+ * ✅ VALIDACIONES: Según esquemas del backend
+ * ✅ UX: Estados de loading, error y success consistentes
+ * ✅ ESTILO: Usa clases del sistema de diseño centralizado
+ * ✅ PATRÓN: Sigue exactamente el mismo patrón que CategoryCreatePage y UserCreatePage
  */
 function MovieCreatePage() {
   const navigate = useNavigate();
 
-  // ===== ESTADOS =====
-  const [currentView, setCurrentView] = useState("search");
+  // ===== ESTADOS PRINCIPALES =====
+  const [currentView, setCurrentView] = useState("search"); // "search" | "form"
   const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
   
-  // Estados de búsqueda TMDB
+  // ===== ESTADOS DE BÚSQUEDA TMDB =====
   const [searchQuery, setSearchQuery] = useState("");
   const [results, setResults] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [sortBy, setSortBy] = useState("year-desc");
 
+  // ===== ESTADOS DE DATOS =====
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
   // ===== CONFIGURACIÓN =====
   const sortOptions = [
     { value: "year-desc", label: "Más recientes" },
-    { value: "year-asc", label: "Más antiguos" },
-    { value: "rating-desc", label: "Mejor puntuados" }
+    { value: "year-asc", label: "Más antiguas" },
+    { value: "title-asc", label: "A-Z" },
+    { value: "title-desc", label: "Z-A" },
+    { value: "popularity-desc", label: "Más populares" }
   ];
 
   const typeOptions = [
-    { value: "movie", label: "Película" },
-    { value: "tv", label: "Serie" }
+    { value: '', label: 'Selecciona un tipo' },
+    { value: 'movie', label: '🎬 Película' },
+    { value: 'tv', label: '📺 Serie' }
   ];
 
-  const categoryOptions = [
-    { value: "accion", label: "Acción" },
-    { value: "aventura", label: "Aventura" },
-    { value: "comedia", label: "Comedia" },
-    { value: "drama", label: "Drama" },
-    { value: "terror", label: "Terror" },
-    { value: "ciencia-ficcion", label: "Ciencia Ficción" },
-    { value: "romance", label: "Romance" },
-    { value: "animacion", label: "Animación" },
-    { value: "documental", label: "Documental" },
-    { value: "musical", label: "Musical" }
-  ];
-
+  /**
+   * ✅ CAMPOS según schema del backend de películas
+   */
   const movieFormFields = [
     {
       name: 'title',
       type: 'text',
       label: 'Título',
-      placeholder: 'Nombre del contenido',
+      placeholder: 'Ej: Avengers: Endgame',
       required: true,
-      leftIcon: '🎬'
+      leftIcon: '🎬',
+      helperText: 'Título original del contenido',
+      width: 'full'
     },
     {
       name: 'type',
       type: 'select',
-      label: 'Tipo',
+      label: 'Tipo de Contenido',
       required: true,
+      leftIcon: '🎭',
+      helperText: 'Película o serie de TV',
       options: typeOptions,
-      leftIcon: '📽️'
+      width: 'half'
+    },
+    {
+      name: 'year',
+      type: 'number',
+      label: 'Año de Lanzamiento',
+      placeholder: '2024',
+      required: true,
+      leftIcon: '📅',
+      helperText: 'Año de estreno o lanzamiento',
+      width: 'half',
+      min: 1900,
+      max: new Date().getFullYear() + 5
     },
     {
       name: 'description',
       type: 'textarea',
       label: 'Descripción',
-      placeholder: 'Descripción del contenido...',
+      placeholder: 'Sinopsis o descripción del contenido...',
       required: true,
       leftIcon: '📝',
+      helperText: 'Resumen del argumento o contenido',
+      width: 'full',
       rows: 4
     },
     {
@@ -92,18 +115,16 @@ function MovieCreatePage() {
       type: 'select',
       label: 'Categoría',
       required: true,
-      options: categoryOptions,
-      leftIcon: '🎭'
-    },
-    {
-      name: 'year',
-      type: 'number',
-      label: 'Año',
-      placeholder: '2024',
-      required: true,
-      leftIcon: '📅',
-      min: 1900,
-      max: new Date().getFullYear() + 5
+      leftIcon: '🎭',
+      helperText: 'Género o categoría del contenido',
+      options: [
+        { value: '', label: 'Selecciona una categoría' },
+        ...categories.map(cat => ({
+          value: cat.id,
+          label: `${cat.name}`
+        }))
+      ],
+      width: 'half'
     },
     {
       name: 'duration',
@@ -112,6 +133,8 @@ function MovieCreatePage() {
       placeholder: '120',
       required: true,
       leftIcon: '⏱️',
+      helperText: 'Duración en minutos (películas) o por episodio (series)',
+      width: 'half',
       min: 1,
       max: 600
     },
@@ -119,9 +142,11 @@ function MovieCreatePage() {
       name: 'posterUrl',
       type: 'url',
       label: 'URL del Poster',
-      placeholder: 'https://ejemplo.com/poster.jpg',
+      placeholder: 'https://image.tmdb.org/t/p/w500/...',
       required: false,
-      leftIcon: '🖼️'
+      leftIcon: '🖼️',
+      helperText: 'URL de la imagen del poster (opcional)',
+      width: 'full'
     },
     {
       name: 'videoUrl',
@@ -129,19 +154,59 @@ function MovieCreatePage() {
       label: 'URL del Video',
       placeholder: 'https://ejemplo.com/video.mp4',
       required: true,
-      leftIcon: '🎥'
+      leftIcon: '🎥',
+      helperText: 'URL del archivo de video o stream',
+      width: 'full'
     }
   ];
 
-  // ===== HANDLERS DE BÚSQUEDA TMDB (SEGUROS) =====
-  const handleSearch = async () => {
-    if (!searchQuery || !searchQuery.trim()) {
-      setError("Por favor ingresa un término de búsqueda");
-      return;
-    }
+  /**
+   * ✅ Datos iniciales del formulario
+   */
+  const initialData = {
+    title: '',
+    type: '',
+    year: new Date().getFullYear(),
+    description: '',
+    categoryId: '',
+    duration: '',
+    posterUrl: '',
+    videoUrl: ''
+  };
 
-    if (!API_KEY) {
-      setError("API key de TMDB no configurada");
+  // ===== EFECTOS =====
+  
+  /**
+   * ✅ Cargar categorías al montar el componente
+   */
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await getCategoriesService();
+        
+        if (response && response.data) {
+          setCategories(response.data);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        setError('Error al cargar las categorías');
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // ===== FUNCIONES DE BÚSQUEDA TMDB =====
+
+  /**
+   * ✅ Realizar búsqueda en TMDB
+   */
+  const handleSearch = async () => {
+    if (!searchQuery || searchQuery.trim() === '') {
+      setResults([]);
       return;
     }
 
@@ -149,290 +214,315 @@ function MovieCreatePage() {
     setError(null);
 
     try {
-      const response = await fetch(
-        `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery.trim())}&language=es-ES&include_adult=false`
-      );
+      const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(searchQuery)}&language=es-ES`;
+      const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error(`Error ${response.status}: ${response.statusText}`);
+        throw new Error(`Error HTTP: ${response.status}`);
       }
 
       const data = await response.json();
       
-      if (data && data.results && Array.isArray(data.results)) {
-        const processedResults = data.results
-          .filter(item => item && (item.media_type === 'movie' || item.media_type === 'tv'))
+      if (data.results) {
+        // Procesar y formatear los resultados
+        const formattedResults = data.results
+          .filter(item => item.media_type === 'movie' || item.media_type === 'tv')
           .map(item => ({
-            id: item.id || Math.random(),
-            title: item.title || item.name || 'Sin título',
-            type: item.media_type || 'unknown',
-            year: item.release_date?.split('-')[0] || item.first_air_date?.split('-')[0] || 'N/A',
-            rating: item.vote_average || 0,
-            overview: item.overview || '',
-            poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null
-          }))
-          .sort((a, b) => {
-            switch (sortBy) {
-              case 'year-desc':
-                return parseInt(b.year) - parseInt(a.year);
-              case 'year-asc':
-                return parseInt(a.year) - parseInt(b.year);
-              case 'rating-desc':
-                return b.rating - a.rating;
-              default:
-                return 0;
-            }
-          });
+            id: item.id,
+            title: item.title || item.name,
+            type: item.media_type,
+            year: item.release_date ? new Date(item.release_date).getFullYear() : 
+                  item.first_air_date ? new Date(item.first_air_date).getFullYear() : null,
+            overview: item.overview,
+            poster: item.poster_path ? `https://image.tmdb.org/t/p/w500${item.poster_path}` : null,
+            popularity: item.popularity || 0
+          }));
 
-        setResults(processedResults);
-        
-        if (processedResults.length === 0) {
-          setError("No se encontraron resultados para tu búsqueda");
-        }
+        setResults(formattedResults);
       } else {
         setResults([]);
-        setError("No se encontraron resultados para tu búsqueda");
       }
     } catch (error) {
       console.error('Error en búsqueda TMDB:', error);
-      setError("Error al conectar con TMDB. Verifica tu conexión e intenta de nuevo.");
+      setError("Error al buscar en TMDB. Verifica tu conexión e intenta de nuevo.");
       setResults([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // ===== HANDLERS SEGUROS =====
+  /**
+   * ✅ Handler para cambios en el input de búsqueda
+   */
   const handleSearchQueryChange = (value) => {
-    try {
-      setSearchQuery(value || "");
-      setError(null);
-    } catch (error) {
-      console.error('Error changing search query:', error);
-    }
+    setSearchQuery(value);
+    setError(null);
   };
 
+  /**
+   * ✅ Handler para cambios en el orden
+   */
   const handleSortChange = (value) => {
-    try {
-      setSortBy(value || "year-desc");
-    } catch (error) {
-      console.error('Error changing sort:', error);
-    }
+    setSortBy(value);
   };
+
+  // ===== HANDLERS DE NAVEGACIÓN =====
 
   const handleClearResults = () => {
-    try {
-      setResults([]);
-      setSearchQuery("");
-      setError(null);
-    } catch (error) {
-      console.error('Error clearing results:', error);
-    }
+    setResults([]);
+    setSearchQuery("");
+    setError(null);
   };
 
   const handleSelectItem = (item) => {
-    try {
-      if (item && typeof item === 'object') {
-        setSelectedItem(item);
-        setError(null);
-        setCurrentView("form");
-      }
-    } catch (error) {
-      console.error('Error selecting item:', error);
-      setError("Error al seleccionar el item");
+    if (item && typeof item === 'object') {
+      setSelectedItem(item);
+      setError(null);
+      setCurrentView("form");
     }
   };
 
   const handleGoToForm = () => {
-    try {
-      setCurrentView("form");
-    } catch (error) {
-      console.error('Error going to form:', error);
-    }
+    setSelectedItem(null);
+    setCurrentView("form");
   };
 
   const handleBackToSearch = () => {
-    try {
-      setCurrentView("search");
-    } catch (error) {
-      console.error('Error going back to search:', error);
+    if (hasChanges) {
+      const confirmLeave = window.confirm(
+        "Tienes cambios sin guardar. ¿Estás seguro de que quieres volver a la búsqueda?\n\n" +
+        "Se perderán los cambios no guardados."
+      );
+      if (!confirmLeave) return;
     }
+    setCurrentView("search");
+    setHasChanges(false);
   };
 
-  const handleGoBack = () => {
-    try {
-      if (hasChanges) {
-        const confirmLeave = window.confirm(
-          "Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?"
-        );
-        if (!confirmLeave) return;
-      }
-      navigate('/admin/movies');
-    } catch (error) {
-      console.error('Error going back:', error);
-      navigate('/admin/movies'); // Fallback
+  const handleCancel = () => {
+    if (hasChanges && !success) {
+      const confirmCancel = window.confirm(
+        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?\n\n' +
+        'Se perderán los cambios no guardados.'
+      );
+      if (!confirmCancel) return;
     }
+    
+    navigate('/admin/movies');
   };
 
   // ===== HANDLERS DEL FORMULARIO =====
+
+  /**
+   * ✅ Obtener datos iniciales del formulario según el item seleccionado
+   */
   const getInitialFormData = () => {
-    try {
-      if (selectedItem && typeof selectedItem === 'object') {
-        return {
-          title: selectedItem.title || '',
-          type: selectedItem.type === 'tv' ? 'tv' : 'movie',
-          description: selectedItem.overview || '',
-          year: parseInt(selectedItem.year) || new Date().getFullYear(),
-          posterUrl: selectedItem.poster || '',
-          categoryId: '',
-          duration: selectedItem.type === 'movie' ? 120 : 45,
-          videoUrl: ''
-        };
-      }
-      return {};
-    } catch (error) {
-      console.error('Error getting initial form data:', error);
-      return {};
+    if (selectedItem && typeof selectedItem === 'object') {
+      return {
+        title: selectedItem.title || '',
+        type: selectedItem.type === 'tv' ? 'tv' : 'movie',
+        description: selectedItem.overview || '',
+        year: parseInt(selectedItem.year) || new Date().getFullYear(),
+        posterUrl: selectedItem.poster || '',
+        categoryId: '',
+        duration: selectedItem.type === 'movie' ? 120 : 45,
+        videoUrl: ''
+      };
     }
+    return initialData;
   };
 
-  const handleFormChange = (formData) => {
-    try {
-      setHasChanges(true);
-      setError(null);
-    } catch (error) {
-      console.error('Error in form change:', error);
+  /**
+   * ✅ Limpiar datos antes de enviar al backend
+   */
+  const cleanFormData = (formData) => {
+    const cleanData = { ...formData };
+    
+    // Convertir valores string a number según corresponda
+    cleanData.year = parseInt(cleanData.year);
+    cleanData.duration = parseInt(cleanData.duration);
+    cleanData.categoryId = parseInt(cleanData.categoryId);
+    
+    // Si posterUrl está vacío, no enviarlo (es opcional)
+    if (!cleanData.posterUrl || cleanData.posterUrl.trim() === '') {
+      delete cleanData.posterUrl;
     }
+    
+    return cleanData;
   };
 
+  /**
+   * ✅ Manejar envío del formulario
+   */
   const handleSubmit = async (formData) => {
-    setFormLoading(true);
-    setError(null);
-
     try {
-      console.log('Datos del formulario:', formData);
+      setFormLoading(true);
+      setError(null);
+
+      // Limpiar datos para backend
+      const cleanData = cleanFormData(formData);
+
+      console.log('🚀 Creando película/serie:', cleanData);
+
+      // TODO: Implementar createMovieService cuando esté disponible
+      // const response = await createMovieService(cleanData);
       
-      // TODO: Implementar createMovieService
-      // const result = await createMovieService(formData);
-      
-      // Simulación temporal
+      // Simulación temporal (remover cuando se implemente el servicio real)
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
+
+      console.log('✅ Contenido creado exitosamente');
+
+      // Estado de éxito
       setSuccess(true);
       setHasChanges(false);
-      
-      // Redirigir después de 3 segundos
+
+      // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate('/admin/movies');
-      }, 3000);
+      }, 2000);
+
+    } catch (err) {
+      console.error('❌ Error al crear contenido:', err);
       
-    } catch (error) {
-      console.error('Error al crear película:', error);
-      setError(error.message || "Error al crear el contenido. Intenta de nuevo.");
+      // Manejar diferentes tipos de errores
+      if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Error inesperado al crear el contenido. Intenta nuevamente.');
+      }
     } finally {
       setFormLoading(false);
     }
   };
 
+  /**
+   * ✅ Detectar cambios en el formulario
+   */
+  const handleFormChange = (changedData) => {
+    setHasChanges(true);
+    setError(null); // Limpiar errores al hacer cambios
+  };
+
   // ===== RENDER =====
+  
   return (
     <AdminLayout
-      title="Crear Contenido"
+      title="Crear Contenido Multimedia"
+      subtitle="Busca en TMDB o agrega manualmente películas y series al catálogo"
       breadcrumbs={[
-        { label: "Panel Admin", path: "/admin" },
-        { label: "Películas", path: "/admin/movies" },
-        { label: "Crear", path: "/admin/movies/create" }
+        { label: 'Admin', href: '/admin' },
+        { label: 'Películas', href: '/admin/movies' },
+        { label: 'Crear' }
       ]}
       headerActions={
         <div className="movie-create__header-actions">
           <Button
-            variant={currentView === "search" ? "primary" : "outline"}
+            variant="outline"
             size="sm"
-            onClick={() => setCurrentView("search")}
-            leftIcon="🔍"
-            disabled={formLoading}
+            onClick={handleCancel}
+            disabled={loading || formLoading}
           >
-            Buscar TMDB
+            Cancelar
           </Button>
           
-          <Button
-            variant={currentView === "form" ? "primary" : "outline"}
-            size="sm"
-            onClick={handleGoToForm}
-            leftIcon="📝"
-            disabled={formLoading}
-          >
-            Formulario
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleGoBack}
-            leftIcon="←"
-            disabled={formLoading}
-          >
-            Volver
-          </Button>
+          {currentView === "search" && (
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={handleGoToForm}
+              leftIcon="✏️"
+              disabled={loading}
+            >
+              Crear Manualmente
+            </Button>
+          )}
+          
+          {currentView === "form" && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBackToSearch}
+                leftIcon="🔍"
+                disabled={formLoading}
+              >
+                Volver a Búsqueda
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => document.getElementById('movie-create-form')?.requestSubmit()}
+                loading={formLoading}
+                disabled={!hasChanges || formLoading}
+                leftIcon="🎬"
+              >
+                {formLoading ? 'Creando...' : 'Crear Contenido'}
+              </Button>
+            </>
+          )}
         </div>
       }
     >
-      <div className="movie-create">
+      <div className={`movie-create ${currentView === 'search' ? 'movie-create--search-view' : 'movie-create--form-view'}`}>
         
-        {/* ===== MENSAJES DE ESTADO ===== */}
+        {/* ===== NOTIFICACIONES ===== */}
+        {success && (
+          <div className="movie-create__success">
+            <div className="movie-create__success-icon">✅</div>
+            <div className="movie-create__success-content">
+              <h3>¡Contenido creado exitosamente!</h3>
+              <p>El nuevo contenido está disponible en el catálogo multimedia.</p>
+            </div>
+            <span className="movie-create__success-redirect">
+              Redirigiendo...
+            </span>
+          </div>
+        )}
+
         {error && (
           <div className="movie-create__error">
-            <span className="movie-create__error-icon">⚠️</span>
+            <div className="movie-create__error-icon">⚠️</div>
             <div className="movie-create__error-content">
-              <h4>Error</h4>
+              <h4>Error al crear contenido</h4>
               <p>{error}</p>
             </div>
             <button
               className="movie-create__error-close"
               onClick={() => setError(null)}
-              aria-label="Cerrar error"
+              aria-label="Cerrar mensaje de error"
             >
               ✕
             </button>
           </div>
         )}
 
-        {success && (
-          <div className="movie-create__success">
-            <span className="movie-create__success-icon">✅</span>
-            <div className="movie-create__success-content">
-              <h3>¡Contenido creado exitosamente!</h3>
-              <p>El contenido ha sido agregado al catálogo correctamente.</p>
-              <div className="movie-create__success-redirect">
-                Redirigiendo al listado en 3 segundos...
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ===== VISTA DE BÚSQUEDA TMDB ===== */}
         {currentView === "search" && (
           <TMDBSearchView
-            // Estados de búsqueda - TODOS LOS PROPS NECESARIOS
+            // Estados principales
             searchQuery={searchQuery}
-            onSearchQueryChange={handleSearchQueryChange}
-            sortBy={sortBy}
-            onSortChange={handleSortChange}
             results={results}
             loading={loading}
+            sortBy={sortBy}
             
-            // Configuración específica
+            // Configuración
             contentType="all"
             title="🎬 Buscar Películas y Series"
             placeholder="Ej: Avatar, Breaking Bad, Inception..."
             helperText="Busca por título, año o palabras clave"
-            showManualCreate={true}
             
-            // Opciones
+            // Opciones y configuración
+            showManualCreate={true}
+            manualCreateText="Crear Manualmente"
+            manualCreateDescription="Agrega contenido sin buscar en TMDB"
             sortOptions={sortOptions}
             
-            // Handlers - TODOS DEFINIDOS
+            // Handlers - TODOS DEFINIDOS Y FUNCIONANDO
             onSearch={handleSearch}
+            onSearchQueryChange={handleSearchQueryChange}
+            onSortChange={handleSortChange}
             onClearResults={handleClearResults}
             onSelectItem={handleSelectItem}
             onManualCreate={handleGoToForm}
@@ -455,8 +545,12 @@ function MovieCreatePage() {
             onChange={handleFormChange}
             onBackToSearch={handleBackToSearch}
             typeOptions={typeOptions}
-            categoryOptions={categoryOptions}
-            showBackButton={selectedItem !== null}
+            categoryOptions={categories.map(cat => ({
+              value: cat.id,
+              label: cat.name
+            }))}
+            showBackButton={true}
+            categoriesLoading={categoriesLoading}
           />
         )}
       </div>

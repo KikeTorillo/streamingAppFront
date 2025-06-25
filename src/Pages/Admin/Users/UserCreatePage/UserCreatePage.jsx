@@ -14,11 +14,12 @@ import { createUserService } from '../../../../services/Users/createUserService'
 /**
  * UserCreatePage - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO
  * 
- * ✅ SISTEMA DE DISEÑO: Usa clases del sistema centralizado
- * ✅ BACKEND: Solo campos que existen en la DB
- * ✅ COMPONENTES: Solo componentes con stories de Storybook
+ * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
+ * ✅ BACKEND: Homologado con campos reales del backend
  * ✅ VALIDACIONES: Según esquemas Joi del backend
  * ✅ UX: Estados de loading, error y success consistentes
+ * ✅ ESTILO: Usa clases del sistema de diseño centralizado
+ * ✅ PATRÓN: Sigue exactamente el mismo patrón que CategoryCreatePage
  */
 function UserCreatePage() {
   const navigate = useNavigate();
@@ -52,17 +53,17 @@ function UserCreatePage() {
       placeholder: 'usuario@ejemplo.com',
       required: false, // Email es OPCIONAL en backend
       leftIcon: '📧',
-      helperText: 'Opcional: para notificaciones y recuperación de contraseña',
+      helperText: 'Opcional. Si se proporciona, debe ser válido y único',
       width: 'half'
     },
     {
       name: 'password',
       type: 'password',
       label: 'Contraseña',
-      placeholder: 'Solo letras y números',
+      placeholder: 'Mínimo 8 caracteres',
       required: true,
       leftIcon: '🔒',
-      helperText: 'Debe ser alfanumérica (solo letras y números según Joi)',
+      helperText: 'Mínimo 8 caracteres, debe incluir letras y números',
       width: 'half'
     },
     {
@@ -72,7 +73,7 @@ function UserCreatePage() {
       placeholder: 'Repite la contraseña',
       required: true,
       leftIcon: '🔒',
-      helperText: 'Debe coincidir exactamente con la contraseña',
+      helperText: 'Debe coincidir con la contraseña anterior',
       width: 'half'
     },
     {
@@ -80,140 +81,162 @@ function UserCreatePage() {
       type: 'select',
       label: 'Rol del Usuario',
       required: true,
-      leftIcon: '👥',
-      helperText: 'Define los permisos y nivel de acceso del usuario',
+      leftIcon: '🎭',
+      helperText: 'Define los permisos y funcionalidades disponibles',
       options: [
-        { value: 1, label: '👑 Administrador - Acceso total al sistema' },
-        { value: 2, label: '👤 Usuario Regular - Acceso limitado al contenido' }
+        { value: '', label: 'Selecciona un rol' },
+        { value: 1, label: '👑 Administrador - Acceso completo al sistema' },
+        { value: 2, label: '👤 Usuario - Acceso básico al contenido' }
       ],
-      width: 'full'
+      width: 'half'
+    },
+    {
+      name: 'isActive',
+      type: 'select',
+      label: 'Estado del Usuario',
+      required: true,
+      leftIcon: '🔄',
+      helperText: 'Define si el usuario puede acceder al sistema',
+      options: [
+        { value: '', label: 'Selecciona un estado' },
+        { value: true, label: '✅ Activo - Puede iniciar sesión' },
+        { value: false, label: '❌ Inactivo - Sin acceso al sistema' }
+      ],
+      width: 'half'
     }
   ];
 
   /**
-   * ✅ DATOS INICIALES: Objeto limpio para formulario
+   * ✅ Datos iniciales del formulario
    */
   const initialData = {
     username: '',
     email: '',
     password: '',
     confirmPassword: '',
-    roleId: ''
+    roleId: '',
+    isActive: ''
   };
 
-  // ===== HANDLERS =====
+  // ===== FUNCIONES DE NEGOCIO =====
 
   /**
-   * ✅ HANDLE SUBMIT: Procesar envío del formulario
+   * ✅ Validar contraseñas coincidentes
+   */
+  const validatePasswords = (formData) => {
+    if (formData.password !== formData.confirmPassword) {
+      throw new Error('Las contraseñas no coinciden');
+    }
+  };
+
+  /**
+   * ✅ Limpiar datos antes de enviar al backend
+   */
+  const cleanFormData = (formData) => {
+    const cleanData = { ...formData };
+    
+    // Eliminar confirmPassword (no va al backend)
+    delete cleanData.confirmPassword;
+    
+    // Convertir valores string a boolean/number según corresponda
+    cleanData.roleId = parseInt(cleanData.roleId);
+    cleanData.isActive = cleanData.isActive === 'true' || cleanData.isActive === true;
+    
+    // Si email está vacío, no enviarlo (es opcional)
+    if (!cleanData.email || cleanData.email.trim() === '') {
+      delete cleanData.email;
+    }
+    
+    return cleanData;
+  };
+
+  /**
+   * ✅ Manejar envío del formulario
    */
   const handleSubmit = async (formData) => {
-    console.log('[UserCreate] Submit iniciado:', formData);
-
-    // Validar que las contraseñas coincidan
-    if (formData.password !== formData.confirmPassword) {
-      setError('Las contraseñas no coinciden');
-      return;
-    }
-
-    // Preparar datos para el backend (excluir confirmPassword)
-    const { confirmPassword, ...userData } = formData;
-    
-    // Convertir roleId a número
-    userData.roleId = parseInt(userData.roleId);
-
-    setLoading(true);
-    setError(null);
-
     try {
-      // Llamar al servicio del backend
-      const result = await createUserService(userData);
-      
-      console.log('[UserCreate] Usuario creado:', result);
-      
-      // Marcar como exitoso
+      setLoading(true);
+      setError(null);
+
+      // Validar contraseñas
+      validatePasswords(formData);
+
+      // Limpiar datos para backend
+      const cleanData = cleanFormData(formData);
+
+      console.log('🚀 Creando usuario:', cleanData);
+
+      // Llamar al servicio
+      const response = await createUserService(cleanData);
+
+      console.log('✅ Usuario creado:', response);
+
+      // Estado de éxito
       setSuccess(true);
       setHasChanges(false);
-      
+
       // Redirigir después de 2 segundos
       setTimeout(() => {
         navigate('/admin/users');
       }, 2000);
-      
-    } catch (err) {
-      console.error('[UserCreate] Error:', err);
-      
-      let errorMessage = 'Error al crear el usuario';
-      
-      if (err.response?.data?.details) {
-        errorMessage = 'Verifica todos los campos';
-      } else if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.response?.data?.error) {
-        errorMessage = err.response.data.error;
-      }
 
-      setError(errorMessage);
+    } catch (err) {
+      console.error('❌ Error al crear usuario:', err);
+      
+      // Manejar diferentes tipos de errores
+      if (err.message === 'Las contraseñas no coinciden') {
+        setError(err.message);
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else if (err.message) {
+        setError(err.message);
+      } else {
+        setError('Error inesperado al crear el usuario. Intenta nuevamente.');
+      }
     } finally {
       setLoading(false);
     }
   };
 
   /**
-   * ✅ HANDLE FORM CHANGE: Rastrea cambios para mostrar advertencias
-   * DynamicForm solo pasa formData completo como parámetro único
+   * ✅ Detectar cambios en el formulario
    */
-  const handleFormChange = (formData) => {
-    console.log('[UserCreate] Datos del formulario cambiados:', formData);
-    
-    // Verificar si formData es válido
-    if (!formData || typeof formData !== 'object') {
-      console.warn('[UserCreate] formData no es válido:', formData);
-      return;
-    }
-    
-    // Verificar si hay cambios respecto al estado inicial
-    const hasDataChanges = Object.keys(formData).some(key => 
-      formData[key] !== initialData[key]
-    );
-    
-    setHasChanges(hasDataChanges);
-    
-    // Limpiar errores cuando el usuario modifica algo
-    if (error) {
-      setError(null);
-    }
+  const handleFormChange = (changedData) => {
+    setHasChanges(true);
+    setError(null); // Limpiar errores al hacer cambios
   };
 
   /**
-   * ✅ HANDLE CANCEL: Navegar de vuelta con confirmación si hay cambios
+   * ✅ Cancelar creación
    */
   const handleCancel = () => {
-    if (hasChanges) {
-      const confirmLeave = window.confirm(
-        '¿Estás seguro de que quieres salir?\n\nSe perderán todos los cambios no guardados.'
+    if (hasChanges && !success) {
+      const confirmCancel = window.confirm(
+        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?\n\n' +
+        'Se perderán los cambios no guardados.'
       );
-      if (!confirmLeave) return;
+      if (!confirmCancel) return;
     }
     
     navigate('/admin/users');
   };
 
   // ===== RENDER =====
+  
   return (
     <AdminLayout
-      title="Crear Usuario"
-      subtitle="Agregar un nuevo usuario al sistema"
+      title="Crear Nuevo Usuario"
+      subtitle="Registra un nuevo usuario con acceso al sistema de gestión de contenido"
       breadcrumbs={[
         { label: 'Admin', href: '/admin' },
         { label: 'Usuarios', href: '/admin/users' },
-        { label: 'Crear Usuario' }
+        { label: 'Crear' }
       ]}
       headerActions={
         <div className="user-create__header-actions">
           <Button
             variant="outline"
             size="sm"
-            leftIcon="←"
             onClick={handleCancel}
             disabled={loading}
           >
@@ -225,7 +248,7 @@ function UserCreatePage() {
             onClick={() => document.getElementById('user-create-form')?.requestSubmit()}
             loading={loading}
             disabled={!hasChanges || loading}
-            leftIcon="➕"
+            leftIcon="👤"
           >
             {loading ? 'Creando...' : 'Crear Usuario'}
           </Button>
@@ -265,8 +288,6 @@ function UserCreatePage() {
           </div>
         )}
 
-
-
         {/* ===== FORMULARIO DINÁMICO (SISTEMA DE DISEÑO) ===== */}
         <div className="form-container">
           <div className="form-header">
@@ -289,12 +310,12 @@ function UserCreatePage() {
             columnsPerRow={2}
             tabletColumns={1}
             mobileColumns={1}
-            fieldSize="md"
+            fieldSize="lg"
             fieldRounded="md"
             submitText={loading ? "Creando Usuario..." : "Crear Usuario"}
             submitVariant="primary"
             submitSize="md"
-            submitIcon="➕"
+            submitIcon="👤"
             validateOnBlur={true}
             validateOnChange={false}
             showSubmit={!success} // Ocultar botón cuando hay éxito
