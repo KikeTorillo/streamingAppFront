@@ -1,0 +1,416 @@
+/* ===== MOVIE FORM VIEW - ESTILOS ESPECÍFICOS ===== */
+/* src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.css */
+
+/* 
+🎯 RESPONSABILIDAD: Solo estilos específicos para el formulario de películas
+✅ ESPECÍFICO: Vista previa TMDB, form layout, info cards para películas
+✅ SISTEMA: Usa variables CSS del sistema de diseño (app.css)
+✅ COMPONENTES: Los Card, Button, etc. ya tienen sus estilos
+✅ RESPONSIVE: Mobile-first design
+*/
+
+/* ===== CONTENEDOR PRINCIPAL ===== */
+.movie-form-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+  font-family: var(--font-family-base);
+}
+
+/* ===== VISTA PREVIA DEL ITEM SELECCIONADO ===== */
+.movie-form-view__preview-card {
+  /* El Card component ya maneja los estilos base */
+  border-left: 0.4rem solid var(--color-primary);
+}
+
+.movie-form-view__preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.movie-form-view__preview {
+  display: flex;
+  gap: var(--space-lg);
+  align-items: flex-start;
+}
+
+.movie-form-view__preview-poster {
+  width: 12rem;
+  height: 18rem;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  border: 0.1rem solid var(--border-light);
+  transition: transform var(--transition-normal);
+}
+
+.movie-form-view__preview-poster:hover {
+  transform: scale(1.02);
+}
+
+.movie-form-view__preview-info {
+  flex: 1;
+  min-width: 0; /* Para text-overflow */
+}
+
+.movie-form-view__preview-title {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  line-height: var(--line-height-tight);
+  /* Truncado elegante para títulos muy largos */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.movie-form-view__preview-meta {
+  margin: 0 0 var(--space-sm) 0;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.movie-form-view__preview-overview {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+  /* Control de altura para descripciones muy largas */
+  max-height: 10rem;
+  overflow-y: auto;
+  padding-right: var(--space-xs);
+}
+
+/* ===== FORMULARIO PRINCIPAL ===== */
+.movie-form-view__form-card {
+  /* El Card component ya maneja los estilos base */
+}
+
+.movie-form-view__form-description {
+  margin-top: var(--space-xs);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.movie-form-view__form {
+  /* El DynamicForm component ya maneja sus estilos */
+}
+
+.movie-form-view__form--success {
+  opacity: 0.8;
+  pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+
+/* ===== GRID DE INFORMACIÓN ADICIONAL ===== */
+.movie-form-view__info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(28rem, 1fr));
+  gap: var(--space-md);
+  margin-top: var(--space-md);
+}
+
+/* Variantes específicas de las cards de información */
+.movie-form-view__info-tips {
+  /* Card de consejos - destacada con gradiente sutil */
+  background: linear-gradient(135deg, var(--color-primary-light), var(--bg-secondary));
+  border-color: var(--color-primary);
+}
+
+.movie-form-view__info-technical {
+  /* Card técnica - con borde de accent */
+  border-left: 0.3rem solid var(--color-secondary);
+}
+
+.movie-form-view__info-tmdb {
+  /* Card de TMDB - con borde de success */
+  border-left: 0.3rem solid var(--color-success);
+  background: linear-gradient(135deg, var(--color-success-light), var(--bg-secondary));
+}
+
+/* ===== ELEMENTOS DE INFORMACIÓN ===== */
+.movie-form-view__info-title {
+  margin: 0 0 var(--space-sm) 0;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.movie-form-view__info-list {
+  margin: 0;
+  padding-left: var(--space-lg);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.movie-form-view__info-list li {
+  margin-bottom: var(--space-xs);
+  transition: color var(--transition-fast);
+}
+
+.movie-form-view__info-list li:hover {
+  color: var(--text-primary);
+}
+
+.movie-form-view__info-list strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.movie-form-view__info-list em {
+  color: var(--text-tertiary);
+  font-style: italic;
+  font-size: var(--font-size-xs);
+}
+
+/* ===== SCROLLBAR PERSONALIZADO PARA OVERVIEW ===== */
+.movie-form-view__preview-overview::-webkit-scrollbar {
+  width: 0.4rem;
+}
+
+.movie-form-view__preview-overview::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-sm);
+}
+
+.movie-form-view__preview-overview::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.movie-form-view__preview-overview::-webkit-scrollbar-thumb:hover {
+  background: var(--border-dark);
+}
+
+/* ===== ANIMACIONES ESPECÍFICAS ===== */
+.movie-form-view__preview-card {
+  animation: slideInLeft 0.4s ease-out;
+}
+
+.movie-form-view__form-card {
+  animation: slideInRight 0.4s ease-out 0.1s both;
+}
+
+.movie-form-view__info-grid {
+  animation: fadeInUp 0.4s ease-out 0.2s both;
+}
+
+.movie-form-view__info-grid > * {
+  animation: fadeInScale 0.3s ease-out calc(0.3s + var(--delay, 0) * 0.1s) both;
+}
+
+.movie-form-view__info-grid > *:nth-child(1) { --delay: 0; }
+.movie-form-view__info-grid > *:nth-child(2) { --delay: 1; }
+.movie-form-view__info-grid > *:nth-child(3) { --delay: 2; }
+.movie-form-view__info-grid > *:nth-child(4) { --delay: 3; }
+.movie-form-view__info-grid > *:nth-child(5) { --delay: 4; }
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(2rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablets (768px y menos) */
+@media (max-width: 768px) {
+  .movie-form-view {
+    gap: var(--space-md);
+  }
+
+  .movie-form-view__preview {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+    gap: var(--space-md);
+  }
+
+  .movie-form-view__preview-poster {
+    align-self: center;
+  }
+
+  .movie-form-view__preview-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .movie-form-view__info-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-sm);
+    margin-top: var(--space-sm);
+  }
+}
+
+/* Móviles (480px y menos) */
+@media (max-width: 480px) {
+  .movie-form-view {
+    gap: var(--space-sm);
+  }
+
+  .movie-form-view__preview-poster {
+    width: 10rem;
+    height: 15rem;
+  }
+
+  .movie-form-view__preview {
+    gap: var(--space-sm);
+  }
+
+  .movie-form-view__preview-overview {
+    max-height: 8rem; /* Menos altura en móviles */
+  }
+
+  .movie-form-view__info-grid {
+    gap: var(--space-xs);
+  }
+
+  .movie-form-view__info-title {
+    font-size: var(--font-size-sm);
+  }
+
+  .movie-form-view__info-list {
+    font-size: var(--font-size-xs);
+    padding-left: var(--space-md);
+  }
+}
+
+/* ===== ESTADOS ESPECÍFICOS ===== */
+
+/* Estado de carga del formulario */
+.movie-form-view--loading .movie-form-view__preview-card,
+.movie-form-view--loading .movie-form-view__info-grid {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Estado de éxito */
+.movie-form-view--success .movie-form-view__preview-card {
+  border-left-color: var(--color-success);
+}
+
+.movie-form-view--success .movie-form-view__info-grid {
+  opacity: 0.8;
+}
+
+/* ===== MODO OSCURO ===== */
+@media (prefers-color-scheme: dark) {
+  .movie-form-view__info-tips {
+    background: linear-gradient(135deg, var(--color-primary-dark), var(--bg-tertiary));
+  }
+
+  .movie-form-view__info-tmdb {
+    background: linear-gradient(135deg, var(--color-success-dark), var(--bg-tertiary));
+  }
+
+  .movie-form-view__preview-card {
+    border-left-color: var(--color-primary-light);
+  }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+.movie-form-view__preview-overview:focus {
+  outline: 0.2rem solid var(--color-primary);
+  outline-offset: 0.2rem;
+}
+
+/* Reducir movimiento para usuarios con preferencias de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  .movie-form-view__preview-card,
+  .movie-form-view__form-card,
+  .movie-form-view__info-grid,
+  .movie-form-view__info-grid > * {
+    animation: none;
+  }
+  
+  .movie-form-view__preview-poster:hover {
+    transform: none;
+  }
+  
+  .movie-form-view__form--success {
+    transition: none;
+  }
+}
+
+/* ===== UTILIDADES ESPECÍFICAS ===== */
+
+/* Variante sin vista previa (cuando no hay item seleccionado) */
+.movie-form-view--no-preview .movie-form-view__preview-card {
+  display: none;
+}
+
+/* Variante compacta para espacios reducidos */
+.movie-form-view--compact .movie-form-view__info-grid {
+  grid-template-columns: repeat(auto-fit, minmax(24rem, 1fr));
+  gap: var(--space-xs);
+}
+
+.movie-form-view--compact .movie-form-view__preview {
+  gap: var(--space-md);
+}
+
+.movie-form-view--compact .movie-form-view__preview-poster {
+  width: 10rem;
+  height: 15rem;
+}
+
+/* Estado de solo lectura */
+.movie-form-view--readonly .movie-form-view__form-card {
+  opacity: 0.8;
+}
+
+.movie-form-view--readonly .movie-form-view__info-grid {
+  filter: grayscale(0.2);
+}
