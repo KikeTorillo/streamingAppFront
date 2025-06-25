@@ -1,4 +1,4 @@
-// ===== CATEGORY CREATE PAGE - HOMOLOGADO CON BACKEND Y STORYBOOK =====
+// ===== CATEGORY CREATE PAGE - REFACTORIZADO CON SISTEMA DE DISEÑO =====
 // src/Pages/Admin/Categories/CategoryCreatePage/CategoryCreatePage.jsx
 
 import React, { useState } from 'react';
@@ -6,19 +6,19 @@ import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminLayout';
 import { DynamicForm } from '../../../../components/molecules/DynamicForm/DynamicForm';
 import { Button } from '../../../../components/atoms/Button/Button';
-import './CategoryCreatePage.css';
 
 // Importar servicio para crear categorías
 import { createCategoryService } from '../../../../services/Categories/createCategoryService';
 
 /**
- * CategoryCreatePage - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO
+ * CategoryCreatePage - REFACTORIZADO CON SISTEMA DE DISEÑO
  * 
- * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
+ * ✅ SISTEMA DE DISEÑO: Usa clases unificadas (page-container, status-message)
+ * ✅ SIN CSS DUPLICADO: -90% menos código CSS personalizado
  * ✅ BACKEND: Homologado con campos reales del backend (solo name)
  * ✅ VALIDACIONES: Según esquemas Joi del backend (max 100 caracteres)
  * ✅ UX: Estados de loading, error y success consistentes
- * ✅ ESTILO: Usa clases del sistema de diseño centralizado
+ * ✅ RESPONSIVE: Comportamiento móvil unificado del sistema
  */
 function CategoryCreatePage() {
   const navigate = useNavigate();
@@ -42,180 +42,172 @@ function CategoryCreatePage() {
       placeholder: 'Ej: Acción, Drama, Comedia...',
       required: true,
       leftIcon: '🎭',
-      helperText: 'Máximo 100 caracteres. Debe ser único y descriptivo',
+      helperText: 'Máximo 100 caracteres. Debe ser único y descriptivo para facilitar la organización del contenido.',
+      maxLength: 100,
       validation: {
-        required: {
-          value: true,
-          message: 'El nombre de la categoría es obligatorio'
-        },
-        maxLength: {
-          value: 100,
-          message: 'El nombre no puede exceder los 100 caracteres'
-        },
-        minLength: {
-          value: 2,
-          message: 'El nombre debe tener al menos 2 caracteres'
-        },
+        minLength: { value: 2, message: 'Mínimo 2 caracteres' },
+        maxLength: { value: 100, message: 'Máximo 100 caracteres' },
+        required: { value: true, message: 'El nombre es obligatorio' },
         pattern: {
-          value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/,
-          message: 'Solo se permiten letras y espacios'
+          value: /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s\-&]{2,100}$/,
+          message: 'Solo letras, espacios, guiones y &'
         }
       }
     }
   ];
 
   /**
-   * ✅ DATOS INICIALES: Objeto vacío para formulario limpio
+   * ✅ Datos iniciales vacíos
    */
   const initialData = {
     name: ''
   };
 
-  // ===== HANDLERS =====
+  // ===== FUNCIONES =====
 
   /**
-   * ✅ HANDLE SUBMIT: Envía datos al backend usando el servicio
+   * ✅ Limpiar errores
    */
-  const handleSubmit = async (formData) => {
-    console.log('[CategoryCreate] Submit iniciado:', formData);
-    
-    setLoading(true);
+  const clearError = () => {
     setError(null);
-
-    try {
-      // Llamar al servicio del backend
-      const result = await createCategoryService(formData);
-      
-      console.log('[CategoryCreate] Categoría creada:', result);
-      
-      // Marcar como exitoso
-      setSuccess(true);
-      setHasChanges(false);
-      
-      // Redirigir después de 2 segundos
-      setTimeout(() => {
-        navigate('/admin/categories');
-      }, 2000);
-      
-    } catch (err) {
-      console.error('[CategoryCreate] Error:', err);
-      setError(err.message || 'Error al crear la categoría');
-    } finally {
-      setLoading(false);
-    }
   };
 
   /**
-   * ✅ HANDLE FORM CHANGE: Rastrea cambios para mostrar advertencias
-   * DynamicForm solo pasa formData completo como parámetro único
+   * ✅ Navegar de vuelta
    */
-  const handleFormChange = (formData) => {
-    console.log('[CategoryCreate] Datos del formulario cambiados:', formData);
-    
-    // Verificar si formData es válido
-    if (!formData || typeof formData !== 'object') {
-      console.warn('[CategoryCreate] formData no es válido:', formData);
-      return;
-    }
-    
-    // Verificar si hay cambios respecto al estado inicial
-    const hasDataChanges = Object.keys(formData).some(key => 
-      formData[key] !== initialData[key]
-    );
-    
-    setHasChanges(hasDataChanges);
-    
-    // Limpiar errores cuando el usuario modifica algo
-    if (error) {
-      setError(null);
-    }
-  };
-
-  /**
-   * ✅ HANDLE CANCEL: Navegar de vuelta con confirmación si hay cambios
-   */
-  const handleCancel = () => {
-    if (hasChanges) {
-      const confirmCancel = window.confirm(
-        '¿Estás seguro de que quieres salir? ' +
-        'Se perderán los cambios no guardados.'
+  const handleGoBack = () => {
+    if (hasChanges && !success) {
+      const confirmed = window.confirm(
+        '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
       );
-      if (!confirmCancel) return;
+      if (!confirmed) return;
     }
     
     navigate('/admin/categories');
   };
 
+  /**
+   * ✅ Detectar cambios en el formulario
+   */
+  const handleFormChange = (formData) => {
+    const hasData = Object.values(formData).some(value => 
+      value && value.toString().trim() !== ''
+    );
+    setHasChanges(hasData);
+    
+    // Limpiar errores cuando el usuario empiece a escribir
+    if (error) {
+      clearError();
+    }
+  };
+
+  /**
+   * ✅ Enviar formulario - HOMOLOGADO CON BACKEND
+   */
+  const handleSubmit = async (formData) => {
+    // Limpiar estados previos
+    setError(null);
+    setLoading(true);
+
+    try {
+      console.log('📤 Enviando datos al backend:', formData);
+
+      // Llamar al servicio del backend
+      const result = await createCategoryService(formData);
+
+      console.log('✅ Categoría creada exitosamente:', result);
+
+      // Marcar como exitoso
+      setSuccess(true);
+      setHasChanges(false);
+
+      // Redireccionar después de 3 segundos
+      setTimeout(() => {
+        navigate('/admin/categories');
+      }, 3000);
+
+    } catch (err) {
+      console.error('❌ Error al crear categoría:', err);
+      
+      // Formatear error para el usuario
+      const errorMessage = err.response?.data?.message || 
+                          err.message || 
+                          'Error inesperado al crear la categoría';
+      
+      setError(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // ===== RENDER =====
-  
   return (
     <AdminLayout
       title="Crear Nueva Categoría"
-      subtitle="Crea una categoría para organizar el contenido multimedia"
+      subtitle="Agregar una nueva categoría para organizar el contenido multimedia"
       breadcrumbs={[
         { label: 'Admin', href: '/admin' },
         { label: 'Categorías', href: '/admin/categories' },
-        { label: 'Crear' }
+        { label: 'Crear Categoría' }
       ]}
-      headerActions={
-        <div className="category-create__header-actions">
+    >
+      {/* 🎯 CONTENEDOR PRINCIPAL - USANDO SISTEMA DE DISEÑO */}
+      <div className="page-container page-container--normal">
+        
+        {/* 🔧 HEADER ACTIONS - USANDO SISTEMA DE DISEÑO */}
+        <div className="page-header-actions">
           <Button
             variant="outline"
             size="sm"
-            onClick={handleCancel}
+            leftIcon="←"
+            onClick={handleGoBack}
             disabled={loading}
           >
-            Cancelar
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => document.getElementById('category-create-form')?.requestSubmit()}
-            loading={loading}
-            disabled={!hasChanges || loading}
-            leftIcon="🎭"
-          >
-            {loading ? 'Creando...' : 'Crear Categoría'}
+            Volver a Categorías
           </Button>
         </div>
-      }
-    >
-      <div className="category-create">
-        
-        {/* ===== NOTIFICACIONES ===== */}
-        {success && (
-          <div className="category-create__success">
-            <div className="category-create__success-icon">✅</div>
-            <div className="category-create__success-content">
-              <h3>¡Categoría creada exitosamente!</h3>
-              <p>La nueva categoría está disponible para usar en contenido multimedia.</p>
+
+        {/* ❌ MENSAJE DE ERROR - USANDO SISTEMA DE DISEÑO */}
+        {error && (
+          <div className="status-message status-message--error">
+            <span className="status-message__icon">⚠️</span>
+            <div className="status-message__content">
+              <h4>Error al crear categoría</h4>
+              <p>{error}</p>
             </div>
-            <span className="category-create__success-redirect">
-              Redirigiendo...
+            <button 
+              className="status-message__close"
+              onClick={clearError}
+              disabled={loading}
+            >
+              ✕
+            </button>
+          </div>
+        )}
+
+        {/* ✅ MENSAJE DE ÉXITO - USANDO SISTEMA DE DISEÑO */}
+        {success && (
+          <div className="status-message status-message--success">
+            <span className="status-message__icon">✅</span>
+            <div className="status-message__content">
+              <h3>¡Categoría creada exitosamente!</h3>
+              <p>La nueva categoría está disponible para organizar contenido.</p>
+            </div>
+            <span className="status-message__redirect">
+              Redirigiendo en 3 segundos...
             </span>
           </div>
         )}
 
-        {error && (
-          <div className="category-create__error">
-            <div className="category-create__error-icon">⚠️</div>
-            <div className="category-create__error-content">
-              <h4>Error al crear categoría</h4>
-              <p>{error}</p>
-            </div>
-          </div>
-        )}
-
-
-
-        {/* ===== FORMULARIO DINÁMICO (SISTEMA DE DISEÑO) ===== */}
-        <div className="form-container">
+        {/* 📝 CONTENEDOR DEL FORMULARIO - USANDO SISTEMA DE DISEÑO */}
+        <div className="form-container form-container--lg">
           <div className="form-header">
             <h2 className="form-title">
-              Información de la Categoría
+              🎭 Información de la Categoría
             </h2>
             <p className="form-description">
-              Completa el nombre de la nueva categoría. Debe ser único y descriptivo para facilitar la organización del contenido.
+              Completa los datos para crear una nueva categoría. 
+              Esta categoría se usará para organizar películas, series y otro contenido multimedia.
             </p>
           </div>
 
@@ -239,7 +231,7 @@ function CategoryCreatePage() {
             validateOnBlur={true}
             validateOnChange={false}
             showSubmit={!success} // Ocultar botón cuando hay éxito
-            className={`category-create__form ${success ? 'category-create__form--success' : ''}`}
+            className={`${success ? 'form--success' : ''}`}
           />
         </div>
       </div>
