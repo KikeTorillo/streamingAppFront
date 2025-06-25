@@ -18,7 +18,6 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
-  max-width: 120rem; /* Más ancho que otras páginas para acomodar TMDB */
   margin: 0 auto;
   font-family: var(--font-family-base);
 }
@@ -210,6 +209,193 @@ DESPUÉS: ~100 líneas, solo lo específico de esta página
 /* Estado global cuando se completó exitosamente */
 .movie-create--success {
   /* Los elementos específicos ya manejan su estado */
+}
+
+/* ===== SISTEMA DE CONTENEDORES - PAGES LAYOUT ===== */
+
+/* ===== CONTENEDOR BASE DE PÁGINA ===== */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  margin: 0 auto;
+  font-family: var(--font-family-base);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ===== VARIANTES DE ANCHO ===== */
+.page-container--narrow {
+  max-width: 60rem; /* 600px - Para forms simples */
+}
+
+.page-container--normal {
+  max-width: 80rem; /* 800px - Para la mayoría de páginas admin */
+}
+
+.page-container--wide {
+  max-width: 120rem; /* 1200px - Para páginas con más contenido como movies */
+}
+
+.page-container--full {
+  max-width: none; /* Sin límite */
+  padding: 0 var(--space-lg);
+}
+
+/* ===== CONTENEDOR DE HEADER ACTIONS ===== */
+.page-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-wrap: wrap;
+}
+
+.page-header-actions--center {
+  justify-content: center;
+}
+
+.page-header-actions--end {
+  justify-content: flex-end;
+}
+
+.page-header-actions--space-between {
+  justify-content: space-between;
+}
+
+/* ===== SISTEMA DE MENSAJES DE ESTADO ===== */
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md) var(--space-lg);
+  border-radius: var(--radius-md);
+  border: 0.1rem solid;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-normal);
+  animation: slideIn 0.3s ease-out;
+}
+
+.status-message__icon {
+  font-size: var(--font-size-lg);
+  flex-shrink: 0;
+}
+
+.status-message__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.status-message__content h4,
+.status-message__content h3 {
+  margin: 0 0 var(--space-xs) 0;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+}
+
+.status-message__content p {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+/* ===== VARIANTES DE ESTADO ===== */
+.status-message--error {
+  background-color: var(--color-danger-light);
+  border-color: var(--color-danger);
+  color: var(--color-danger-dark);
+}
+
+.status-message--success {
+  background-color: var(--color-success-light);
+  border-color: var(--color-success);
+  color: var(--color-success-dark);
+}
+
+.status-message--warning {
+  background-color: var(--color-warning-light);
+  border-color: var(--color-warning);
+  color: var(--color-warning-dark);
+}
+
+.status-message--info {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
+/* ===== ANIMACIONES ===== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablets */
+@media (max-width: 768px) {
+  .page-container {
+    gap: var(--space-md);
+    padding: 0 var(--space-md);
+  }
+  
+  .page-container--full {
+    padding: 0 var(--space-sm);
+  }
+  
+  .page-header-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .page-header-actions > * {
+    width: 100%;
+  }
+  
+  .status-message {
+    padding: var(--space-sm) var(--space-md);
+    gap: var(--space-sm);
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* Móviles */
+@media (max-width: 480px) {
+  .page-container {
+    gap: var(--space-sm);
+  }
+  
+  .page-header-actions {
+    gap: var(--space-xs);
+  }
+  
+  .status-message {
+    gap: var(--space-xs);
+  }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+  .status-message {
+    animation: none;
+  }
+}
+
+/* ===== UTILIDADES DE ESTADO ===== */
+.page-container--loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.page-container--success {
+  /* Para estados de éxito global */
 }
 
 

@@ -205,7 +205,7 @@ function TMDBSearchView(props = {}) {
 
   // ===== RENDER SEGURO =====
   return (
-    <div className="tmdb-search-view">
+    <div className="form-container">
       
       {/* ===== SECCIÓN DE BÚSQUEDA ===== */}
       <Card variant="elevated" size="lg">
