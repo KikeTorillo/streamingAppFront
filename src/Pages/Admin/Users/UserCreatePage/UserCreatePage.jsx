@@ -181,8 +181,8 @@ function UserCreatePage() {
       ]}
     >
       {/* 🎯 CONTENEDOR PRINCIPAL - MIGRADO A CONTAINER COMPONENT */}
-      <Container 
-        size="md" 
+      <Container
+        size="lg"
         className={`${loading ? 'user-create--loading' : ''} ${success ? 'user-create--success' : ''}`}
       >
 
@@ -190,7 +190,7 @@ function UserCreatePage() {
         <div className="page-header-actions">
           <Button
             variant="outline"
-            size="sm"
+            size="md"
             leftIcon="←"
             onClick={handleGoBack}
             disabled={loading}
@@ -207,7 +207,7 @@ function UserCreatePage() {
               <strong>Error al crear usuario</strong>
               <span>{error}</span>
             </div>
-            <button 
+            <button
               className="status-message__close"
               onClick={handleClearError}
               aria-label="Cerrar mensaje de error"
@@ -228,62 +228,54 @@ function UserCreatePage() {
           </div>
         )}
 
-        {/* 📝 FORMULARIO DINÁMICO - CONTAINER ANIDADO */}
-        <Container 
-          size="sm" 
-          variant="default"
-          className="form-content"
-        >
-          
-          {/* Header del formulario */}
-          <div className="form-header">
-            <h2 className="form-title">Información del Usuario</h2>
-            <p className="form-description">
-              Completa todos los campos requeridos para crear el nuevo usuario. 
-              La información de rol define los permisos de acceso al sistema.
-            </p>
+
+
+        {/* Header del formulario */}
+        <div className="form-header">
+          <h2 className="form-title">Información del Usuario</h2>
+          <p className="form-description">
+            Completa todos los campos requeridos para crear el nuevo usuario.
+            La información de rol define los permisos de acceso al sistema.
+          </p>
+        </div>
+
+        {/* Formulario */}
+        <DynamicForm
+          fields={userFormFields}
+          onSubmit={handleSubmit}
+          onChange={handleFormChange}
+          submitText={loading ? "Creando Usuario..." : "Crear Usuario"}
+          submitVariant="primary"
+          submitSize="lg"
+          loading={loading}
+          disabled={loading || success}
+          columnsPerRow={2}
+          tabletColumns={1}
+          mobileColumns={1}
+          validateOnChange={true}
+          validateOnBlur={true}
+          className={success ? 'form--success' : ''}
+        />
+
+        {/* Información adicional */}
+        <div className="form-footer">
+          <div className="info-card">
+            <h4>💡 Información sobre Roles</h4>
+            <ul>
+              <li><strong>Administrador:</strong> Acceso completo a todas las funciones</li>
+              <li><strong>Usuario Regular:</strong> Acceso limitado a contenido y perfil</li>
+            </ul>
           </div>
 
-          {/* Formulario */}
-          <DynamicForm
-            fields={userFormFields}
-            onSubmit={handleSubmit}
-            onChange={handleFormChange}
-            submitText={loading ? "Creando Usuario..." : "Crear Usuario"}
-            submitVariant="primary"
-            submitSize="lg"
-            loading={loading}
-            disabled={loading || success}
-            columnsPerRow={2}
-            tabletColumns={1}
-            mobileColumns={1}
-            validateOnChange={true}
-            validateOnBlur={true}
-            className={success ? 'form--success' : ''}
-          />
-
-          {/* Información adicional */}
-          <div className="form-footer">
-            <div className="info-card">
-              <h4>💡 Información sobre Roles</h4>
-              <ul>
-                <li><strong>Administrador:</strong> Acceso completo a todas las funciones</li>
-                <li><strong>Usuario Regular:</strong> Acceso limitado a contenido y perfil</li>
-              </ul>
-            </div>
-            
-            <div className="info-card">
-              <h4>🔒 Seguridad</h4>
-              <ul>
-                <li>Las contraseñas deben tener mínimo 6 caracteres</li>
-                <li>El email es opcional pero recomendado para recuperación</li>
-                <li>Los nombres de usuario deben ser únicos en el sistema</li>
-              </ul>
-            </div>
+          <div className="info-card">
+            <h4>🔒 Seguridad</h4>
+            <ul>
+              <li>Las contraseñas deben tener mínimo 6 caracteres</li>
+              <li>El email es opcional pero recomendado para recuperación</li>
+              <li>Los nombres de usuario deben ser únicos en el sistema</li>
+            </ul>
           </div>
-
-        </Container>
-
+        </div>
       </Container>
     </AdminLayout>
   );

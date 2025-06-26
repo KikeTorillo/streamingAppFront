@@ -1,4 +1,4 @@
-// ===== TMDB SEARCH VIEW - REFACTORIZADO CON DYNAMICFORM =====
+// ===== TMDB SEARCH VIEW - VERSIÓN LIMPIA SIN ERRORES =====
 // src/components/organism/TMDBSearchView/TMDBSearchView.jsx
 
 import React, { useMemo } from 'react';
@@ -9,33 +9,26 @@ import { DynamicForm } from '../../molecules/DynamicForm/DynamicForm';
 import './TMDBSearchView.css';
 
 /**
- * TMDBSearchView - REFACTORIZADO CON DYNAMICFORM
- * 
- * ✅ DYNAMICFORM: Formulario unificado con el sistema de diseño
- * ✅ CONSISTENCIA: Mismo patrón que CategoryCreatePage, UserCreatePage
- * ✅ MANTENIBILIDAD: -60 líneas CSS, -30 líneas JSX
- * ✅ FUNCIONALIDADES: Validación automática, estados visuales
- * ✅ RESPONSIVE: Heredado automáticamente de DynamicForm
- * 
- * @param {Object} props - Propiedades del componente
+ * TMDBSearchView - VERSIÓN CORREGIDA Y SIMPLIFICADA
+ * Búsqueda en TMDB con integración perfecta con MovieCreatePage
  */
 function TMDBSearchView({
-  // ===== ESTADOS DE BÚSQUEDA =====
+  // Estados de búsqueda
   searchQuery = "",
-  onSearchQueryChange = () => { },
+  onSearchQueryChange = () => {},
   sortBy = "year-desc",
-  onSortChange = () => { },
+  onSortChange = () => {},
   results = [],
   loading = false,
   error = null,
 
-  // ===== HANDLERS PRINCIPALES =====
-  onSearch = () => { },
-  onClearResults = () => { },
-  onItemSelected = () => { },
-  onManualCreate = () => { },
+  // Handlers principales
+  onSearch = () => {},
+  onClearResults = () => {},
+  onSelectItem = () => {},
+  onManualCreate = () => {},
 
-  // ===== CONFIGURACIÓN =====
+  // Configuración
   contentType = "all",
   title = "🎬 Buscar en TMDB",
   description = "Busca películas y series en la base de datos de TMDB para agregar al catálogo",
@@ -43,7 +36,7 @@ function TMDBSearchView({
   helperText = "Busca por título, año o palabras clave",
   showManualCreate = true,
 
-  // ===== OPCIONES =====
+  // Opciones de ordenamiento
   sortOptions = [
     { value: "year-desc", label: "Más recientes" },
     { value: "year-asc", label: "Más antiguos" },
@@ -51,12 +44,12 @@ function TMDBSearchView({
   ]
 }) {
 
-  // ===== VALIDACIONES DE SEGURIDAD =====
+  // Validaciones de seguridad
   const safeSearchQuery = typeof searchQuery === 'string' ? searchQuery : "";
   const safeResults = Array.isArray(results) ? results : [];
   const safeSortOptions = Array.isArray(sortOptions) ? sortOptions : [];
 
-  // ===== CONFIGURACIÓN DEL FORMULARIO DINÁMICO =====
+  // Configuración del formulario
   const searchFormFields = useMemo(() => [
     {
       name: 'searchQuery',
@@ -67,10 +60,6 @@ function TMDBSearchView({
       leftIcon: '🔍',
       helperText: helperText,
       minLength: 2,
-      validation: {
-        required: { value: true, message: 'Ingresa un término de búsqueda' },
-        minLength: { value: 2, message: 'Mínimo 2 caracteres para buscar' }
-      },
       width: 'two-thirds',
       autoFocus: true
     },
@@ -89,16 +78,14 @@ function TMDBSearchView({
     sortBy: sortBy
   }), [safeSearchQuery, sortBy]);
 
-  // ===== HANDLERS PARA DYNAMICFORM =====
-
-  /**
-   * Manejar envío del formulario
-   */
+  // Handlers del formulario
   const handleFormSubmit = (formData) => {
     const { searchQuery: newQuery, sortBy: newSortBy } = formData;
 
     try {
-      // Sincronizar estados con el padre
+      console.log('🔍 Enviando búsqueda:', formData);
+      
+      // Sincronizar estados
       if (newQuery !== safeSearchQuery) {
         onSearchQueryChange(newQuery);
       }
@@ -107,22 +94,18 @@ function TMDBSearchView({
       }
 
       // Ejecutar búsqueda si hay query válido
-      if (newQuery?.trim() && newQuery.length >= 2) {
-        onSearch();
+      if (newQuery && newQuery.trim().length >= 2) {
+        setTimeout(() => onSearch(), 100);
       }
     } catch (error) {
       console.error('Error en búsqueda TMDB:', error);
     }
   };
 
-  /**
-   * Manejar cambios en el formulario
-   */
   const handleFormChange = (formData) => {
     const { searchQuery: newQuery, sortBy: newSortBy } = formData;
 
     try {
-      // Sincronizar estados en tiempo real
       if (newQuery !== safeSearchQuery) {
         onSearchQueryChange(newQuery);
       }
@@ -130,51 +113,22 @@ function TMDBSearchView({
         onSortChange(newSortBy);
       }
     } catch (error) {
-      console.error('Error cambiando formulario TMDB:', error);
+      console.error('Error cambiando formulario:', error);
     }
   };
 
-  /**
-   * Limpiar resultados de búsqueda
-   */
-  const handleClearResults = () => {
-    try {
-      onClearResults();
-    } catch (error) {
-      console.error('Error limpiando resultados:', error);
-    }
-  };
-
-  /**
-   * Crear contenido manualmente
-   */
-  const handleManualCreate = () => {
-    try {
-      onManualCreate();
-    } catch (error) {
-      console.error('Error en creación manual:', error);
-    }
-  };
-
-  // ===== HANDLERS PARA RESULTADOS =====
-
-  /**
-   * Manejar selección de item
-   */
+  // Handlers de resultados
   const handleItemClick = (item) => {
     if (!item) return;
-
+    
     try {
-      console.log('🎬 Item seleccionado en TMDB:', item);
-      onItemSelected(item);
+      console.log('🎬 Item seleccionado:', item);
+      onSelectItem(item);
     } catch (error) {
-      console.error('Error seleccionando item TMDB:', error);
+      console.error('Error seleccionando item:', error);
     }
   };
 
-  /**
-   * Manejar selección con teclado
-   */
   const handleItemKeyPress = (e, item) => {
     if (e && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
@@ -182,11 +136,7 @@ function TMDBSearchView({
     }
   };
 
-  // ===== FUNCIONES AUXILIARES =====
-
-  /**
-   * Formatear año de lanzamiento
-   */
+  // Funciones auxiliares
   const formatYear = (item) => {
     const releaseDate = item.release_date || item.first_air_date;
     if (!releaseDate) return 'N/A';
@@ -198,135 +148,136 @@ function TMDBSearchView({
     }
   };
 
-  /**
-   * Formatear rating
-   */
   const formatRating = (rating) => {
     if (!rating || typeof rating !== 'number') return 'N/A';
     return rating.toFixed(1);
   };
 
-  /**
-   * Obtener tipo de contenido
-   */
   const getContentType = (item) => {
     const type = item.media_type || item.type;
     switch (type) {
-      case 'movie': return '🎬 Película';
-      case 'tv': return '📺 Serie';
-      default: return '🎭 Contenido';
+      case 'movie':
+        return 'Película';
+      case 'tv':
+        return 'Serie';
+      default:
+        return 'Desconocido';
     }
   };
 
-  /**
-   * Obtener URL del poster
-   */
-  const getPosterUrl = (item) => {
-    if (!item.poster_path) return null;
-    return `https://image.tmdb.org/t/p/w500${item.poster_path}`;
+  const getPosterUrl = (posterPath) => {
+    if (!posterPath) return null;
+    return `https://image.tmdb.org/t/p/w500${posterPath}`;
   };
 
-  /**
-   * Truncar descripción
-   */
-  const truncateOverview = (overview, maxLength = 150) => {
-    if (!overview || overview.length <= maxLength) return overview;
-    return overview.substring(0, maxLength) + '...';
-  };
-
-  // ===== ACCIONES ADICIONALES DEL FORMULARIO =====
-  const formAdditionalActions = (
-    <div className="tmdb-search-actions">
-      <Button
-        variant="outline"
-        onClick={handleClearResults}
-        disabled={loading || !safeResults.length}
-        leftIcon="🗑️"
-      >
-        Limpiar Resultados
-      </Button>
-      {showManualCreate && (
-        <Button
-          variant="ghost"
-          onClick={handleManualCreate}
-          leftIcon="✏️"
-        >
-          Crear Manualmente
-        </Button>
-      )}
-    </div>
-  );
-
-  // ===== RENDER =====
   return (
     <div className="tmdb-search-view">
-
-      {/* ===== FORMULARIO DE BÚSQUEDA - DYNAMICFORM ===== */}
-      <div className="form-container">
-        <div className="form-header">
-          <h2 className="form-title">
-            {title}
-          </h2>
-          <p className="form-description">
+      
+      {/* Formulario de búsqueda */}
+      <Card className="tmdb-search-view__search-card">
+        <CardHeader>
+          <CardTitle>{title}</CardTitle>
+          <p className="tmdb-search-view__description">
             {description}
           </p>
-        </div>
+        </CardHeader>
+        
+        <CardBody>
+          <DynamicForm
+            id="tmdb-search-form"
+            fields={searchFormFields}
+            initialData={searchFormData}
+            onSubmit={handleFormSubmit}
+            onChange={handleFormChange}
+            loading={loading}
+            disabled={loading}
+            columnsPerRow={3}
+            tabletColumns={2}
+            mobileColumns={1}
+            fieldSize="md"
+            fieldRounded="md"
+            submitText={loading ? "Buscando..." : "Buscar"}
+            submitVariant="primary"
+            submitSize="md"
+            submitIcon="🔍"
+            validateOnBlur={false}
+            validateOnChange={false}
+            className="tmdb-search-view__form"
+          />
 
-        <DynamicForm
-          id="tmdb-search-form"
-          fields={searchFormFields}
-          initialData={searchFormData}
-          onSubmit={handleFormSubmit}
-          onChange={handleFormChange}
-          loading={loading}
-          columnsPerRow={2}
-          tabletColumns={2}
-          mobileColumns={1}
-          fieldSize="md"
-          fieldRounded="md"
-          submitText={loading ? "🔍 Buscando..." : "🔍 Buscar"}
-          submitVariant="primary"
-          submitSize="md"
-          showSubmit={true}
-          validateOnChange={false}
-          validateOnBlur={true}
-          additionalActions={formAdditionalActions}
-          className="tmdb-search-form"
-        />
-      </div>
-
-      {/* ===== MENSAJE DE ERROR ===== */}
-      {error && (
-        <div className="status-message status-message--error">
-          <span className="status-message__icon">⚠️</span>
-          <div className="status-message__content">
-            <strong>Error en la búsqueda</strong>
-            <span>{error}</span>
+          {/* Acciones adicionales */}
+          <div className="tmdb-search-view__actions">
+            {safeResults.length > 0 && (
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon="🗑️"
+                onClick={onClearResults}
+                disabled={loading}
+              >
+                Limpiar Resultados
+              </Button>
+            )}
+            
+            {showManualCreate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                leftIcon="✏️"
+                onClick={onManualCreate}
+                disabled={loading}
+              >
+                Crear Manualmente
+              </Button>
+            )}
           </div>
-        </div>
+        </CardBody>
+      </Card>
+
+      {/* Mensaje de error */}
+      {error && (
+        <Card className="tmdb-search-view__error-card">
+          <CardBody>
+            <div className="tmdb-search-view__error">
+              <div className="tmdb-search-view__error-icon">⚠️</div>
+              <div className="tmdb-search-view__error-content">
+                <h3 className="tmdb-search-view__error-title">
+                  Error en la búsqueda
+                </h3>
+                <p className="tmdb-search-view__error-message">
+                  {error}
+                </p>
+              </div>
+            </div>
+          </CardBody>
+        </Card>
       )}
 
-      {/* ===== RESULTADOS DE BÚSQUEDA ===== */}
-      {!loading && !error && safeResults.length > 0 && (
+      {/* Resultados de búsqueda */}
+      {safeResults.length > 0 && !loading && !error && (
         <Card className="tmdb-search-view__results-card">
           <CardHeader>
             <CardTitle>
-              📽️ Resultados de Búsqueda ({safeResults.length})
+              🎬 Resultados de Búsqueda ({safeResults.length})
             </CardTitle>
+            <p className="tmdb-search-view__results-description">
+              Haz clic en una película o serie para seleccionarla
+            </p>
           </CardHeader>
+          
           <CardBody>
             <div className="tmdb-search-view__results-grid">
               {safeResults.map((item) => {
                 const title = item.title || item.name || 'Sin título';
                 const year = formatYear(item);
                 const rating = formatRating(item.vote_average);
-                const overview = truncateOverview(item.overview);
-                const contentType = getContentType(item);
-                const posterUrl = getPosterUrl(item);
+                const type = getContentType(item);
+                const overview = item.overview || '';
+                const posterUrl = getPosterUrl(item.poster_path);
 
                 return (
                   <div
-                    key={item.id}
+                    key={`${item.id}-${item.media_type || 'unknown'}`}
                     className="tmdb-search-view__result-item"
                     onClick={() => handleItemClick(item)}
                     onKeyPress={(e) => handleItemKeyPress(e, item)}
@@ -334,43 +285,60 @@ function TMDBSearchView({
                     role="button"
                     aria-label={`Seleccionar ${title} (${year})`}
                   >
-                    <div className="tmdb-search-view__result-poster">
-                      <ContentImage
-                        src={posterUrl}
-                        alt={`Poster de ${title}`}
-                        className="tmdb-search-view__poster-image"
-                        loading="lazy"
-                        fallback="🎬"
-                      />
-                    </div>
-
-                    <div className="tmdb-search-view__result-info">
-                      <h3 className="tmdb-search-view__result-title">
-                        {title}
-                      </h3>
-
-                      <div className="tmdb-search-view__result-meta">
-                        <span>{contentType}</span>
-                        <span>📅 {year}</span>
-                        <span>⭐ {rating}</span>
+                    <div className="tmdb-search-view__result-content">
+                      {/* Poster */}
+                      <div className="tmdb-search-view__result-poster">
+                        <ContentImage
+                          src={posterUrl}
+                          alt={`Poster de ${title}`}
+                          fallback="🎬"
+                          width="120"
+                          height="180"
+                          className="tmdb-search-view__poster-image"
+                        />
                       </div>
 
-                      {overview && (
-                        <p className="tmdb-search-view__result-overview">
-                          {overview}
-                        </p>
-                      )}
+                      {/* Información */}
+                      <div className="tmdb-search-view__result-info">
+                        <h4 className="tmdb-search-view__result-title">
+                          {title}
+                        </h4>
+                        
+                        <div className="tmdb-search-view__result-meta">
+                          {year !== 'N/A' && (
+                            <span className="tmdb-search-view__result-year">
+                              📅 {year}
+                            </span>
+                          )}
+                          <span className="tmdb-search-view__result-type">
+                            {type === 'Película' ? '🎬' : '📺'} {type}
+                          </span>
+                          {rating !== 'N/A' && (
+                            <span className="tmdb-search-view__result-rating">
+                              ⭐ {rating}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {overview && (
+                          <p className="tmdb-search-view__result-overview">
+                            {overview.length > 150 
+                              ? `${overview.substring(0, 150)}...` 
+                              : overview
+                            }
+                          </p>
+                        )}
 
-                      {/* Indicador de selección */}
-                      <div className="tmdb-search-view__result-action">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          rightIcon="→"
-                          tabIndex={-1} // Evitar doble focus
-                        >
-                          Seleccionar
-                        </Button>
+                        <div className="tmdb-search-view__result-action">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            rightIcon="→"
+                            tabIndex={-1}
+                          >
+                            Seleccionar
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -381,7 +349,7 @@ function TMDBSearchView({
         </Card>
       )}
 
-      {/* ===== ESTADO DE LOADING ===== */}
+      {/* Estado de loading */}
       {loading && (
         <Card className="tmdb-search-view__loading-card">
           <CardBody>
@@ -398,7 +366,7 @@ function TMDBSearchView({
         </Card>
       )}
 
-      {/* ===== MENSAJE DE BÚSQUEDA VACÍA ===== */}
+      {/* Sin resultados */}
       {!loading && !error && safeSearchQuery && safeResults.length === 0 && (
         <Card className="tmdb-search-view__empty-card">
           <CardBody>
@@ -416,12 +384,37 @@ function TMDBSearchView({
                   variant="outline"
                   size="md"
                   leftIcon="✏️"
-                  onClick={handleManualCreate}
+                  onClick={onManualCreate}
                   className="tmdb-search-view__empty-action"
                 >
                   Crear Manualmente
                 </Button>
               )}
+            </div>
+          </CardBody>
+        </Card>
+      )}
+
+      {/* Mensaje inicial */}
+      {!loading && !error && !safeSearchQuery && safeResults.length === 0 && (
+        <Card className="tmdb-search-view__welcome-card">
+          <CardBody>
+            <div className="tmdb-search-view__welcome">
+              <div className="tmdb-search-view__welcome-icon">🎬</div>
+              <h3 className="tmdb-search-view__welcome-title">
+                ¡Busca contenido en TMDB!
+              </h3>
+              <p className="tmdb-search-view__welcome-description">
+                Escribe el nombre de una película o serie para buscar información completa desde la base de datos de TMDB.
+              </p>
+              <div className="tmdb-search-view__welcome-tips">
+                <h4>💡 Tips de búsqueda:</h4>
+                <ul>
+                  <li>Usa el título original en inglés para mejores resultados</li>
+                  <li>Prueba con palabras clave si no encuentras el título exacto</li>
+                  <li>Incluye el año si hay múltiples versiones</li>
+                </ul>
+              </div>
             </div>
           </CardBody>
         </Card>

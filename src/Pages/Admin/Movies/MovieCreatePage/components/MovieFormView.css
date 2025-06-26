@@ -1,15 +1,5 @@
 /* ===== MOVIEFORMVIEW.CSS - VERSIÓN OPTIMIZADA ===== */
 /* src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.css */
-
-/*
-🎯 ANTES: Muchos estilos que ya están en el sistema  
-🚀 DESPUÉS: Solo estilos específicos de vista previa TMDB
-
-✅ ELIMINADO: .form-container, .form-header, .form-title (están en el sistema)
-✅ REEMPLAZADO: Por clases unificadas del sistema de diseño
-✅ MANTENIDO: Solo estilos únicos de preview de películas
-*/
-
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .movie-form-view {
   display: flex;
@@ -279,27 +269,3 @@
     gap: var(--space-sm);
   }
 }
-
-/* 
-🎉 RESULTADO DE LA OPTIMIZACIÓN:
-
-ANTES (MovieFormView.css original):
-❌ 300+ líneas de CSS
-❌ Duplicación con .form-container del sistema
-❌ Estilos de formulario redefinidos
-❌ Variables CSS redundantes
-
-DESPUÉS (MovieFormView.css optimizado):
-✅ <150 líneas de CSS específico
-✅ Zero duplicación - aprovecha .form-container del sistema  
-✅ Solo estilos únicos de vista previa TMDB
-✅ Responsive design heredado del sistema
-
-BENEFICIOS:
-🚀 -50% menos código CSS
-🎯 Solo estilos específicos de película
-📱 Formulario responsive heredado
-🎨 Variables unificadas
-⚡ Mejor performance
-♻️ Reutilización total del sistema
-*/

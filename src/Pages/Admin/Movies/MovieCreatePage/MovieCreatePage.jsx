@@ -1,10 +1,10 @@
-// ===== MOVIE CREATE PAGE - MIGRADO A CONTAINER COMPONENT =====
+// ===== MOVIE CREATE PAGE - INTEGRACIÓN TMDB CORREGIDA =====
 // src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.jsx
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminLayout';
-import { Container } from '../../../../components/atoms/Container/Container'; // ← NUEVA IMPORTACIÓN
+import { Container } from '../../../../components/atoms/Container/Container';
 import { Button } from '../../../../components/atoms/Button/Button';
 import { TMDBSearchView } from '../../../../components/organism/TMDBSearchView/TMDBSearchView';
 import { MovieFormView } from './components/MovieFormView';
@@ -19,15 +19,23 @@ const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3/search/multi";
 
 /**
- * MovieCreatePage - MIGRADO A CONTAINER COMPONENT
+ * MovieCreatePage - INTEGRACIÓN TMDB CORREGIDA
  * 
- * ✅ CONTAINER: Usa <Container size="lg" /> en lugar de .page-container--wide
- * ✅ EQUIVALENCIA: Container LG = 1200px = page-container--wide
- * ✅ CONSISTENCIA: Misma funcionalidad, mejor arquitectura
- * ✅ SISTEMA: Homologado con el resto de componentes
+ * ✅ PROPS: Props corregidos para TMDBSearchView según sus stories
+ * ✅ HANDLERS: Nombres de handlers correctos
+ * ✅ BÚSQUEDA: Lógica de búsqueda TMDB funcional
+ * ✅ ORDENAMIENTO: Función de ordenamiento implementada
  */
 function MovieCreatePage() {
   const navigate = useNavigate();
+
+  // ===== VALIDACIÓN INICIAL =====
+  useEffect(() => {
+    if (!API_KEY) {
+      console.error('❌ VITE_TMDB_API_KEY no está configurada');
+      setTmdbError('API key de TMDB no configurada. Contacta al administrador.');
+    }
+  }, []);
 
   // ===== ESTADOS PRINCIPALES =====
   const [currentView, setCurrentView] = useState("search"); // "search" | "form"
@@ -68,8 +76,22 @@ function MovieCreatePage() {
       required: true,
       leftIcon: '📅',
       helperText: 'Año de lanzamiento',
+      width: 'half',
       min: 1900,
-      max: new Date().getFullYear() + 5,
+      max: new Date().getFullYear() + 2
+    },
+    {
+      name: 'type',
+      type: 'select',
+      label: 'Tipo',
+      placeholder: 'Selecciona el tipo',
+      required: true,
+      leftIcon: '📺',
+      helperText: 'Tipo de contenido',
+      options: [
+        { value: 'movie', label: 'Película' },
+        { value: 'tv', label: 'Serie' }
+      ],
       width: 'half'
     },
     {
@@ -78,50 +100,42 @@ function MovieCreatePage() {
       label: 'Categoría',
       placeholder: 'Selecciona una categoría',
       required: true,
-      leftIcon: '🎪',
+      leftIcon: '📂',
+      helperText: 'Categoría para clasificar el contenido',
       options: [], // Se llena dinámicamente
-      helperText: 'Clasificación del contenido',
       width: 'half'
     },
     {
       name: 'overview',
       type: 'textarea',
       label: 'Descripción',
-      placeholder: 'Breve descripción de la película o serie',
+      placeholder: 'Describe la película o serie...',
       required: true,
       leftIcon: '📝',
-      helperText: 'Resumen del contenido (máximo 500 caracteres)',
-      maxLength: 500,
+      helperText: 'Sinopsis o descripción del contenido',
       rows: 4,
-      width: 'half'
+      width: 'full'
     },
     {
       name: 'poster',
-      type: 'url',
+      type: 'text',
       label: 'URL del Poster',
-      placeholder: 'https://example.com/poster.jpg',
-      required: false,
+      placeholder: 'https://image.tmdb.org/...',
       leftIcon: '🖼️',
-      helperText: 'Imagen de portada (opcional)',
-      width: 'half'
+      helperText: 'URL de la imagen del poster',
+      width: 'full'
     },
     {
       name: 'video',
       type: 'file',
       label: 'Archivo de Video',
-      accept: 'video/*',
-      required: true,
-      text: 'Seleccionar archivo de video',
-      helperText: 'MP4, WebM, AVI, MOV (máx. 100MB)',
-      width: 'half'
+      accept: '.mp4,.webm,.avi',
+      helperText: 'Archivo de video (MP4, WebM, AVI - máximo 100MB)',
+      width: 'full'
     }
   ];
 
   // ===== EFECTOS =====
-
-  /**
-   * Cargar categorías al montar el componente
-   */
   useEffect(() => {
     loadCategories();
   }, []);
@@ -129,22 +143,19 @@ function MovieCreatePage() {
   // ===== FUNCIONES AUXILIARES =====
 
   /**
-   * Cargar categorías desde el backend
+   * Cargar categorías desde el servicio
    */
   const loadCategories = async () => {
     setCategoriesLoading(true);
     try {
-      const result = await getCategoriesService();
-      const categoryOptions = result.map(cat => ({
+      const categoriesData = await getCategoriesService();
+      setCategories(categoriesData.map(cat => ({
         value: cat.id,
         label: cat.name
-      }));
-
-      setCategories(categoryOptions);
-
+      })));
     } catch (err) {
       console.error('Error cargando categorías:', err);
-      setError('Error al cargar las categorías');
+      setError('Error cargando categorías');
     } finally {
       setCategoriesLoading(false);
     }
@@ -159,80 +170,118 @@ function MovieCreatePage() {
   };
 
   /**
-   * Navegar de vuelta
+   * Función de ordenamiento para resultados TMDB
+   */
+  const sortTmdbResults = (results, sortCriteria) => {
+    if (!Array.isArray(results)) return [];
+
+    return [...results].sort((a, b) => {
+      switch (sortCriteria) {
+        case 'year-desc':
+          const yearA = new Date(a.release_date || a.first_air_date || '1900').getFullYear();
+          const yearB = new Date(b.release_date || b.first_air_date || '1900').getFullYear();
+          return yearB - yearA;
+        
+        case 'year-asc':
+          const yearA2 = new Date(a.release_date || a.first_air_date || '1900').getFullYear();
+          const yearB2 = new Date(b.release_date || b.first_air_date || '1900').getFullYear();
+          return yearA2 - yearB2;
+        
+        case 'rating-desc':
+          return (b.vote_average || 0) - (a.vote_average || 0);
+        
+        default:
+          return 0;
+      }
+    });
+  };
+
+  // ===== HANDLERS DE NAVEGACIÓN =====
+
+  /**
+   * Regresar al listado de películas
    */
   const handleGoBack = () => {
-    if (hasChanges && !success) {
+    if (hasChanges) {
       const confirmed = window.confirm(
-        '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
+        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
       );
       if (!confirmed) return;
     }
     navigate('/admin/movies');
   };
 
+  /**
+   * Volver a la búsqueda desde el formulario
+   */
+  const handleBackToSearch = () => {
+    if (hasChanges) {
+      const confirmed = window.confirm(
+        'Tienes cambios sin guardar. ¿Estás seguro de que quieres volver a la búsqueda? Los cambios se perderán.'
+      );
+      if (!confirmed) return;
+    }
+    setCurrentView("search");
+    setSelectedItem(null);
+    setHasChanges(false);
+    clearError();
+  };
+
   // ===== HANDLERS DE TMDB =====
 
   /**
-   * Buscar en TMDB API - VERSIÓN SIMPLIFICADA
+   * Buscar en TMDB API - CORREGIDO
    */
-  const handleTmdbSearch = async (formData) => {
-    console.log('🔍 handleTmdbSearch llamado con:', formData);
+  const handleTmdbSearch = async () => {
+    console.log('🔍 Iniciando búsqueda TMDB con query:', searchQuery);
     
-    // Extraer query desde formData o usar directamente
-    let query = '';
-    let sortByParam = sortBy;
-    
-    if (typeof formData === 'object' && formData !== null) {
-      query = formData.searchQuery || formData.query || '';
-      sortByParam = formData.sortBy || sortBy;
-    } else if (typeof formData === 'string') {
-      query = formData;
+    // Validaciones
+    if (!API_KEY) {
+      setTmdbError('API key de TMDB no configurada');
+      return;
     }
 
-    console.log('🔍 Query extraído:', query);
-    console.log('🔍 Sort by:', sortByParam);
-
-    // Validar que query existe y no está vacío
-    if (!query || typeof query !== 'string' || !query.trim()) {
-      console.log('❌ Query vacío o inválido');
+    if (!searchQuery || !searchQuery.trim() || searchQuery.trim().length < 2) {
+      console.log('❌ Query inválido:', searchQuery);
       setTmdbResults([]);
       return;
     }
 
-    console.log('✅ Iniciando búsqueda para:', query.trim());
+    const queryTrimmed = searchQuery.trim();
+    console.log('✅ Buscando:', queryTrimmed);
+    
     setTmdbLoading(true);
     setTmdbError(null);
     
     try {
-      const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(query.trim())}`;
+      const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(queryTrimmed)}&language=es-ES`;
       console.log('🌐 URL de búsqueda:', url);
       
       const response = await fetch(url);
       
       if (!response.ok) {
-        throw new Error('Error en la búsqueda de TMDB');
+        throw new Error(`Error HTTP: ${response.status}`);
       }
       
       const data = await response.json();
       console.log('📦 Datos recibidos de TMDB:', data);
       
-      // Filtrar y formatear resultados
-      let filteredResults = data.results?.filter(item => 
+      // Filtrar solo películas y series
+      let filteredResults = (data.results || []).filter(item => 
         item.media_type === 'movie' || item.media_type === 'tv'
-      ) || [];
+      );
 
       console.log('🎬 Resultados filtrados:', filteredResults.length);
 
       // Aplicar ordenamiento
-      filteredResults = sortTmdbResults(filteredResults, sortByParam);
+      filteredResults = sortTmdbResults(filteredResults, sortBy);
       
       setTmdbResults(filteredResults);
       console.log('✅ Resultados establecidos:', filteredResults.length);
       
     } catch (err) {
       console.error('❌ Error buscando en TMDB:', err);
-      setTmdbError('Error al buscar en TMDB. Intenta de nuevo.');
+      setTmdbError(`Error al buscar en TMDB: ${err.message}`);
       setTmdbResults([]);
     } finally {
       setTmdbLoading(false);
@@ -240,47 +289,29 @@ function MovieCreatePage() {
   };
 
   /**
-   * Ordenar resultados de TMDB
+   * Manejar selección de item de TMDB - NOMBRE CORREGIDO
    */
-  const sortTmdbResults = (results, sortBy) => {
-    const sorted = [...results];
-    
-    switch (sortBy) {
-      case 'year-desc':
-        return sorted.sort((a, b) => {
-          const yearA = new Date(a.release_date || a.first_air_date || '').getFullYear() || 0;
-          const yearB = new Date(b.release_date || b.first_air_date || '').getFullYear() || 0;
-          return yearB - yearA;
-        });
-      case 'year-asc':
-        return sorted.sort((a, b) => {
-          const yearA = new Date(a.release_date || a.first_air_date || '').getFullYear() || 0;
-          const yearB = new Date(b.release_date || b.first_air_date || '').getFullYear() || 0;
-          return yearA - yearB;
-        });
-      case 'popularity':
-        return sorted.sort((a, b) => (b.popularity || 0) - (a.popularity || 0));
-      case 'rating':
-        return sorted.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
-      default:
-        return sorted;
-    }
-  };
-
-  /**
-   * Seleccionar item de TMDB y pasar al formulario
-   */
-  const handleSelectTmdbItem = (item) => {
+  const handleSelectItem = (item) => {
+    console.log('🎬 Item seleccionado:', item);
     setSelectedItem(item);
     setCurrentView("form");
     clearError();
   };
 
   /**
-   * Volver a la búsqueda de TMDB
+   * Limpiar resultados de búsqueda
    */
-  const handleBackToSearch = () => {
-    setCurrentView("search");
+  const handleClearResults = () => {
+    setTmdbResults([]);
+    setSearchQuery('');
+    setTmdbError(null);
+  };
+
+  /**
+   * Crear contenido manualmente (sin TMDB)
+   */
+  const handleManualCreate = () => {
+    setCurrentView("form");
     setSelectedItem(null);
     clearError();
   };
@@ -288,13 +319,14 @@ function MovieCreatePage() {
   // ===== HANDLERS DEL FORMULARIO =====
 
   /**
-   * Datos iniciales del formulario basados en TMDB
+   * Obtener datos iniciales del formulario
    */
   const getInitialFormData = () => {
     if (!selectedItem) return {};
 
     return {
       title: selectedItem.title || selectedItem.name || '',
+      type: selectedItem.media_type === 'tv' ? 'tv' : 'movie',
       year: selectedItem.release_date 
         ? new Date(selectedItem.release_date).getFullYear()
         : selectedItem.first_air_date 
@@ -347,10 +379,10 @@ function MovieCreatePage() {
     }
   };
 
-  // ===== PROPS PARA COMPONENTES =====
+  // ===== PROPS PARA COMPONENTES - NOMBRES CORREGIDOS =====
 
   /**
-   * Props para TMDBSearchView - NOMBRES CORREGIDOS
+   * Props para TMDBSearchView - SEGÚN SUS STORIES
    */
   const tmdbSearchProps = {
     // Estados de búsqueda
@@ -364,18 +396,11 @@ function MovieCreatePage() {
     loading: tmdbLoading,
     error: tmdbError,
     
-    // Handlers principales
+    // Handlers principales - NOMBRES CORREGIDOS
     onSearch: handleTmdbSearch,
-    onItemSelected: handleSelectTmdbItem,
-    onClearResults: () => {
-      setTmdbResults([]);
-      setSearchQuery('');
-      setTmdbError(null);
-    },
-    onManualCreate: () => {
-      setCurrentView("form");
-      setSelectedItem(null);
-    },
+    onSelectItem: handleSelectItem, // ✅ CORREGIDO: era onItemSelected
+    onClearResults: handleClearResults,
+    onManualCreate: handleManualCreate,
     
     // Configuración UI
     title: "🎬 Buscar en TMDB",
@@ -383,7 +408,14 @@ function MovieCreatePage() {
     placeholder: "Ej: Avatar, Breaking Bad, Inception...",
     helperText: "Busca por título, año o palabras clave",
     showManualCreate: true,
-    contentType: "all"
+    contentType: "all",
+    
+    // Opciones de ordenamiento
+    sortOptions: [
+      { value: "year-desc", label: "Más recientes" },
+      { value: "year-asc", label: "Más antiguos" },
+      { value: "rating-desc", label: "Mejor puntuados" }
+    ]
   };
 
   /**
@@ -423,10 +455,9 @@ function MovieCreatePage() {
         { label: 'Crear Contenido' }
       ]}
     >
-      {/* 🎯 CONTENEDOR PRINCIPAL - MIGRADO A CONTAINER COMPONENT */}
       <Container size="lg" className={success ? 'movie-create--loading' : ''}>
 
-        {/* 🔧 HEADER ACTIONS - SISTEMA DE DISEÑO */}
+        {/* Header Actions */}
         <div className="page-header-actions">
           <Button
             variant="outline"
@@ -439,7 +470,7 @@ function MovieCreatePage() {
           </Button>
         </div>
 
-        {/* ❌ MENSAJE DE ERROR - SISTEMA DE DISEÑO */}
+        {/* Mensaje de Error */}
         {error && (
           <div className="status-message status-message--error">
             <span className="status-message__icon">⚠️</span>
@@ -450,7 +481,7 @@ function MovieCreatePage() {
           </div>
         )}
 
-        {/* ✅ MENSAJE DE ÉXITO - SISTEMA DE DISEÑO */}
+        {/* Mensaje de Éxito */}
         {success && (
           <div className="status-message status-message--success">
             <span className="status-message__icon">✅</span>
@@ -461,7 +492,7 @@ function MovieCreatePage() {
           </div>
         )}
 
-        {/* 🎬 VISTA CONDICIONAL - INTEGRACIÓN CORREGIDA */}
+        {/* Vista Condicional */}
         {currentView === "search" ? (
           <TMDBSearchView {...tmdbSearchProps} />
         ) : (

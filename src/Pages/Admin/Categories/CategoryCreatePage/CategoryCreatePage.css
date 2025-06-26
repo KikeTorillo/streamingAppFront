@@ -1,55 +1,123 @@
-/* ===== CATEGORY CREATE PAGE - REFACTORIZADO CON SISTEMA DE DISEÑO ===== */
+/* ===== CATEGORY CREATE PAGE CSS - MIGRADO A CONTAINER ===== */
 /* src/Pages/Admin/Categories/CategoryCreatePage/CategoryCreatePage.css */
 
 /* 
-🎯 ANTES: 200+ líneas con duplicación masiva
-🚀 DESPUÉS: <50 líneas, solo estilos específicos
-
-✅ ELIMINADO: .category-create, .category-create__header-actions, .category-create__error, .category-create__success
-✅ REEMPLAZADO POR: .page-container, .page-header-actions, .status-message del sistema
-
-✅ MANTENIDO: Solo estilos específicos de esta página que no están en el sistema
-✅ SISTEMA: Usa todas las variables CSS del sistema de diseño
+✅ CONTAINER: Respeta completamente el sistema Container
+✅ SISTEMA PURO: Solo estilos específicos de esta página
+✅ VARIABLES: Solo variables CSS del sistema de diseño
+✅ CONSISTENCIA: Alineado con MovieCreatePage y UserCreatePage
 */
 
-/* ===== ESTILOS ESPECÍFICOS DEL FORMULARIO DE CATEGORÍAS ===== */
+/* ===== CONTENEDOR ESPECÍFICO ===== */
 
-/* Header del formulario con estilos específicos para categorías */
+/* Clase para el container cuando está en modo éxito */
+.category-create-container {
+  /* El Container maneja su propio layout completamente */
+}
+
+.category-create--loading {
+  pointer-events: none;
+  opacity: 0.8;
+  transition: opacity var(--transition-normal);
+}
+
+/* ===== HEADER DEL FORMULARIO ===== */
+
 .form-header {
-  margin-bottom: var(--space-lg);
+  margin-bottom: var(--space-xl);
   text-align: center;
 }
 
 .form-title {
-  margin: 0 0 var(--space-sm) 0;
+  margin: 0 0 var(--space-md) 0;
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
   line-height: var(--line-height-tight);
 }
 
-.form-description {
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: var(--font-size-sm);
-  line-height: var(--line-height-relaxed);
-  max-width: 60rem;
-  margin: 0 auto;
+/* ===== FORMULARIO ===== */
+
+.category-form {
+  margin-bottom: var(--space-xl);
 }
 
-/* Estado de éxito del formulario */
 .form--success {
   opacity: 0.8;
   pointer-events: none;
   transition: opacity var(--transition-normal);
 }
 
-/* ===== RESPONSIVE ESPECÍFICO ===== */
+/* ===== FOOTER INFORMATIVO ===== */
 
-/* Solo ajustes que no están cubiertos por el sistema */
-@media (max-width: 480px) {
+.form-footer {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-lg);
+  margin-top: var(--space-xl);
+}
+
+.info-card {
+  padding: var(--space-lg);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--border-radius-lg);
+  border-left: 0.4rem solid var(--color-primary-500);
+}
+
+.info-card h4 {
+  margin: 0 0 var(--space-md) 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.info-card ul {
+  margin: 0;
+  padding-left: var(--space-lg);
+  list-style: disc;
+}
+
+.info-card li {
+  margin-bottom: var(--space-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.info-card li:last-child {
+  margin-bottom: 0;
+}
+
+.info-card li strong {
+  color: var(--text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Tablet */
+@media (min-width: 768px) {
+  .form-footer {
+    grid-template-columns: 1fr 1fr;
+  }
+  
   .form-header {
-    margin-bottom: var(--space-md);
+    margin-bottom: var(--space-2xl);
+  }
+  
+  .form-title {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+/* Móvil */
+@media (max-width: 767px) {
+  .form-header {
+    margin-bottom: var(--space-lg);
     text-align: left;
   }
   
@@ -57,51 +125,79 @@
     font-size: var(--font-size-lg);
   }
   
-  .form-description {
+  .info-card {
+    padding: var(--space-md);
+  }
+  
+  .info-card h4 {
+    font-size: var(--font-size-sm);
+  }
+  
+  .info-card li {
     font-size: var(--font-size-xs);
   }
 }
 
-/* ===== ACCESIBILIDAD ESPECÍFICA ===== */
+/* ===== ACCESIBILIDAD ===== */
 
-/* Focus management para el formulario de categorías */
+/* Focus management */
 .form-title:focus-visible {
   outline: 0.2rem solid var(--border-focus);
   outline-offset: 0.4rem;
-  border-radius: var(--radius-sm);
+  border-radius: var(--border-radius-sm);
 }
 
-/* ===== MODO OSCURO ESPECÍFICO ===== */
-
-/* Solo si hay estilos específicos que el sistema no cubre */
-.dark .form-header {
-  /* El sistema ya maneja los colores de texto */
+.info-card:focus-within {
+  border-left-color: var(--color-primary-600);
+  background: var(--bg-surface-hover);
 }
 
-/* 
-🎉 RESULTADO DE LA REFACTORIZACIÓN:
+/* Reducir movimiento */
+@media (prefers-reduced-motion: reduce) {
+  .category-create--loading,
+  .form--success {
+    transition: none;
+  }
+}
 
-ANTES (CategoryCreatePage.css original):
-❌ 200+ líneas de CSS
-❌ Duplicación masiva con movie-create y user-create
-❌ Mensajes de estado duplicados
-❌ Header actions duplicados
-❌ Responsive duplicado
-❌ Animaciones duplicadas
+/* Alto contraste */
+@media (prefers-contrast: high) {
+  .info-card {
+    border-width: 0.2rem;
+    border-left-width: 0.6rem;
+  }
+}
 
-DESPUÉS (CategoryCreatePage.css refactorizado):
-✅ <50 líneas de CSS específico
-✅ Zero duplicación - todo viene del sistema
-✅ Mensajes de estado unificados (.status-message)
-✅ Header actions unificados (.page-header-actions)
-✅ Layout unificado (.page-container)
-✅ Responsive unificado (del sistema)
+/* ===== MODO OSCURO ===== */
 
-BENEFICIOS:
-🚀 -80% menos código CSS
-🎯 Mantenimiento centralizado
-♻️ Reutilización total del sistema
-📱 Responsive design consistente
-🎨 Variables CSS unificadas
-⚡ Mejor performance
-*/
+@media (prefers-color-scheme: dark) {
+  .info-card {
+    background: var(--bg-surface-dark, var(--bg-surface));
+    border-color: var(--border-default-dark, var(--border-default));
+  }
+}
+
+/* Forzar modo oscuro con clase */
+.dark .info-card {
+  background: var(--bg-surface-dark, var(--bg-surface));
+  border-color: var(--border-default-dark, var(--border-default));
+}
+
+/* ===== PRINT STYLES ===== */
+
+@media print {
+  .form-footer {
+    grid-template-columns: 1fr;
+    page-break-inside: avoid;
+  }
+  
+  .info-card {
+    border: 1px solid #000;
+    background: #fff;
+  }
+  
+  .category-create--loading {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}

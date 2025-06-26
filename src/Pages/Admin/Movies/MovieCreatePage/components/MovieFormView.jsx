@@ -9,14 +9,6 @@ import { Card, CardHeader, CardBody, CardTitle } from '../../../../../components
 import { ContentImage } from '../../../../../components/atoms/ContentImage/ContentImage';
 import './MovieFormView.css';
 
-/**
- * MovieFormView - MIGRADO A CONTAINER ANIDADO
- * 
- * ✅ CONTAINER: Usa Container anidado para el formulario
- * ✅ EQUIVALENCIA: form-container → Container size="sm"
- * ✅ SISTEMA: Homologado con UserCreatePage
- * ✅ ESTRUCTURA: Container del formulario separado del preview de TMDB
- */
 function MovieFormView({
   // Item seleccionado de TMDB (opcional)
   selectedItem = null,
@@ -152,13 +144,6 @@ function MovieFormView({
           </CardBody>
         </Card>
       )}
-
-      {/* ===== FORMULARIO DINÁMICO - CONTAINER ANIDADO ===== */}
-      <Container 
-        size="sm" 
-        variant="default"
-        className="form-content"
-      >
         
         {/* Header del formulario */}
         <div className="form-header">
@@ -214,9 +199,6 @@ function MovieFormView({
             </ul>
           </div>
         </div>
-
-      </Container>
-
     </div>
   );
 }
