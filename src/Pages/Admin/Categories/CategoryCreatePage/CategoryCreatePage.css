@@ -8,13 +8,6 @@
 ✅ CONSISTENCIA: Alineado con MovieCreatePage y UserCreatePage
 */
 
-/* ===== CONTENEDOR ESPECÍFICO ===== */
-
-/* Clase para el container cuando está en modo éxito */
-.category-create-container {
-  /* El Container maneja su propio layout completamente */
-}
-
 .category-create--loading {
   pointer-events: none;
   opacity: 0.8;
@@ -124,7 +117,7 @@
   .form-title {
     font-size: var(--font-size-lg);
   }
-  
+
   .info-card {
     padding: var(--space-md);
   }

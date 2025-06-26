@@ -86,20 +86,6 @@ function UserCreatePage() {
       ],
       helperText: 'Define los permisos del usuario',
       width: 'half'
-    },
-    {
-      name: 'isActive',
-      type: 'select',
-      label: 'Estado del Usuario',
-      placeholder: 'Estado inicial',
-      required: true,
-      leftIcon: '⚡',
-      options: [
-        { value: true, label: 'Activo' },
-        { value: false, label: 'Inactivo' }
-      ],
-      helperText: 'Usuario activo puede acceder al sistema',
-      width: 'half'
     }
   ];
 
@@ -120,6 +106,7 @@ function UserCreatePage() {
 
       // Limpiar datos para envío (quitar confirmPassword)
       const { confirmPassword, ...userData } = formData;
+
 
       // Crear usuario
       const result = await createUserService(userData);

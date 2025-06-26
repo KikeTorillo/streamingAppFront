@@ -175,7 +175,7 @@ function CategoryCreatePage() {
       <Container 
         size="lg" 
         variant="default"
-        className={`category-create-container ${success ? 'category-create--loading' : ''}`}
+        className={`${success ? 'category-create--loading' : ''}`}
       >
         
         {/* Header Actions */}
