@@ -18,6 +18,14 @@ import { getCategoriesService } from '../../../../services/Categories/getCategor
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3/search/multi";
 
+/**
+ * MovieCreatePage - MIGRADO A CONTAINER COMPONENT
+ * 
+ * ✅ CONTAINER: Usa <Container size="lg" /> en lugar de .page-container--wide
+ * ✅ EQUIVALENCIA: Container LG = 1200px = page-container--wide
+ * ✅ CONSISTENCIA: Misma funcionalidad, mejor arquitectura
+ * ✅ SISTEMA: Homologado con el resto de componentes
+ */
 function MovieCreatePage() {
   const navigate = useNavigate();
 
@@ -166,38 +174,64 @@ function MovieCreatePage() {
   // ===== HANDLERS DE TMDB =====
 
   /**
-   * Buscar en TMDB API
+   * Buscar en TMDB API - VERSIÓN SIMPLIFICADA
    */
-  const handleTmdbSearch = async (query, sortBy) => {
-    if (!query.trim()) {
+  const handleTmdbSearch = async (formData) => {
+    console.log('🔍 handleTmdbSearch llamado con:', formData);
+    
+    // Extraer query desde formData o usar directamente
+    let query = '';
+    let sortByParam = sortBy;
+    
+    if (typeof formData === 'object' && formData !== null) {
+      query = formData.searchQuery || formData.query || '';
+      sortByParam = formData.sortBy || sortBy;
+    } else if (typeof formData === 'string') {
+      query = formData;
+    }
+
+    console.log('🔍 Query extraído:', query);
+    console.log('🔍 Sort by:', sortByParam);
+
+    // Validar que query existe y no está vacío
+    if (!query || typeof query !== 'string' || !query.trim()) {
+      console.log('❌ Query vacío o inválido');
       setTmdbResults([]);
       return;
     }
 
+    console.log('✅ Iniciando búsqueda para:', query.trim());
     setTmdbLoading(true);
     setTmdbError(null);
     
     try {
-      const response = await fetch(`${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+      const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(query.trim())}`;
+      console.log('🌐 URL de búsqueda:', url);
+      
+      const response = await fetch(url);
       
       if (!response.ok) {
         throw new Error('Error en la búsqueda de TMDB');
       }
       
       const data = await response.json();
+      console.log('📦 Datos recibidos de TMDB:', data);
       
       // Filtrar y formatear resultados
-      let filteredResults = data.results.filter(item => 
+      let filteredResults = data.results?.filter(item => 
         item.media_type === 'movie' || item.media_type === 'tv'
-      );
+      ) || [];
+
+      console.log('🎬 Resultados filtrados:', filteredResults.length);
 
       // Aplicar ordenamiento
-      filteredResults = sortTmdbResults(filteredResults, sortBy);
+      filteredResults = sortTmdbResults(filteredResults, sortByParam);
       
       setTmdbResults(filteredResults);
+      console.log('✅ Resultados establecidos:', filteredResults.length);
       
     } catch (err) {
-      console.error('Error buscando en TMDB:', err);
+      console.error('❌ Error buscando en TMDB:', err);
       setTmdbError('Error al buscar en TMDB. Intenta de nuevo.');
       setTmdbResults([]);
     } finally {
@@ -316,21 +350,40 @@ function MovieCreatePage() {
   // ===== PROPS PARA COMPONENTES =====
 
   /**
-   * Props para TMDBSearchView
+   * Props para TMDBSearchView - NOMBRES CORREGIDOS
    */
   const tmdbSearchProps = {
+    // Estados de búsqueda
     searchQuery,
-    onSearchChange: setSearchQuery,
+    onSearchQueryChange: setSearchQuery,
     sortBy,
     onSortChange: setSortBy,
-    onSearch: handleTmdbSearch,
+    
+    // Resultados y estado
     results: tmdbResults,
     loading: tmdbLoading,
     error: tmdbError,
-    onSelectItem: handleSelectTmdbItem,
-    placeholderText: "Buscar película o serie en TMDB...",
-    emptyStateTitle: "Busca contenido en TMDB",
-    emptyStateDescription: "Encuentra información completa de películas y series desde la base de datos de TMDB."
+    
+    // Handlers principales
+    onSearch: handleTmdbSearch,
+    onItemSelected: handleSelectTmdbItem,
+    onClearResults: () => {
+      setTmdbResults([]);
+      setSearchQuery('');
+      setTmdbError(null);
+    },
+    onManualCreate: () => {
+      setCurrentView("form");
+      setSelectedItem(null);
+    },
+    
+    // Configuración UI
+    title: "🎬 Buscar en TMDB",
+    description: "Encuentra información completa de películas y series desde la base de datos de TMDB.",
+    placeholder: "Ej: Avatar, Breaking Bad, Inception...",
+    helperText: "Busca por título, año o palabras clave",
+    showManualCreate: true,
+    contentType: "all"
   };
 
   /**
