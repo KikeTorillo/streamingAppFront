@@ -22,42 +22,40 @@
 
 /* ===== TAMAÑOS - USANDO VARIABLES CENTRALIZADAS ===== */
 .input-base--xs {
-  padding: var(--component-padding-xs);        /* 4px 8px */
-  font-size: var(--component-font-xs);         /* 12px */
-  min-height: var(--component-height-xs);      /* 28px */
+  padding: var(--component-padding-xs);        
+  font-size: var(--component-font-xs);         
+  min-height: var(--component-height-xs);      
   line-height: var(--line-height-tight);
 }
 
 .input-base--sm {
-  padding: var(--component-padding-sm);        /* 8px 16px */
-  font-size: var(--component-font-sm);         /* 14px */
-  min-height: var(--component-height-sm);      /* 32px */
+  padding: var(--component-padding-sm);        
+  font-size: var(--component-font-sm);         
+  min-height: var(--component-height-sm);      
   line-height: var(--line-height-tight);
 }
 
 .input-base--md {
-  padding: var(--component-padding-md);        /* 8px 16px */
-  font-size: var(--component-font-md);         /* 16px */
-  min-height: var(--component-height-md);      /* 40px */
+  padding: var(--component-padding-md);        
+  font-size: var(--component-font-md);         
+  min-height: var(--component-height-md);      
   line-height: var(--line-height-normal);
 }
 
-/* 🔧 CORRECCIÓN PRINCIPAL: LG ahora usa 56px como estándar */
 .input-base--lg {
-  padding: var(--component-padding-lg);        /* 16px 24px */
-  font-size: var(--component-font-lg);         /* 20px */
-  min-height: var(--component-height-lg);      /* ✅ 56px - HOMOLOGADO */
-  line-height: var(--line-height-normal);
+  padding: var(--component-padding-lg);        
+  font-size: var(--component-font-lg);         
+  min-height: var(--component-height-lg);      
+  line-height: var(--lint-normal);
 }
 
 .input-base--xl {
-  padding: var(--component-padding-xl);        /* 16px 32px */
-  font-size: var(--component-font-xl);         /* 24px */
-  min-height: var(--component-height-xl);      /* 56px */
+  padding: var(--component-padding-xl);       
+  font-size: var(--component-font-xl);        
+  min-height: var(--component-height-xl);     
   line-height: var(--line-height-normal);
 }
 
-/* ===== VARIANTES DE BORDE - Para mantener consistencia ===== */
 .input-base--rounded-sm {
   border-radius: var(--radius-sm);
 }
@@ -87,7 +85,7 @@
 .input-base:focus {
   border-color: var(--border-focus);
   box-shadow: 0 0 0 0.3rem rgba(59, 130, 246, 0.1);
-  outline: 0.2rem solid var(--border-focus);
+  outline: 0.2rem solid var(--border-e-heighfocus);
   outline-offset: 0.2rem;
   z-index: 1;
 }
@@ -303,32 +301,3 @@
   white-space: nowrap;
   font-family: monospace;
 }
-
-/* 
-🎉 RESULTADO DE LA CORRECCIÓN:
-
-ANTES:
-❌ input-base--lg: min-height: 4.8rem (48px)
-❌ Inconsistencia con FileInput y Select
-
-DESPUÉS:
-✅ input-base--lg: min-height: var(--component-height-lg) (56px)
-✅ Homologación perfecta con todos los componentes
-✅ Variables centralizadas del sistema
-✅ Responsive mantenido
-✅ Accesibilidad garantizada
-
-CAMBIOS PRINCIPALES:
-1. ✅ TAMAÑOS: Todos usan variables centralizadas
-2. ✅ LG CORREGIDO: De 48px a 56px
-3. ✅ PADDING: Variables del sistema
-4. ✅ FONT-SIZE: Variables del sistema
-5. ✅ TOUCH TARGETS: 44px mínimo en móviles
-6. ✅ DEBUGGING: Herramientas incluidas
-
-USO EN MOVIECREATEPAGE:
-- Input lg: 56px ✅
-- Select lg: 56px (cuando se actualice) ✅  
-- FileInput lg: 56px (cuando se actualice) ✅
-- Alineación perfecta garantizada ✅
-*/

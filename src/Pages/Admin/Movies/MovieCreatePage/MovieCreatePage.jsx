@@ -56,7 +56,8 @@ function MovieCreatePage() {
       placeholder: 'Nombre de la película o serie',
       required: true,
       leftIcon: '🎬',
-      helperText: 'Título original o en español'
+      helperText: 'Título original o en español',
+      width: 'half'
     },
     {
       name: 'year',
@@ -67,7 +68,8 @@ function MovieCreatePage() {
       leftIcon: '📅',
       helperText: 'Año de lanzamiento',
       min: 1900,
-      max: new Date().getFullYear() + 5
+      max: new Date().getFullYear() + 5,
+      width: 'half'
     },
     {
       name: 'categoryId',
@@ -77,7 +79,8 @@ function MovieCreatePage() {
       required: true,
       leftIcon: '🎪',
       options: [], // Se llena dinámicamente
-      helperText: 'Clasificación del contenido'
+      helperText: 'Clasificación del contenido',
+      width: 'half'
     },
     {
       name: 'overview',
@@ -88,7 +91,8 @@ function MovieCreatePage() {
       leftIcon: '📝',
       helperText: 'Resumen del contenido (máximo 500 caracteres)',
       maxLength: 500,
-      rows: 4
+      rows: 4,
+      width: 'half'
     },
     {
       name: 'poster',
@@ -97,7 +101,8 @@ function MovieCreatePage() {
       placeholder: 'https://example.com/poster.jpg',
       required: false,
       leftIcon: '🖼️',
-      helperText: 'Imagen de portada (opcional)'
+      helperText: 'Imagen de portada (opcional)',
+      width: 'half'
     },
     {
       // ✅ CAMBIO PRINCIPAL: De videoUrl a video con FileInput
@@ -107,7 +112,8 @@ function MovieCreatePage() {
       accept: 'video/*',                          // ← NUEVO
       required: true,
       text: 'Seleccionar archivo de video',      // ← NUEVO
-      helperText: 'MP4, WebM, AVI, MOV (máx. 100MB)' // ← Actualizado
+      helperText: 'MP4, WebM, AVI, MOV (máx. 100MB)',
+      width: 'half'
     }
   ];
 

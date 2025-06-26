@@ -419,39 +419,3 @@
     display: none;
   }
 }
-
-/* 
-🎉 RESULTADO DE LA CORRECCIÓN:
-
-ANTES:
-❌ file-input--lg: min-height: 4.8rem (48px)
-❌ Diferencia de 8px con Input
-❌ Inconsistencia visual en formularios
-
-DESPUÉS:
-✅ file-input--lg: min-height: var(--component-height-lg) (56px)
-✅ Homologación perfecta con Input
-✅ Variables centralizadas del sistema
-✅ Estados y variantes idénticos a Input
-✅ Responsive optimizado
-✅ Accesibilidad garantizada
-
-CAMBIOS PRINCIPALES:
-1. ✅ TAMAÑOS: Todas las variables centralizadas
-2. ✅ LG CORREGIDO: De 48px a 56px
-3. ✅ PADDING: Mismo que Input
-4. ✅ FONT-SIZE: Mismo que Input
-5. ✅ ESTADOS: Hover, focus, disabled idénticos
-6. ✅ VARIANTES: Success, warning, danger homologadas
-7. ✅ RESPONSIVE: Touch targets de 44px
-8. ✅ DEBUGGING: Outline azul para FileInput
-
-RESULTADO EN MOVIECREATEPAGE:
-- Input lg: 56px ✅
-- FileInput lg: 56px ✅
-- Alineación perfecta ✅
-- No más diferencias de altura ✅
-
-PRÓXIMO PASO:
-- Actualizar Select.css con las mismas variables ✅
-*/

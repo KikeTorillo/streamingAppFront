@@ -11,17 +11,12 @@
 
 /* ===== SELECT BASE - IDÉNTICO A INPUT-BASE ===== */
 .select-base {
-    /* Layout base */
     display: block;
     width: 100%;
     position: relative;
-    
-    /* Tipografía - IDÉNTICA A INPUT */
     font-family: var(--font-family-base);
     font-weight: var(--font-weight-normal);
     color: var(--text-primary);
-    
-    /* Estilos visuales - IDÉNTICOS A INPUT */
     border: 0.1rem solid var(--border-default);
     border-radius: var(--radius-md);
     background-color: var(--bg-primary);
@@ -29,11 +24,13 @@
     outline: none;
     appearance: none;
     box-sizing: border-box;
-    
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+
     /* Comportamiento */
     cursor: pointer;
     line-height: var(--line-height-normal);
-    
+
     /* Flecha personalizada del select */
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     background-position: right var(--space-md) center;
@@ -44,48 +41,38 @@
 /* ===== TAMAÑOS - USANDO VARIABLES CENTRALIZADAS IDÉNTICAS A INPUT ===== */
 .select-base--xs {
     padding: var(--component-padding-xs);
-    /* Ajustar padding-right para la flecha */
-    padding-right: calc(var(--space-sm) + 2.4rem);
-    font-size: var(--component-font-xs);         /* 12px */
-    min-height: var(--component-height-xs);      /* 28px */
+    font-size: var(--component-font-xs);
+    min-height: var(--component-height-xs);
     line-height: var(--line-height-tight);
 }
 
 .select-base--sm {
     padding: var(--component-padding-sm);
-    /* Ajustar padding-right para la flecha */
-    padding-right: calc(var(--space-md) + 2.4rem);
-    font-size: var(--component-font-sm);         /* 14px */
-    min-height: var(--component-height-sm);      /* 32px */
+    font-size: var(--component-font-sm);
+    min-height: var(--component-height-sm);
     line-height: var(--line-height-tight);
 }
 
 .select-base--md {
     padding: var(--component-padding-md);
-    /* Ajustar padding-right para la flecha */
-    padding-right: calc(var(--space-md) + 2.4rem);
-    font-size: var(--component-font-md);         /* 16px */
-    min-height: var(--component-height-md);      /* 40px */
+    font-size: var(--component-font-md);
+    min-height: var(--component-height-md);
     line-height: var(--line-height-normal);
 }
 
 /* 🔧 CORRECCIÓN PRINCIPAL: LG ahora usa las mismas variables que Input */
 .select-base--lg {
-    padding: var(--component-padding-lg);
-    /* Ajustar padding-right para la flecha */
-    padding-right: calc(var(--space-xl) + 2.4rem);
-    font-size: var(--component-font-lg);         /* 20px */
-    min-height: var(--component-height-lg);      /* ✅ 56px - HOMOLOGADO CON INPUT */
-    line-height: var(--line-height-normal);
+    padding: var(--component-padding-lg);        
+  font-size: var(--component-font-lg);         
+  min-height: var(--component-height-lg);      
+  line-height: var(--lint-normal);
 }
 
 .select-base--xl {
-    padding: var(--component-padding-xl);
-    /* Ajustar padding-right para la flecha */
-    padding-right: calc(var(--space-2xl) + 2.4rem);
-    font-size: var(--component-font-xl);         /* 24px */
-    min-height: var(--component-height-xl);      /* 56px */
-    line-height: var(--line-height-normal);
+    padding: var(--component-padding-xl);       
+  font-size: var(--component-font-xl);        
+  min-height: var(--component-height-xl);     
+  line-height: var(--line-height-normal);
 }
 
 /* ===== RADIO DE BORDES - IDÉNTICO A INPUT ===== */
@@ -204,11 +191,11 @@
 }
 
 /* Estados de la flecha */
-.select-base:focus + .select-base__arrow {
+.select-base:focus+.select-base__arrow {
     color: var(--border-focus);
 }
 
-.select-base:disabled + .select-base__arrow {
+.select-base:disabled+.select-base__arrow {
     color: var(--text-disabled);
 }
 
@@ -253,26 +240,30 @@
 
 /* ===== RESPONSIVE - ÁREA TÁCTIL MÓVIL ===== */
 @media (max-width: 768px) {
+
     /* Asegurar área táctil mínima en móviles (igual que Input) */
     .select-base--xs,
     .select-base--sm {
-        min-height: var(--touch-target-min);     /* 44px mínimo */
+        min-height: var(--touch-target-min);
+        /* 44px mínimo */
         padding: var(--space-sm) calc(var(--space-md) + 2.4rem) var(--space-sm) var(--space-md);
     }
-    
+
     /* Los tamaños grandes mantienen altura pero ajustan padding */
     .select-base--lg {
         padding: var(--space-sm) calc(var(--space-md) + 2.4rem) var(--space-sm) var(--space-md);
         font-size: var(--font-size-base);
-        min-height: var(--component-height-lg);  /* Mantener 56px */
+        min-height: var(--component-height-lg);
+        /* Mantener 56px */
     }
-    
+
     .select-base--xl {
         padding: var(--space-md) calc(var(--space-lg) + 2.4rem) var(--space-md) var(--space-lg);
         font-size: var(--font-size-lg);
-        min-height: var(--component-height-xl);  /* Mantener 56px */
+        min-height: var(--component-height-xl);
+        /* Mantener 56px */
     }
-    
+
     /* Ajustar flecha en móviles */
     .select-base__arrow {
         right: var(--space-sm);
@@ -280,6 +271,7 @@
 }
 
 @media (max-width: 480px) {
+
     /* En móviles muy pequeños, optimizar para usabilidad */
     .select-base--lg,
     .select-base--xl {
@@ -292,6 +284,7 @@
 
 /* ===== ACCESIBILIDAD ===== */
 @media (prefers-reduced-motion: reduce) {
+
     .select-base,
     .select-base__arrow {
         transition: none;
@@ -302,7 +295,7 @@
     .select-base {
         border-width: 0.2rem;
     }
-    
+
     .select-base:focus {
         outline-width: 0.3rem;
     }
@@ -349,7 +342,7 @@
     .select-base {
         background-image: none;
     }
-    
+
     /* Agregar flecha manual para Firefox si es necesario */
     .select-base::after {
         content: '▼';
@@ -407,48 +400,8 @@
         box-shadow: none;
         background-image: none;
     }
-    
+
     .select-base__arrow {
         display: none;
     }
 }
-
-/* 
-🎉 RESULTADO DE LA CORRECCIÓN:
-
-ANTES:
-❌ select-base--lg: min-height: 4.8rem (48px)
-❌ Inconsistencia con Input y FileInput
-❌ Padding diferente
-
-DESPUÉS:
-✅ select-base--lg: min-height: var(--component-height-lg) (56px)
-✅ Homologación perfecta con Input y FileInput
-✅ Variables centralizadas del sistema
-✅ Padding ajustado para la flecha del select
-✅ Estados y variantes idénticos
-✅ Responsive optimizado
-✅ Accesibilidad garantizada
-
-CAMBIOS PRINCIPALES:
-1. ✅ TAMAÑOS: Todas las variables centralizadas
-2. ✅ LG CORREGIDO: De 48px a 56px
-3. ✅ PADDING: Ajustado para flecha del select
-4. ✅ FONT-SIZE: Mismo que Input y FileInput
-5. ✅ ESTADOS: Hover, focus, disabled idénticos
-6. ✅ VARIANTES: Success, warning, danger homologadas
-7. ✅ RESPONSIVE: Touch targets de 44px
-8. ✅ DEBUGGING: Outline naranja para Select
-9. ✅ CROSS-BROWSER: Soporte para Firefox, Safari, Edge
-
-RESULTADO EN MOVIECREATEPAGE:
-- Input lg: 56px ✅
-- FileInput lg: 56px ✅
-- Select lg: 56px ✅
-- HOMOLOGACIÓN COMPLETA ✅
-
-FLECHA DEL SELECT:
-- padding-right ajustado por tamaño
-- Imagen SVG integrada
-- Fallback para navegadores específicos
-*/
