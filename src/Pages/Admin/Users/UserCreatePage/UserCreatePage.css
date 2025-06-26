@@ -1,234 +1,40 @@
-/* ===== USER CREATE PAGE STYLES - SISTEMA DE DISEÑO ===== */
+/* ===== USERCREATEPAGE.CSS - SISTEMA DE DISEÑO PURO ===== */
 /* src/Pages/Admin/Users/UserCreatePage/UserCreatePage.css */
 
-/* ===== CONTENEDOR PRINCIPAL ===== */
-.user-create {
-  /* Layout - EXACTAMENTE IGUAL QUE category-create */
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-xl);
-  max-width: 80rem; /* 800px */
-  margin: 0 auto;
-  
-  /* Fuente */
-  font-family: var(--font-family-base);
-}
+/* 
+✅ SISTEMA PURO: Solo estilos específicos de UserCreatePage
+✅ RESPETO TOTAL: Container maneja su propio layout completamente
+✅ VARIABLES: Solo variables CSS del sistema de diseño
+✅ FILOSOFÍA: El Container se comporta como debe, sin ajustes
+*/
 
-/* ===== HEADER ACTIONS ===== */
-.user-create__header-actions {
-  /* Layout - IGUAL QUE category-create__header-actions */
-  display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-}
+/* ===== ESTADOS ESPECÍFICOS DE LA PÁGINA ===== */
 
-/* ===== MENSAJES DE ESTADO ===== */
-.user-create__error,
-.user-create__success {
-  /* Layout - IGUAL QUE category-create */
-  display: flex;
-  align-items: center;
-  gap: var(--space-md);
-  padding: var(--space-md) var(--space-lg);
-  border-radius: var(--radius-md);
-  border: 0.1rem solid;
-  
-  /* Tipografía - IGUAL QUE category-create */
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  line-height: var(--line-height-normal);
-  
-  /* Animación - IGUAL QUE category-create */
-  animation: slideIn 0.3s ease-out;
-}
-
-.user-create__error {
-  /* Colores de error - IGUAL QUE category-create */
-  background-color: var(--color-danger-light);
-  border-color: var(--color-danger);
-  color: var(--color-danger-dark);
-}
-
-.user-create__success {
-  /* Colores de éxito - IGUAL QUE category-create */
-  background-color: var(--color-success-light);
-  border-color: var(--color-success);
-  color: var(--color-success-dark);
-}
-
-.user-create__error-icon,
-.user-create__success-icon {
-  /* Iconos - IGUAL QUE category-create */
-  font-size: var(--font-size-lg);
-  flex-shrink: 0;
-}
-
-.user-create__error-content,
-.user-create__success-content {
-  /* Texto - IGUAL QUE category-create */
-  flex: 1;
-  min-width: 0;
-}
-
-.user-create__error-content h4,
-.user-create__success-content h3 {
-  /* Reset - IGUAL QUE category-create */
-  margin: 0 0 var(--space-xs) 0;
-  
-  /* Tipografía - IGUAL QUE category-create */
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-bold);
-}
-
-.user-create__error-content p,
-.user-create__success-content p {
-  /* Reset - IGUAL QUE category-create */
-  margin: 0;
-  
-  /* Tipografía - IGUAL QUE category-create */
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-}
-
-.user-create__success-redirect {
-  /* Layout - IGUAL QUE category-create */
-  flex-shrink: 0;
-  margin-left: var(--space-md);
-  
-  /* Tipografía - IGUAL QUE category-create */
-  font-size: var(--font-size-xs);
-  font-style: italic;
-  color: var(--text-muted);
-}
-
-.user-create__error-close {
-  /* Botón de cerrar - IGUAL QUE category-create */
-  background: none;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: var(--font-size-lg);
-  padding: var(--space-xs);
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
-  flex-shrink: 0;
-}
-
-.user-create__error-close:hover {
-  background-color: rgba(0, 0, 0, 0.1);
-}
-
-.user-create__error-close:focus-visible {
-  outline: 0.2rem solid var(--border-focus);
-  outline-offset: 0.2rem;
-}
-
-/* ===== ESTADOS DE FORMULARIO ===== */
-.user-create__form {
-  /* Base del formulario - IGUAL QUE category-create */
-}
-
-.user-create__form--success {
-  /* Estado de éxito - IGUAL QUE category-create */
-  opacity: 0.8;
+/* Estado de carga aplicado al Container */
+.user-create--loading {
   pointer-events: none;
+  opacity: 0.8;
+  transition: opacity var(--transition-normal);
 }
 
-/* ===== ANIMACIONES ===== */
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.user-create__success-redirect {
-  /* Animación de redirect */
-  animation: fadeInOut 2s ease-in-out;
-}
-
-@keyframes fadeInOut {
-  0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0.7; }
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-
-/* Tablets */
-@media (max-width: 768px) {
-  .user-create {
-    gap: var(--space-lg);
-    max-width: none;
-    padding: 0 var(--space-md);
-  }
-  
-  .user-create__header-actions {
-    flex-direction: column;
-    width: 100%;
-    gap: var(--space-sm);
-  }
-  
-  .user-create__header-actions > * {
-    width: 100%;
-  }
-}
-
-/* Móviles */
-@media (max-width: 480px) {
-  .user-create {
-    gap: var(--space-md);
-  }
-  
-  .user-create__error,
-  .user-create__success {
-    padding: var(--space-sm) var(--space-md);
-    gap: var(--space-sm);
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  
-  .user-create__header-actions {
-    gap: var(--space-xs);
-  }
-  
-  .user-create__error-close {
-    align-self: flex-end;
-    margin-top: var(--space-xs);
-  }
+/* Estado de éxito aplicado al Container */
+.user-create--success {
+  /* El Container ya maneja su apariencia, solo lógica específica */
 }
 
 /* ===== ACCESIBILIDAD ===== */
 
-/* Reducir movimiento para usuarios con preferencias de accesibilidad */
 @media (prefers-reduced-motion: reduce) {
-  .user-create__error,
-  .user-create__success {
-    animation: none;
-  }
-  
-  .user-create__success-redirect {
-    animation: none;
-  }
-  
-  .user-create__error-close {
+  .user-create--loading {
     transition: none;
   }
 }
 
-/* ===== UTILIDADES ESPECÍFICAS ===== */
+/* ===== PRINT STYLES ===== */
 
-/* Estado global de la página cuando está en loading */
-.user-create--loading {
-  pointer-events: none;
-  opacity: 0.8;
-}
-
-/* Estado global cuando se completó exitosamente */
-.user-create--success {
-  /* Los elementos específicos ya manejan su estado */
+@media print {
+  .user-create--loading {
+    opacity: 1;
+    pointer-events: auto;
+  }
 }

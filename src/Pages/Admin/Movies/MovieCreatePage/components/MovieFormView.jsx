@@ -1,23 +1,21 @@
-// ===== MOVIE FORM VIEW - HOMOLOGADO CON SISTEMA DE DISEÑO =====
+// ===== MOVIE FORM VIEW - MIGRADO A CONTAINER ANIDADO =====
 // src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.jsx
 
 import React from 'react';
 import { DynamicForm } from '../../../../../components/molecules/DynamicForm/DynamicForm';
 import { Button } from '../../../../../components/atoms/Button/Button';
+import { Container } from '../../../../../components/atoms/Container/Container'; // ← NUEVA IMPORTACIÓN
 import { Card, CardHeader, CardBody, CardTitle } from '../../../../../components/atoms/Card/Card';
 import { ContentImage } from '../../../../../components/atoms/ContentImage/ContentImage';
 import './MovieFormView.css';
 
 /**
- * MovieFormView - HOMOLOGADO CON SISTEMA DE DISEÑO
+ * MovieFormView - MIGRADO A CONTAINER ANIDADO
  * 
- * ✅ ESPECÍFICO: Solo para creación de películas en MovieCreatePage
- * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ PATRÓN: Sigue exactamente CategoryCreatePage y UserCreatePage
- * ✅ ESTRUCTURA: Usa form-container en lugar de Cards para el formulario principal
- * ✅ CSS: Variables del sistema y clases unificadas
- * 
- * @param {Object} props - Propiedades del componente
+ * ✅ CONTAINER: Usa Container anidado para el formulario
+ * ✅ EQUIVALENCIA: form-container → Container size="sm"
+ * ✅ SISTEMA: Homologado con UserCreatePage
+ * ✅ ESTRUCTURA: Container del formulario separado del preview de TMDB
  */
 function MovieFormView({
   // Item seleccionado de TMDB (opcional)
@@ -57,64 +55,71 @@ function MovieFormView({
       'Completa todos los campos requeridos para agregar la película o serie al catálogo.';
   };
 
-  // ===== HANDLERS =====
+  /**
+   * Manejar envío del formulario con validaciones
+   */
   const handleFormSubmit = (formData) => {
-    if (onSubmit) {
-      onSubmit(formData);
-    }
+    // Validaciones específicas de película si necesario
+    onSubmit?.(formData);
   };
 
+  /**
+   * Manejar cambios en el formulario
+   */
   const handleFormChange = (formData) => {
-    if (onChange) {
-      onChange(formData);
-    }
-  };
-
-  const handleBackToSearch = () => {
-    if (onBackToSearch) {
-      onBackToSearch();
-    }
+    onChange?.(formData);
   };
 
   // ===== RENDER =====
   return (
     <div className="movie-form-view">
-      
-      {/* ===== VISTA PREVIA DEL ITEM SELECCIONADO (OPCIONAL) ===== */}
+
+      {/* ===== BOTÓN DE VOLVER (OPCIONAL) ===== */}
+      {showBackButton && (
+        <div style={{ marginBottom: 'var(--space-lg)' }}>
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon="←"
+            onClick={onBackToSearch}
+            disabled={formLoading}
+          >
+            Volver a la Búsqueda
+          </Button>
+        </div>
+      )}
+
+      {/* ===== VISTA PREVIA DE TMDB (SI HAY ITEM SELECCIONADO) ===== */}
       {selectedItem && (
-        <Card className="movie-form-view__preview-card">
+        <Card variant="default" className="movie-form-view__preview-card">
           <CardHeader>
             <div className="movie-form-view__preview-header">
-              <CardTitle>
-                🎬 Contenido Seleccionado de TMDB
-              </CardTitle>
-              {showBackButton && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  leftIcon="←"
-                  onClick={handleBackToSearch}
-                  disabled={formLoading || success}
-                >
-                  Cambiar Selección
-                </Button>
-              )}
+              <CardTitle>📽️ Vista Previa de TMDB</CardTitle>
+              <Button
+                variant="outline"
+                size="xs"
+                onClick={onBackToSearch}
+                disabled={formLoading}
+              >
+                Cambiar selección
+              </Button>
             </div>
           </CardHeader>
           <CardBody>
             <div className="movie-form-view__preview">
               {/* Poster */}
-              <div className="movie-form-view__preview-poster">
-                <ContentImage
-                  src={selectedItem.poster_path ? 
-                    `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}` : 
-                    null
-                  }
-                  alt={selectedItem.title || selectedItem.name}
-                  fallback="🎬"
-                  className="movie-form-view__poster-image"
-                />
-              </div>
+              {selectedItem.poster_path && (
+                <div className="movie-form-view__preview-poster">
+                  <ContentImage
+                    src={`https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`}
+                    alt={`Poster de ${selectedItem.title || selectedItem.name}`}
+                    aspectRatio="2/3"
+                    objectFit="cover"
+                    contentType="movie"
+                    className="movie-form-view__poster-image"
+                  />
+                </div>
+              )}
               
               {/* Información */}
               <div className="movie-form-view__preview-info">
@@ -148,8 +153,14 @@ function MovieFormView({
         </Card>
       )}
 
-      {/* ===== FORMULARIO DINÁMICO - SISTEMA DE DISEÑO (SIN CARD) ===== */}
-      <div className="form-container">
+      {/* ===== FORMULARIO DINÁMICO - CONTAINER ANIDADO ===== */}
+      <Container 
+        size="sm" 
+        variant="default"
+        className="form-content"
+      >
+        
+        {/* Header del formulario */}
         <div className="form-header">
           <h2 className="form-title">
             {getFormTitle()}
@@ -159,6 +170,7 @@ function MovieFormView({
           </p>
         </div>
 
+        {/* Formulario */}
         <DynamicForm
           id="movie-create-form"
           fields={formFields}
@@ -181,7 +193,30 @@ function MovieFormView({
           showSubmit={!success} // Ocultar botón cuando hay éxito
           className={`movie-form-view__form ${success ? 'form--success' : ''}`}
         />
-      </div>      
+
+        {/* Información adicional sobre películas */}
+        <div className="form-footer">
+          <div className="info-card">
+            <h4>🎬 Información sobre el Contenido</h4>
+            <ul>
+              <li><strong>Video:</strong> Sube archivo MP4, WebM o AVI (máximo 100MB)</li>
+              <li><strong>Poster:</strong> Imagen promocional en formato JPG o PNG</li>
+              <li><strong>Categoría:</strong> Clasifica el contenido para facilitar búsquedas</li>
+            </ul>
+          </div>
+          
+          <div className="info-card">
+            <h4>📊 Datos de TMDB</h4>
+            <ul>
+              <li>Los datos de TMDB se prellenan automáticamente si seleccionaste un item</li>
+              <li>Puedes modificar cualquier campo según tus necesidades</li>
+              <li>La información ayuda a mantener consistencia en el catálogo</li>
+            </ul>
+          </div>
+        </div>
+
+      </Container>
+
     </div>
   );
 }

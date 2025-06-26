@@ -1,23 +1,22 @@
-// ===== USER CREATE PAGE - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO =====
+// ===== USER CREATE PAGE - MIGRADO A CONTAINER COMPONENT =====
 // src/Pages/Admin/Users/UserCreatePage/UserCreatePage.jsx
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminLayout';
+import { Container } from '../../../../components/atoms/Container/Container'; // ← NUEVA IMPORTACIÓN
 import { DynamicForm } from '../../../../components/molecules/DynamicForm/DynamicForm';
 import { Button } from '../../../../components/atoms/Button/Button';
 import './UserCreatePage.css';
 import { createUserService } from '../../../../services/Users/createUserService';
 
 /**
- * UserCreatePage - HOMOLOGADO CON BACKEND Y SISTEMA DE DISEÑO
+ * UserCreatePage - MIGRADO A CONTAINER COMPONENT
  * 
- * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ BACKEND: Homologado con campos reales del backend
- * ✅ VALIDACIONES: Según esquemas Joi del backend
- * ✅ UX: Estados de loading, error y success consistentes
- * ✅ ESTILO: Usa clases del sistema de diseño centralizado
- * ✅ PATRÓN: Sigue exactamente el mismo patrón que CategoryCreatePage
+ * ✅ CONTAINER: Usa <Container size="md" /> en lugar de layout personalizado
+ * ✅ EQUIVALENCIA: Container MD = 800px = max-width actual
+ * ✅ SISTEMA: Homologado con el resto de componentes
+ * ✅ BACKEND: Campos reales según esquemas del backend
  */
 function UserCreatePage() {
   const navigate = useNavigate();
@@ -31,7 +30,7 @@ function UserCreatePage() {
   // ===== CONFIGURACIÓN HOMOLOGADA CON BACKEND =====
 
   /**
-   * ✅ CAMPOS según schema del backend: solo campos que existen en DB
+   * Campos según schema del backend: solo campos que existen en DB
    */
   const userFormFields = [
     {
@@ -51,254 +50,241 @@ function UserCreatePage() {
       placeholder: 'usuario@ejemplo.com',
       required: false, // Email es OPCIONAL en backend
       leftIcon: '📧',
-      helperText: 'Opcional. Si se proporciona, debe ser válido y único',
+      helperText: 'Opcional. Para recuperación de contraseña',
       width: 'half'
     },
     {
       name: 'password',
       type: 'password',
       label: 'Contraseña',
-      placeholder: 'Mínimo 8 caracteres',
+      placeholder: 'Mínimo 6 caracteres',
       required: true,
-      leftIcon: '🔒',
-      helperText: 'Mínimo 8 caracteres, debe incluir letras y números',
+      leftIcon: '🔐',
+      helperText: 'Mínimo 6 caracteres para seguridad',
       width: 'half'
     },
     {
       name: 'confirmPassword',
       type: 'password',
       label: 'Confirmar Contraseña',
-      placeholder: 'Repite la contraseña',
+      placeholder: 'Repetir contraseña',
       required: true,
       leftIcon: '🔒',
-      helperText: 'Debe coincidir con la contraseña anterior',
+      helperText: 'Debe coincidir exactamente',
       width: 'half'
     },
     {
       name: 'roleId',
       type: 'select',
       label: 'Rol del Usuario',
+      placeholder: 'Selecciona un rol',
       required: true,
       leftIcon: '🎭',
-      helperText: 'Define los permisos y funcionalidades disponibles',
       options: [
-        { value: '', label: 'Selecciona un rol' },
-        { value: 1, label: '👑 Administrador - Acceso completo al sistema' },
-        { value: 2, label: '👤 Editor - Acceso al contenido' },
-        { value: 3, label: '👤 Usuario - Acceso básico al contenido' }
+        { value: 1, label: 'Administrador' },
+        { value: 2, label: 'Usuario Regular' }
       ],
+      helperText: 'Define los permisos del usuario',
+      width: 'half'
+    },
+    {
+      name: 'isActive',
+      type: 'select',
+      label: 'Estado del Usuario',
+      placeholder: 'Estado inicial',
+      required: true,
+      leftIcon: '⚡',
+      options: [
+        { value: true, label: 'Activo' },
+        { value: false, label: 'Inactivo' }
+      ],
+      helperText: 'Usuario activo puede acceder al sistema',
       width: 'half'
     }
   ];
 
-  /**
-   * ✅ Datos iniciales del formulario
-   */
-  const initialData = {
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    roleId: '',
-    isActive: ''
-  };
-
-  // ===== FUNCIONES DE NEGOCIO =====
+  // ===== HANDLERS =====
 
   /**
-   * ✅ Validar contraseñas coincidentes
-   */
-  const validatePasswords = (formData) => {
-    if (formData.password !== formData.confirmPassword) {
-      throw new Error('Las contraseñas no coinciden');
-    }
-  };
-
-  /**
-   * ✅ Limpiar datos antes de enviar al backend
-   */
-  const cleanFormData = (formData) => {
-    const cleanData = { ...formData };
-
-    // Eliminar confirmPassword (no va al backend)
-    delete cleanData.confirmPassword;
-
-    // Convertir valores string a boolean/number según corresponda
-    cleanData.roleId = parseInt(cleanData.roleId);
-    cleanData.isActive = cleanData.isActive === 'true' || cleanData.isActive === true;
-
-    // Si email está vacío, no enviarlo (es opcional)
-    if (!cleanData.email || cleanData.email.trim() === '') {
-      delete cleanData.email;
-    }
-
-    return cleanData;
-  };
-
-  /**
-   * ✅ Manejar envío del formulario
+   * Manejar envío del formulario
    */
   const handleSubmit = async (formData) => {
+    setLoading(true);
+    setError(null);
+
     try {
-      setLoading(true);
-      setError(null);
+      // Validar contraseñas coinciden
+      if (formData.password !== formData.confirmPassword) {
+        throw new Error('Las contraseñas no coinciden');
+      }
 
-      // Validar contraseñas
-      validatePasswords(formData);
+      // Limpiar datos para envío (quitar confirmPassword)
+      const { confirmPassword, ...userData } = formData;
 
-      // Limpiar datos para backend
-      const cleanData = cleanFormData(formData);
+      // Crear usuario
+      const result = await createUserService(userData);
 
-      console.log('🚀 Creando usuario:', cleanData);
-
-      // Llamar al servicio
-      const response = await createUserService(cleanData);
-
-      console.log('✅ Usuario creado:', response);
-
-      // Estado de éxito
+      console.log('Usuario creado exitosamente:', result);
       setSuccess(true);
       setHasChanges(false);
 
-      // Redirigir después de 2 segundos
+      // Redireccionar después de 3 segundos
       setTimeout(() => {
         navigate('/admin/users');
-      }, 2000);
+      }, 3000);
 
     } catch (err) {
-      console.error('❌ Error al crear usuario:', err);
-
-      // Manejar diferentes tipos de errores
-      if (err.message === 'Las contraseñas no coinciden') {
-        setError(err.message);
-      } else if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.message) {
-        setError(err.message);
-      } else {
-        setError('Error inesperado al crear el usuario. Intenta nuevamente.');
-      }
+      console.error('Error creando usuario:', err);
+      setError(err.message || 'Error al crear el usuario');
     } finally {
       setLoading(false);
     }
   };
 
   /**
-   * ✅ Detectar cambios en el formulario
+   * Manejar cambios en el formulario
    */
-  const handleFormChange = (changedData) => {
+  const handleFormChange = () => {
     setHasChanges(true);
-    setError(null); // Limpiar errores al hacer cambios
+    if (error) setError(null);
   };
 
   /**
-   * ✅ Cancelar creación
+   * Navegar de vuelta
    */
-  const handleCancel = () => {
+  const handleGoBack = () => {
     if (hasChanges && !success) {
-      const confirmCancel = window.confirm(
-        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir?\n\n' +
-        'Se perderán los cambios no guardados.'
+      const confirmed = window.confirm(
+        '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
       );
-      if (!confirmCancel) return;
+      if (!confirmed) return;
     }
-
     navigate('/admin/users');
   };
 
-  // ===== RENDER =====
+  /**
+   * Limpiar error
+   */
+  const handleClearError = () => {
+    setError(null);
+  };
 
+  // ===== RENDER =====
   return (
     <AdminLayout
       title="Crear Nuevo Usuario"
-      subtitle="Registra un nuevo usuario con acceso al sistema de gestión de contenido"
+      subtitle="Agregar un usuario al sistema con permisos específicos"
       breadcrumbs={[
         { label: 'Admin', href: '/admin' },
         { label: 'Usuarios', href: '/admin/users' },
-        { label: 'Crear' }
+        { label: 'Crear Usuario' }
       ]}
     >
-      <div className="page-container page-container--wide">
+      {/* 🎯 CONTENEDOR PRINCIPAL - MIGRADO A CONTAINER COMPONENT */}
+      <Container 
+        size="md" 
+        className={`${loading ? 'user-create--loading' : ''} ${success ? 'user-create--success' : ''}`}
+      >
 
-        {/* 🔧 HEADER ACTIONS - USANDO SISTEMA DE DISEÑO */}
+        {/* 🔧 HEADER ACTIONS - SISTEMA DE DISEÑO */}
         <div className="page-header-actions">
           <Button
             variant="outline"
             size="sm"
             leftIcon="←"
-            onClick={handleCancel}
+            onClick={handleGoBack}
             disabled={loading}
           >
             Volver a Usuarios
           </Button>
         </div>
 
-        {/* ===== NOTIFICACIONES ===== */}
-        {success && (
-          <div className="user-create__success">
-            <div className="user-create__success-icon">✅</div>
-            <div className="user-create__success-content">
-              <h3>¡Usuario creado exitosamente!</h3>
-              <p>El nuevo usuario ya puede acceder al sistema con sus credenciales.</p>
-            </div>
-            <span className="user-create__success-redirect">
-              Redirigiendo...
-            </span>
-          </div>
-        )}
-
+        {/* ❌ MENSAJE DE ERROR - SISTEMA DE DISEÑO */}
         {error && (
-          <div className="user-create__error">
-            <div className="user-create__error-icon">⚠️</div>
-            <div className="user-create__error-content">
-              <h4>Error al crear usuario</h4>
-              <p>{error}</p>
+          <div className="status-message status-message--error">
+            <span className="status-message__icon">⚠️</span>
+            <div className="status-message__content">
+              <strong>Error al crear usuario</strong>
+              <span>{error}</span>
             </div>
-            <button
-              className="user-create__error-close"
-              onClick={() => setError(null)}
+            <button 
+              className="status-message__close"
+              onClick={handleClearError}
               aria-label="Cerrar mensaje de error"
             >
-              ✕
+              ×
             </button>
           </div>
         )}
 
-        {/* ===== FORMULARIO DINÁMICO (SISTEMA DE DISEÑO) ===== */}
-        <div className="form-container">
+        {/* ✅ MENSAJE DE ÉXITO - SISTEMA DE DISEÑO */}
+        {success && (
+          <div className="status-message status-message--success">
+            <span className="status-message__icon">✅</span>
+            <div className="status-message__content">
+              <strong>¡Usuario creado exitosamente!</strong>
+              <span>Redirigiendo al listado en unos segundos...</span>
+            </div>
+          </div>
+        )}
+
+        {/* 📝 FORMULARIO DINÁMICO - CONTAINER ANIDADO */}
+        <Container 
+          size="sm" 
+          variant="default"
+          className="form-content"
+        >
+          
+          {/* Header del formulario */}
           <div className="form-header">
-            <h2 className="form-title">
-              Información del Usuario
-            </h2>
+            <h2 className="form-title">Información del Usuario</h2>
             <p className="form-description">
-              Completa los campos requeridos para crear una nueva cuenta. Solo se almacenan datos que existen en la base de datos.
+              Completa todos los campos requeridos para crear el nuevo usuario. 
+              La información de rol define los permisos de acceso al sistema.
             </p>
           </div>
 
+          {/* Formulario */}
           <DynamicForm
-            id="user-create-form"
             fields={userFormFields}
-            initialData={initialData}
             onSubmit={handleSubmit}
             onChange={handleFormChange}
+            submitText={loading ? "Creando Usuario..." : "Crear Usuario"}
+            submitVariant="primary"
+            submitSize="lg"
             loading={loading}
             disabled={loading || success}
             columnsPerRow={2}
             tabletColumns={1}
             mobileColumns={1}
-            fieldSize="lg"
-            fieldRounded="md"
-            submitText={loading ? "Creando Usuario..." : "Crear Usuario"}
-            submitVariant="primary"
-            submitSize="md"
-            submitIcon="👤"
+            validateOnChange={true}
             validateOnBlur={true}
-            validateOnChange={false}
-            showSubmit={!success} // Ocultar botón cuando hay éxito
-            className={`user-create__form ${success ? 'user-create__form--success' : ''}`}
+            className={success ? 'form--success' : ''}
           />
-        </div>
-      </div>
+
+          {/* Información adicional */}
+          <div className="form-footer">
+            <div className="info-card">
+              <h4>💡 Información sobre Roles</h4>
+              <ul>
+                <li><strong>Administrador:</strong> Acceso completo a todas las funciones</li>
+                <li><strong>Usuario Regular:</strong> Acceso limitado a contenido y perfil</li>
+              </ul>
+            </div>
+            
+            <div className="info-card">
+              <h4>🔒 Seguridad</h4>
+              <ul>
+                <li>Las contraseñas deben tener mínimo 6 caracteres</li>
+                <li>El email es opcional pero recomendado para recuperación</li>
+                <li>Los nombres de usuario deben ser únicos en el sistema</li>
+              </ul>
+            </div>
+          </div>
+
+        </Container>
+
+      </Container>
     </AdminLayout>
   );
 }
