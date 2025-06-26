@@ -1,16 +1,6 @@
 /* ===== TMDB SEARCH VIEW - CSS SIMPLIFICADO PARA DYNAMICFORM ===== */
 /* src/components/organism/TMDBSearchView/TMDBSearchView.css */
 
-/*
-🎯 ANTES: 250+ líneas con formulario manual
-🚀 DESPUÉS: <150 líneas, aprovecha DynamicForm
-
-✅ ELIMINADO: Estilos de formulario (manejado por DynamicForm)
-✅ ELIMINADO: .tmdb-search-view__form, .tmdb-search-view__inputs
-✅ MANTENIDO: Solo estilos únicos de resultados TMDB
-✅ SIMPLIFICADO: Grid de resultados y estados
-*/
-
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .tmdb-search-view {
   display: flex;
