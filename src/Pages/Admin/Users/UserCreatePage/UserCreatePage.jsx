@@ -84,21 +84,8 @@ function UserCreatePage() {
       options: [
         { value: '', label: 'Selecciona un rol' },
         { value: 1, label: '👑 Administrador - Acceso completo al sistema' },
-        { value: 2, label: '👤 Usuario - Acceso básico al contenido' }
-      ],
-      width: 'half'
-    },
-    {
-      name: 'isActive',
-      type: 'select',
-      label: 'Estado del Usuario',
-      required: true,
-      leftIcon: '🔄',
-      helperText: 'Define si el usuario puede acceder al sistema',
-      options: [
-        { value: '', label: 'Selecciona un estado' },
-        { value: true, label: '✅ Activo - Puede iniciar sesión' },
-        { value: false, label: '❌ Inactivo - Sin acceso al sistema' }
+        { value: 2, label: '👤 Editor - Acceso al contenido' },
+        { value: 3, label: '👤 Usuario - Acceso básico al contenido' }
       ],
       width: 'half'
     }

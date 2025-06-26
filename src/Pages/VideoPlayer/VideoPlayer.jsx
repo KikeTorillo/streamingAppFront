@@ -19,9 +19,10 @@ const VideoPlayer = () => {
   const resolutions = searchParams.get('resolutions');
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const baseUrl = `http://192.168.0.177:8082/hls/${id}/`;
-  const subsUrl = `http://192.168.0.177:8082/subs/${id}/`;
+  const baseUrl = `http://localhost:8082:8082/hls/${id}/`;
+  const subsUrl = `http://localhost:8082:8082/subs/${id}/`;
   const urlComplete = `${baseUrl}_,${resolutions},p.mp4.play/master.m3u8`
+  console.log("URL Completa:", urlComplete);
   useEffect(() => {
     const initializePlayer = async () => {
       try {

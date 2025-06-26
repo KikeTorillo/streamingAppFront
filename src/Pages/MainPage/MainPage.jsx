@@ -141,7 +141,7 @@ function MainPage() {
      * Manejar reproducción de contenido
      */
     const handlePlayContent = (content) => {
-        navigate(`/player/${content.type}/${content.id}`);
+        navigate(`/player/${content.id}`);
     };
 
     /**
@@ -177,7 +177,7 @@ function MainPage() {
                 category: movie.category || 'Sin categoría', // Para mostrar
                 categoryId: movie.categoryId, // Para filtrar
                 year: movie.releaseYear || movie.year || new Date().getFullYear(),
-                cover: movie.cover_image || movie.cover || '/placeholder-movie.jpg',
+                cover: `http://localhost:8082/covers/${movie.cover_image}/cover.jpg`,
                 type: 'movie',
                 rating: movie.rating || 0,
                 duration: movie.duration || 0

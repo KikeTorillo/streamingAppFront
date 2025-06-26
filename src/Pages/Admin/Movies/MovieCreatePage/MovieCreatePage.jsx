@@ -59,19 +59,6 @@ function MovieCreatePage() {
       helperText: 'Título original o en español'
     },
     {
-      name: 'type',
-      type: 'select',
-      label: 'Tipo de Contenido',
-      placeholder: 'Selecciona el tipo',
-      required: true,
-      leftIcon: '🎭',
-      options: [
-        { value: 'movie', label: 'Película' },
-        { value: 'tv', label: 'Serie' }
-      ],
-      helperText: 'Tipo de contenido multimedia'
-    },
-    {
       name: 'year',
       type: 'number',
       label: 'Año',
@@ -120,17 +107,6 @@ function MovieCreatePage() {
       required: true,
       leftIcon: '🎥',
       helperText: 'Enlace directo al contenido multimedia'
-    },
-    {
-      name: 'duration',
-      type: 'number',
-      label: 'Duración (minutos)',
-      placeholder: '120',
-      required: false,
-      leftIcon: '⏱️',
-      helperText: 'Duración en minutos (opcional)',
-      min: 1,
-      max: 1000
     }
   ];
 

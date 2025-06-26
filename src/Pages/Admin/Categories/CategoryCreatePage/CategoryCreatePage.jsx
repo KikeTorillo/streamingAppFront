@@ -112,7 +112,6 @@ function CategoryCreatePage() {
     try {
       console.log('📤 Enviando datos al backend:', formData);
 
-      // Llamar al servicio del backend
       const result = await createCategoryService(formData);
 
       console.log('✅ Categoría creada exitosamente:', result);
@@ -230,7 +229,7 @@ function CategoryCreatePage() {
             submitIcon="🎭"
             validateOnBlur={true}
             validateOnChange={false}
-            showSubmit={!success} // Ocultar botón cuando hay éxito
+            showSubmit={!success}
             className={`${success ? 'form--success' : ''}`}
           />
         </div>

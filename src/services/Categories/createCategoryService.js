@@ -2,11 +2,11 @@
 import axios from "axios";
 import { environmentService } from "../environmentService";
 
-const createCategoryService = async (name) => {
+const createCategoryService = async (categoryData) => {
     const { urlBackend } = environmentService();
     try {
         const response = await axios.post(`${urlBackend}/api/v1/category`, 
-            { name },
+            { name: categoryData.name },
             {
                 headers: { "Content-Type": "application/json" },
                 withCredentials: true,
