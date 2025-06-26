@@ -1,5 +1,5 @@
-/* ===== FILEINPUT COMPONENT - ÁTOMO DEL SISTEMA DE DISEÑO ===== */
-/* FileInput.css */
+/* ===== FILEINPUT COMPONENT - HOMOLOGADO CON INPUT/SELECT ===== */
+/* FileInput.css - Siguiendo exactamente el patrón de Input.css */
 
 /* Contenedor wrapper */
 .file-input-wrapper {
@@ -9,7 +9,7 @@
   font-family: var(--font-family-base);
 }
 
-/* Clase base del file input - Siguiendo patrón Button/Input */
+/* Clase base del file input - HOMOLOGADA CON INPUT */
 .file-input {
   position: relative;
   display: inline-block;
@@ -28,83 +28,82 @@
   border: 0;
 }
 
-/* Label que actúa como botón - Usando variables del sistema */
+/* ===== LABEL QUE ACTÚA COMO BOTÓN - HOMOLOGADO CON INPUT ===== */
 .file-input__button {
   /* Layout */
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
+  display: block;
   width: 100%;
+  position: relative;
   cursor: pointer;
   
-  /* Tipografía - Usando variables del sistema */
+  /* Tipografía - IDÉNTICA A INPUT */
   font-family: var(--font-family-base);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  white-space: nowrap;
+  font-weight: var(--font-weight-normal);
+  color: var(--text-primary);
+  
+  /* Estilos base - IDÉNTICOS A INPUT */
+  border: 0.1rem solid var(--border-default);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-primary);
+  transition: all var(--transition-normal);
+  outline: none;
+  appearance: none;
+  box-sizing: border-box;
   
   /* Interacción */
   user-select: none;
-  
-  /* Transiciones - Usando variables del sistema */
-  transition: all var(--transition-normal);
-  
-  /* Bordes - Usando variables del sistema */
-  border: 0.1rem solid var(--border-default);
-  background-color: var(--bg-primary);
-  color: var(--text-primary);
-  
-  /* Eliminar estilos por defecto */
-  outline: none;
-  
-  /* Mejorar accesibilidad táctil */
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  
+  /* Layout interno */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--space-sm);
 }
 
-/* TAMAÑOS - Usando variables del sistema de espaciado */
+/* ===== TAMAÑOS - IDÉNTICOS A INPUT ===== */
 .file-input--xs .file-input__button,
 .file-input__button--xs {
   padding: var(--space-xs) var(--space-sm);
   font-size: var(--font-size-xs);
   min-height: 2.8rem;
-  gap: var(--space-xs);
+  line-height: var(--line-height-tight);
 }
 
 .file-input--sm .file-input__button,
 .file-input__button--sm {
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--font-size-sm);
+  padding: var(--space-sm) var(--space-md);    /* 8px 16px */
+  font-size: var(--font-size-sm);              /* 14px */
   min-height: 3.2rem;
-  gap: var(--space-xs);
+  line-height: var(--line-height-tight);
 }
 
 .file-input--md .file-input__button,
 .file-input__button--md {
-  padding: var(--space-sm) var(--space-md);
-  font-size: var(--font-size-base);
+  padding: var(--space-sm) var(--space-md);    /* 8px 16px */
+  font-size: var(--font-size-base);            /* 16px */
   min-height: 4.0rem;
-  gap: var(--space-sm);
+  line-height: var(--line-height-normal);
 }
 
 .file-input--lg .file-input__button,
 .file-input__button--lg {
-  padding: var(--space-md) var(--space-lg);
-  font-size: var(--font-size-lg);
+  padding: var(--space-md) var(--space-lg);    /* 16px 24px */
+  font-size: var(--font-size-lg);              /* 18px */
   min-height: 4.8rem;
-  gap: var(--space-sm);
+  line-height: var(--line-height-normal);
 }
 
 .file-input--xl .file-input__button,
 .file-input__button--xl {
-  padding: var(--space-md) var(--space-xl);
-  font-size: var(--font-size-xl);
+  padding: var(--space-md) var(--space-xl);    /* 16px 32px */
+  font-size: var(--font-size-xl);              /* 20px */
   min-height: 5.6rem;
-  gap: var(--space-md);
+  line-height: var(--line-height-normal);
 }
 
-/* RADIO DE BORDES - Usando variables del sistema */
+/* ===== RADIO DE BORDES - IDÉNTICO A INPUT ===== */
 .file-input--rounded-sm .file-input__button,
 .file-input__button--rounded-sm {
   border-radius: var(--radius-sm);
@@ -130,11 +129,10 @@
   border-radius: var(--radius-full);
 }
 
-/* ESTADOS - Siguiendo patrón Button/Input */
+/* ===== ESTADOS INTERACTIVOS - IDÉNTICOS A INPUT ===== */
 .file-input__button:hover:not(.file-input__button--disabled) {
-  border-color: var(--border-focus);
+  border-color: var(--border-hover);
   box-shadow: var(--shadow-sm);
-  transform: translateY(-0.1rem);
 }
 
 .file-input--focused .file-input__button {
@@ -154,7 +152,7 @@
   opacity: 0.6;
 }
 
-/* VARIANTES SEMÁNTICAS - Siguiendo patrón Button */
+/* ===== VARIANTES SEMÁNTICAS - IDÉNTICAS A INPUT ===== */
 
 /* Default */
 .file-input--default .file-input__button,
@@ -167,46 +165,58 @@
 /* Success */
 .file-input--success .file-input__button,
 .file-input__button--success {
+  border-color: var(--color-success);
   background-color: var(--color-success-light);
   color: var(--color-success-dark);
-  border-color: var(--color-success);
 }
 
-.file-input--success .file-input__button:hover:not(.file-input__button--disabled),
-.file-input__button--success:hover:not(.file-input__button--disabled) {
-  background-color: var(--color-success);
-  color: var(--text-on-success);
+.file-input--success .file-input__button:focus {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 0.3rem rgba(34, 197, 94, 0.1);
+  outline-color: var(--color-success);
+}
+
+.file-input--success .file-input__button:hover:not(.file-input__button--disabled) {
   border-color: var(--color-success-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Warning */
 .file-input--warning .file-input__button,
 .file-input__button--warning {
+  border-color: var(--color-warning);
   background-color: var(--color-warning-light);
   color: var(--color-warning-dark);
-  border-color: var(--color-warning);
 }
 
-.file-input--warning .file-input__button:hover:not(.file-input__button--disabled),
-.file-input__button--warning:hover:not(.file-input__button--disabled) {
-  background-color: var(--color-warning);
-  color: var(--text-on-warning);
+.file-input--warning .file-input__button:focus {
+  border-color: var(--color-warning);
+  box-shadow: 0 0 0 0.3rem rgba(245, 158, 11, 0.1);
+  outline-color: var(--color-warning);
+}
+
+.file-input--warning .file-input__button:hover:not(.file-input__button--disabled) {
   border-color: var(--color-warning-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Danger */
 .file-input--danger .file-input__button,
 .file-input__button--danger {
+  border-color: var(--color-danger);
   background-color: var(--color-danger-light);
   color: var(--color-danger-dark);
-  border-color: var(--color-danger);
 }
 
-.file-input--danger .file-input__button:hover:not(.file-input__button--disabled),
-.file-input__button--danger:hover:not(.file-input__button--disabled) {
-  background-color: var(--color-danger);
-  color: var(--text-on-danger);
+.file-input--danger .file-input__button:focus {
+  border-color: var(--color-danger);
+  box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
+  outline-color: var(--color-danger);
+}
+
+.file-input--danger .file-input__button:hover:not(.file-input__button--disabled) {
   border-color: var(--color-danger-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ===== CONTENIDO DEL BOTÓN ===== */
@@ -216,8 +226,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
   flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
 }
 
 /* Icono de éxito (cuando hay archivos) */
@@ -243,19 +254,18 @@
 /* Icono de carpeta (estado inicial) */
 .file-input__icon-folder {
   position: relative;
-  width: 2.4rem;
-  height: 1.8rem;
-  animation: folderFloat 2.5s infinite ease-in-out;
+  width: 1.8rem;
+  height: 1.4rem;
 }
 
 .file-input__folder-top {
   position: absolute;
   top: 0;
   left: 0;
-  width: 1.2rem;
-  height: 0.6rem;
+  width: 0.8rem;
+  height: 0.4rem;
   background-color: var(--color-primary);
-  border-radius: 0.2rem 0.6rem 0.2rem 0;
+  border-radius: 0.1rem 0.3rem 0.1rem 0;
   z-index: 2;
 }
 
@@ -263,27 +273,19 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 2.0rem;
-  height: 1.2rem;
+  width: 1.6rem;
+  height: 1rem;
   background-color: var(--color-primary-hover);
-  border-radius: 0.2rem;
+  border-radius: 0.1rem;
   box-shadow: var(--shadow-sm);
-}
-
-@keyframes folderFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-0.2rem);
-  }
 }
 
 /* Texto del botón */
 .file-input__text {
   flex: 1;
-  text-align: center;
+  text-align: left;
   line-height: var(--line-height-tight);
+  color: inherit;
 }
 
 /* Indicador de requerido */
@@ -341,7 +343,7 @@
   white-space: nowrap;
 }
 
-/* ===== MENSAJES DE AYUDA Y ERROR ===== */
+/* ===== MENSAJES DE AYUDA Y ERROR - IDÉNTICOS A TEXTINPUT ===== */
 
 /* Helper text */
 .file-input__helper-text {
@@ -375,14 +377,14 @@
 
 /* Cuando tiene archivos seleccionados */
 .file-input--has-files .file-input__button {
-  background-color: var(--color-success-light);
   border-color: var(--color-success);
+  background-color: var(--color-success-light);
   color: var(--color-success-dark);
 }
 
 .file-input--has-files .file-input__button:hover:not(.file-input__button--disabled) {
-  background-color: var(--color-success);
-  color: var(--text-on-success);
+  border-color: var(--color-success-hover);
+  box-shadow: var(--shadow-sm);
 }
 
 /* ===== RESPONSIVE ===== */
@@ -415,21 +417,43 @@
 }
 
 /* ===== MODO OSCURO ===== */
-@media (prefers-color-scheme: dark) {
-  .file-input__folder-top {
-    background-color: var(--blue-400);
-  }
-  
-  .file-input__folder-bottom {
-    background-color: var(--blue-500);
-  }
+.dark .file-input__button {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--border-default);
 }
 
-/* Clase explícita para modo oscuro */
 .dark .file-input__folder-top {
   background-color: var(--blue-400);
 }
 
 .dark .file-input__folder-bottom {
   background-color: var(--blue-500);
+}
+
+.dark .file-input__helper-text {
+  color: var(--text-secondary);
+}
+
+.dark .file-input__error-text {
+  color: var(--color-danger);
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+  .file-input__icon-success,
+  .file-input__files-info,
+  .file-input__error-text {
+    animation: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .file-input__button {
+    border-width: 0.2rem;
+  }
+  
+  .file-input__error-text {
+    font-weight: var(--font-weight-bold);
+  }
 }

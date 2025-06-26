@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { TextInput } from '../TextInput/TextInput';
 import { TextSelect } from '../TextSelect/TextSelect'; // ← NUEVA IMPORTACIÓN
 import { Button } from '../../atoms/Button/Button';
-import { FileInput } from '../../atoms/FileInput/FileInput';
+import { FileInputField } from '../FileInputField/FileInputField';
 import './DynamicForm.css';
 
 /**
@@ -353,7 +353,8 @@ const DynamicForm = ({
     if (fieldType === 'file') {
       return (
         <div key={index} className={fieldClasses.join(' ')}>
-          <FileInput
+          <FileInputField
+            label={fieldLabel}
             name={fieldName}
             accept={field.accept}
             multiple={field.multiple || false}
@@ -365,7 +366,8 @@ const DynamicForm = ({
             size={fieldSize}
             rounded={fieldRounded}
             variant={hasError ? 'danger' : (field.variant || 'default')}
-            ariaLabel={fieldLabel}
+            fullWidth={true}
+            compact={compact}
             onChange={(e) => {
               // Manejar archivos de manera especial
               const files = Array.from(e.target.files || []);
