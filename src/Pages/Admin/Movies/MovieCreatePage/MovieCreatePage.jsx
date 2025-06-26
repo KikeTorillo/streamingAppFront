@@ -1,6 +1,4 @@
-// ===== MOVIE CREATE PAGE - INTEGRACIÓN TMDB CORREGIDA =====
 // src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.jsx
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminLayout';
@@ -10,21 +8,22 @@ import { TMDBSearchView } from '../../../../components/organism/TMDBSearchView/T
 import { MovieFormView } from './components/MovieFormView';
 import './MovieCreatePage.css';
 
-// Importar servicios
+// Importar servicios MEJORADOS
 import { getCategoriesService } from '../../../../services/Categories/getCategoriesService';
-// import { createMovieService } from '../../../../services/Movies/createMovieService'; // Para implementar
+import { createMovieService } from '../../../../services/Movies/createMovieService'; // ← SERVICIO MEJORADO
+import { createSeriesService } from '../../../../services/Series/createSeriesService'; // ← SERVICIO MEJORADO
 
 // Configuración de TMDB API
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3/search/multi";
 
 /**
- * MovieCreatePage - INTEGRACIÓN TMDB CORREGIDA
+ * MovieCreatePage - IMPLEMENTACIÓN COMPLETA CON SERVICIOS MEJORADOS
  * 
- * ✅ PROPS: Props corregidos para TMDBSearchView según sus stories
- * ✅ HANDLERS: Nombres de handlers correctos
- * ✅ BÚSQUEDA: Lógica de búsqueda TMDB funcional
- * ✅ ORDENAMIENTO: Función de ordenamiento implementada
+ * ✅ NUEVA FUNCIONALIDAD: Manejo de URLs de TMDB y archivos locales
+ * ✅ SERVICIOS: Integración con createMovieService y createSeriesService mejorados
+ * ✅ VALIDACIÓN: Mejor manejo de errores y validaciones
+ * ✅ UX: Indicadores de progreso y mensajes más claros
  */
 function MovieCreatePage() {
   const navigate = useNavigate();
@@ -56,6 +55,24 @@ function MovieCreatePage() {
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
 
+  // ===== CARGAR CATEGORÍAS =====
+  useEffect(() => {
+    const loadCategories = async () => {
+      setCategoriesLoading(true);
+      try {
+        const categoryData = await getCategoriesService();
+        setCategories(categoryData || []);
+      } catch (err) {
+        console.error('Error cargando categorías:', err);
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
   // ===== CONFIGURACIÓN DE CAMPOS DEL FORMULARIO =====
   const movieFormFields = [
     {
@@ -84,127 +101,117 @@ function MovieCreatePage() {
       name: 'type',
       type: 'select',
       label: 'Tipo',
-      placeholder: 'Selecciona el tipo',
+      placeholder: 'Selecciona el tipo de contenido',
       required: true,
-      leftIcon: '📺',
-      helperText: 'Tipo de contenido',
+      leftIcon: '🎭',
+      helperText: 'Película o serie de TV',
+      width: 'half',
       options: [
         { value: 'movie', label: 'Película' },
         { value: 'tv', label: 'Serie' }
-      ],
-      width: 'half'
+      ]
     },
     {
       name: 'categoryId',
       type: 'select',
       label: 'Categoría',
-      placeholder: 'Selecciona una categoría',
+      placeholder: categoriesLoading ? 'Cargando categorías...' : 'Selecciona una categoría',
       required: true,
       leftIcon: '📂',
-      helperText: 'Categoría para clasificar el contenido',
-      options: [], // Se llena dinámicamente
-      width: 'half'
+      helperText: 'Clasificación del contenido',
+      width: 'half',
+      disabled: categoriesLoading,
+      options: categories.map(cat => ({
+        value: cat.id,
+        label: cat.name
+      }))
     },
     {
       name: 'overview',
       type: 'textarea',
-      label: 'Descripción',
-      placeholder: 'Describe la película o serie...',
-      required: true,
+      label: 'Sinopsis',
+      placeholder: 'Describe la trama del contenido...',
       leftIcon: '📝',
-      helperText: 'Sinopsis o descripción del contenido',
+      helperText: 'Breve descripción para los usuarios',
+      width: 'full',
       rows: 4,
-      width: 'full'
+      maxLength: 1000
     },
-    {
-      name: 'poster',
-      type: 'text',
-      label: 'URL del Poster',
-      placeholder: 'https://image.tmdb.org/...',
-      leftIcon: '🖼️',
-      helperText: 'URL de la imagen del poster',
-      width: 'full'
-    },
+    // CAMPO ESPECIAL PARA VIDEO (solo películas)
     {
       name: 'video',
       type: 'file',
       label: 'Archivo de Video',
-      accept: '.mp4,.webm,.avi',
-      helperText: 'Archivo de video (MP4, WebM, AVI - máximo 100MB)',
-      width: 'full'
+      placeholder: 'Seleccionar archivo de video',
+      required: true,
+      leftIcon: '🎥',
+      helperText: 'MP4, WebM o AVI (máximo 500MB)',
+      width: 'half',
+      accept: 'video/*',
+      multiple: false,
+      // Condicional: solo mostrar para películas
+      showIf: (formData) => formData.type === 'movie'
+    },
+    // CAMPO ESPECIAL PARA PORTADA - MANEJA TANTO URL COMO ARCHIVO
+    {
+      name: 'coverImage',
+      type: 'file',
+      label: 'Imagen de Portada',
+      placeholder: 'Seleccionar imagen o usar de TMDB',
+      required: true,
+      leftIcon: '🖼️',
+      helperText: selectedItem ? 'Se usará imagen de TMDB o sube una nueva' : 'JPG, PNG, WebP (máximo 10MB)',
+      width: 'half',
+      accept: 'image/*',
+      multiple: false
     }
   ];
 
-  // ===== EFECTOS =====
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
-  // ===== FUNCIONES AUXILIARES =====
-
+  // ===== UTILIDADES =====
+  const clearError = () => setError(null);
+  
   /**
-   * Cargar categorías desde el servicio
+   * Ordenar resultados de TMDB
    */
-  const loadCategories = async () => {
-    setCategoriesLoading(true);
-    try {
-      const categoriesData = await getCategoriesService();
-      setCategories(categoriesData.map(cat => ({
-        value: cat.id,
-        label: cat.name
-      })));
-    } catch (err) {
-      console.error('Error cargando categorías:', err);
-      setError('Error cargando categorías');
-    } finally {
-      setCategoriesLoading(false);
+  const sortTmdbResults = (results, sortBy) => {
+    const sortedResults = [...results];
+    
+    switch (sortBy) {
+      case "year-desc":
+        return sortedResults.sort((a, b) => {
+          const yearA = a.release_date ? new Date(a.release_date).getFullYear() : 
+                       a.first_air_date ? new Date(a.first_air_date).getFullYear() : 0;
+          const yearB = b.release_date ? new Date(b.release_date).getFullYear() : 
+                       b.first_air_date ? new Date(b.first_air_date).getFullYear() : 0;
+          return yearB - yearA;
+        });
+      
+      case "year-asc":
+        return sortedResults.sort((a, b) => {
+          const yearA = a.release_date ? new Date(a.release_date).getFullYear() : 
+                       a.first_air_date ? new Date(a.first_air_date).getFullYear() : 0;
+          const yearB = b.release_date ? new Date(b.release_date).getFullYear() : 
+                       b.first_air_date ? new Date(b.first_air_date).getFullYear() : 0;
+          return yearA - yearB;
+        });
+      
+      case "rating-desc":
+        return sortedResults.sort((a, b) => (b.vote_average || 0) - (a.vote_average || 0));
+      
+      default:
+        return sortedResults;
     }
   };
 
-  /**
-   * Limpiar errores
-   */
-  const clearError = () => {
-    setError(null);
-    setTmdbError(null);
-  };
-
-  /**
-   * Función de ordenamiento para resultados TMDB
-   */
-  const sortTmdbResults = (results, sortCriteria) => {
-    if (!Array.isArray(results)) return [];
-
-    return [...results].sort((a, b) => {
-      switch (sortCriteria) {
-        case 'year-desc':
-          const yearA = new Date(a.release_date || a.first_air_date || '1900').getFullYear();
-          const yearB = new Date(b.release_date || b.first_air_date || '1900').getFullYear();
-          return yearB - yearA;
-        
-        case 'year-asc':
-          const yearA2 = new Date(a.release_date || a.first_air_date || '1900').getFullYear();
-          const yearB2 = new Date(b.release_date || b.first_air_date || '1900').getFullYear();
-          return yearA2 - yearB2;
-        
-        case 'rating-desc':
-          return (b.vote_average || 0) - (a.vote_average || 0);
-        
-        default:
-          return 0;
-      }
-    });
-  };
-
   // ===== HANDLERS DE NAVEGACIÓN =====
-
+  
   /**
-   * Regresar al listado de películas
+   * Volver al listado de películas
    */
   const handleGoBack = () => {
     if (hasChanges) {
       const confirmed = window.confirm(
-        'Tienes cambios sin guardar. ¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
+        '¿Estás seguro de que quieres salir? Los cambios no guardados se perderán.'
       );
       if (!confirmed) return;
     }
@@ -230,12 +237,11 @@ function MovieCreatePage() {
   // ===== HANDLERS DE TMDB =====
 
   /**
-   * Buscar en TMDB API - CORREGIDO
+   * Buscar en TMDB API
    */
   const handleTmdbSearch = async () => {
     console.log('🔍 Iniciando búsqueda TMDB con query:', searchQuery);
     
-    // Validaciones
     if (!API_KEY) {
       setTmdbError('API key de TMDB no configurada');
       return;
@@ -248,14 +254,12 @@ function MovieCreatePage() {
     }
 
     const queryTrimmed = searchQuery.trim();
-    console.log('✅ Buscando:', queryTrimmed);
     
     setTmdbLoading(true);
     setTmdbError(null);
     
     try {
       const url = `${BASE_URL}?api_key=${API_KEY}&query=${encodeURIComponent(queryTrimmed)}&language=es-ES`;
-      console.log('🌐 URL de búsqueda:', url);
       
       const response = await fetch(url);
       
@@ -264,14 +268,11 @@ function MovieCreatePage() {
       }
       
       const data = await response.json();
-      console.log('📦 Datos recibidos de TMDB:', data);
       
       // Filtrar solo películas y series
       let filteredResults = (data.results || []).filter(item => 
         item.media_type === 'movie' || item.media_type === 'tv'
       );
-
-      console.log('🎬 Resultados filtrados:', filteredResults.length);
 
       // Aplicar ordenamiento
       filteredResults = sortTmdbResults(filteredResults, sortBy);
@@ -289,7 +290,7 @@ function MovieCreatePage() {
   };
 
   /**
-   * Manejar selección de item de TMDB - NOMBRE CORREGIDO
+   * Manejar selección de item de TMDB
    */
   const handleSelectItem = (item) => {
     console.log('🎬 Item seleccionado:', item);
@@ -319,12 +320,12 @@ function MovieCreatePage() {
   // ===== HANDLERS DEL FORMULARIO =====
 
   /**
-   * Obtener datos iniciales del formulario
+   * Obtener datos iniciales del formulario basados en selección TMDB
    */
   const getInitialFormData = () => {
     if (!selectedItem) return {};
 
-    return {
+    const initialData = {
       title: selectedItem.title || selectedItem.name || '',
       type: selectedItem.media_type === 'tv' ? 'tv' : 'movie',
       year: selectedItem.release_date 
@@ -332,11 +333,16 @@ function MovieCreatePage() {
         : selectedItem.first_air_date 
         ? new Date(selectedItem.first_air_date).getFullYear()
         : '',
-      overview: selectedItem.overview || '',
-      poster: selectedItem.poster_path 
-        ? `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`
-        : ''
+      overview: selectedItem.overview || ''
     };
+
+    // IMPORTANTE: Para portada de TMDB, pasamos la URL
+    // El servicio mejorado se encargará de convertirla a File
+    if (selectedItem.poster_path) {
+      initialData.coverImage = `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`;
+    }
+
+    return initialData;
   };
 
   /**
@@ -348,20 +354,66 @@ function MovieCreatePage() {
   };
 
   /**
-   * Enviar formulario
+   * Enviar formulario - IMPLEMENTACIÓN COMPLETA
    */
   const handleFormSubmit = async (formData) => {
     setFormLoading(true);
     setError(null);
 
     try {
-      console.log('Datos del formulario:', formData);
+      console.log('🚀 Iniciando creación de contenido...');
+      console.log('📋 Datos del formulario:', formData);
       
-      // TODO: Implementar createMovieService
-      // const result = await createMovieService(formData);
+      // Validaciones específicas
+      if (!formData.title?.trim()) {
+        throw new Error('El título es requerido');
+      }
       
-      // Simular creación exitosa
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      if (!formData.type) {
+        throw new Error('El tipo de contenido es requerido');
+      }
+      
+      if (!formData.categoryId) {
+        throw new Error('La categoría es requerida');
+      }
+      
+      if (!formData.year || formData.year < 1900) {
+        throw new Error('El año debe ser válido');
+      }
+
+      // Preparar datos para el servicio
+      const serviceData = {
+        title: formData.title.trim(),
+        categoryId: Number(formData.categoryId),
+        releaseYear: Number(formData.year),
+        description: formData.overview?.trim() || '',
+        coverImage: formData.coverImage // ← Puede ser URL (TMDB) o File (usuario)
+      };
+
+      let result;
+      
+      // Determinar qué servicio usar según el tipo
+      if (formData.type === 'movie') {
+        // Para películas necesitamos el video
+        if (!formData.video) {
+          throw new Error('El archivo de video es requerido para películas');
+        }
+        
+        serviceData.video = formData.video;
+        
+        console.log('🎬 Creando película...');
+        result = await createMovieService(serviceData);
+        
+      } else if (formData.type === 'tv') {
+        // Para series no necesitamos video (se suben episodios después)
+        console.log('📺 Creando serie...');
+        result = await createSeriesService(serviceData);
+        
+      } else {
+        throw new Error('Tipo de contenido no válido');
+      }
+      
+      console.log('✅ Contenido creado exitosamente:', result);
       
       setSuccess(true);
       setHasChanges(false);
@@ -372,17 +424,35 @@ function MovieCreatePage() {
       }, 3000);
       
     } catch (err) {
-      console.error('Error creando contenido:', err);
-      setError(err.message || 'Error al crear el contenido');
+      console.error('❌ Error creando contenido:', err);
+      
+      // Mejorar mensajes de error para el usuario
+      let errorMessage = 'Error al crear el contenido';
+      
+      if (err.message.includes('descargar la imagen')) {
+        errorMessage = 'Error al procesar la imagen de TMDB. Intenta subir una imagen manualmente.';
+      } else if (err.message.includes('requerido')) {
+        errorMessage = err.message;
+      } else if (err.message.includes('ya existe')) {
+        errorMessage = 'Este contenido ya existe en el sistema';
+      } else if (err.message.includes('demasiado grande')) {
+        errorMessage = 'Los archivos son demasiado grandes. Reduce el tamaño e intenta de nuevo.';
+      } else if (err.message.includes('red')) {
+        errorMessage = 'Error de conexión. Verifica tu internet e intenta de nuevo.';
+      } else {
+        errorMessage = err.message || 'Error inesperado al crear el contenido';
+      }
+      
+      setError(errorMessage);
     } finally {
       setFormLoading(false);
     }
   };
 
-  // ===== PROPS PARA COMPONENTES - NOMBRES CORREGIDOS =====
+  // ===== PROPS PARA COMPONENTES =====
 
   /**
-   * Props para TMDBSearchView - SEGÚN SUS STORIES
+   * Props para TMDBSearchView
    */
   const tmdbSearchProps = {
     // Estados de búsqueda
@@ -396,9 +466,9 @@ function MovieCreatePage() {
     loading: tmdbLoading,
     error: tmdbError,
     
-    // Handlers principales - NOMBRES CORREGIDOS
+    // Handlers principales
     onSearch: handleTmdbSearch,
-    onSelectItem: handleSelectItem, // ✅ CORREGIDO: era onItemSelected
+    onSelectItem: handleSelectItem,
     onClearResults: handleClearResults,
     onManualCreate: handleManualCreate,
     

@@ -1,12 +1,11 @@
-// ===== MOVIE FORM VIEW - MIGRADO A CONTAINER ANIDADO =====
 // src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.jsx
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DynamicForm } from '../../../../../components/molecules/DynamicForm/DynamicForm';
 import { Button } from '../../../../../components/atoms/Button/Button';
-import { Container } from '../../../../../components/atoms/Container/Container'; // ← NUEVA IMPORTACIÓN
+import { Container } from '../../../../../components/atoms/Container/Container';
 import { Card, CardHeader, CardBody, CardTitle } from '../../../../../components/atoms/Card/Card';
 import { ContentImage } from '../../../../../components/atoms/ContentImage/ContentImage';
+import { getImageInfo } from '../../../../../utils/imageUtils';
 import './MovieFormView.css';
 
 function MovieFormView({
@@ -36,7 +35,33 @@ function MovieFormView({
   categoriesLoading = false
 }) {
 
+  // ===== ESTADOS LOCALES =====
+  const [currentFormData, setCurrentFormData] = useState(initialFormData);
+  const [imageInfo, setImageInfo] = useState(null);
+
+  // ===== EFECTOS =====
+  
+  /**
+   * Actualizar datos del formulario cuando cambia initialFormData
+   */
+  useEffect(() => {
+    setCurrentFormData(initialFormData);
+  }, [initialFormData]);
+
+  /**
+   * Analizar información de la imagen cuando cambia coverImage
+   */
+  useEffect(() => {
+    if (currentFormData.coverImage) {
+      const info = getImageInfo(currentFormData.coverImage);
+      setImageInfo(info);
+    } else {
+      setImageInfo(null);
+    }
+  }, [currentFormData.coverImage]);
+
   // ===== FUNCIONES AUXILIARES =====
+  
   const getFormTitle = () => {
     return selectedItem ? 'Confirmar Información de TMDB' : 'Información del Contenido';
   };
@@ -51,7 +76,6 @@ function MovieFormView({
    * Manejar envío del formulario con validaciones
    */
   const handleFormSubmit = (formData) => {
-    // Validaciones específicas de película si necesario
     onSubmit?.(formData);
   };
 
@@ -59,7 +83,50 @@ function MovieFormView({
    * Manejar cambios en el formulario
    */
   const handleFormChange = (formData) => {
+    setCurrentFormData(formData);
     onChange?.(formData);
+  };
+
+  /**
+   * Renderizar información de la imagen actual
+   */
+  const renderImageInfo = () => {
+    if (!imageInfo) return null;
+
+    if (imageInfo.type === 'url' && imageInfo.isTMDB) {
+      return (
+        <div className="movie-form-view__image-info movie-form-view__image-info--tmdb">
+          <span className="movie-form-view__image-badge">🌐 TMDB</span>
+          <span className="movie-form-view__image-text">
+            Se usará la imagen de TMDB automáticamente
+          </span>
+        </div>
+      );
+    }
+
+    if (imageInfo.type === 'file') {
+      return (
+        <div className="movie-form-view__image-info movie-form-view__image-info--file">
+          <span className="movie-form-view__image-badge">📁 Archivo</span>
+          <span className="movie-form-view__image-text">
+            {imageInfo.name} ({imageInfo.sizeFormatted})
+          </span>
+        </div>
+      );
+    }
+
+    if (imageInfo.type === 'url') {
+      return (
+        <div className="movie-form-view__image-info movie-form-view__image-info--url">
+          <span className="movie-form-view__image-badge">🔗 URL</span>
+          <span className="movie-form-view__image-text">
+            Imagen externa desde {imageInfo.hostname}
+          </span>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   // ===== RENDER =====
@@ -144,6 +211,9 @@ function MovieFormView({
           </CardBody>
         </Card>
       )}
+
+      {/* ===== FORMULARIO PRINCIPAL ===== */}
+      <Container size="full">
         
         {/* Header del formulario */}
         <div className="form-header">
@@ -154,6 +224,28 @@ function MovieFormView({
             {getFormDescription()}
           </p>
         </div>
+
+        {/* Información de la imagen actual */}
+        {imageInfo && (
+          <div className="movie-form-view__current-image">
+            <h4>🖼️ Imagen de Portada Actual</h4>
+            {renderImageInfo()}
+            
+            {/* Mostrar preview de la imagen */}
+            {(imageInfo.type === 'url' || imageInfo.type === 'file') && (
+              <div className="movie-form-view__image-preview">
+                <ContentImage
+                  src={imageInfo.type === 'url' ? imageInfo.url : URL.createObjectURL(currentFormData.coverImage)}
+                  alt="Vista previa de portada"
+                  aspectRatio="16/9"
+                  objectFit="cover"
+                  contentType="movie"
+                  style={{ maxWidth: '300px', borderRadius: 'var(--radius-md)' }}
+                />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Formulario */}
         <DynamicForm
@@ -179,26 +271,53 @@ function MovieFormView({
           className={`movie-form-view__form ${success ? 'form--success' : ''}`}
         />
 
-        {/* Información adicional sobre películas */}
+        {/* Información adicional sobre el contenido */}
         <div className="form-footer">
           <div className="info-card">
             <h4>🎬 Información sobre el Contenido</h4>
             <ul>
-              <li><strong>Video:</strong> Sube archivo MP4, WebM o AVI (máximo 100MB)</li>
-              <li><strong>Poster:</strong> Imagen promocional en formato JPG o PNG</li>
+              <li><strong>Video:</strong> Sube archivo MP4, WebM o AVI (máximo 500MB) - Solo para películas</li>
+              <li><strong>Portada:</strong> Se puede usar imagen de TMDB o subir archivo JPG/PNG (máximo 10MB)</li>
               <li><strong>Categoría:</strong> Clasifica el contenido para facilitar búsquedas</li>
+              <li><strong>Series:</strong> Después de crear la serie, podrás agregar episodios individualmente</li>
             </ul>
           </div>
           
           <div className="info-card">
             <h4>📊 Datos de TMDB</h4>
             <ul>
-              <li>Los datos de TMDB se prellenan automáticamente si seleccionaste un item</li>
+              <li>Los datos de TMDB se prellenan automáticamente si seleccionaste un ítem</li>
+              <li>La imagen de portada se descarga automáticamente desde TMDB</li>
               <li>Puedes modificar cualquier campo según tus necesidades</li>
               <li>La información ayuda a mantener consistencia en el catálogo</li>
             </ul>
           </div>
+
+          {/* Información específica según tipo */}
+          {currentFormData.type === 'movie' && (
+            <div className="info-card info-card--highlight">
+              <h4>🎥 Configuración de Película</h4>
+              <ul>
+                <li>Debes subir el archivo de video completo</li>
+                <li>El sistema procesará automáticamente diferentes calidades</li>
+                <li>Se generarán subtítulos automáticos si están disponibles</li>
+              </ul>
+            </div>
+          )}
+
+          {currentFormData.type === 'tv' && (
+            <div className="info-card info-card--highlight">
+              <h4>📺 Configuración de Serie</h4>
+              <ul>
+                <li>No necesitas subir video en este paso</li>
+                <li>Después de crear la serie, agrega episodios individualmente</li>
+                <li>Cada episodio puede tener su propio archivo de video</li>
+              </ul>
+            </div>
+          )}
         </div>
+
+      </Container>
     </div>
   );
 }
