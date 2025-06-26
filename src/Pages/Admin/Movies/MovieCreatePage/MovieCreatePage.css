@@ -1,21 +1,4 @@
-/* ===== MOVIECREATEPAGE.CSS - VERSIÓN OPTIMIZADA ===== */
-/* src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.css */
-
-/*
-🎯 ANTES: Duplicación masiva con otros create pages
-🚀 DESPUÉS: Solo estilos específicos, aprovecha el sistema
-
-✅ ELIMINADO: Duplicación de .page-container, .status-message, etc.
-✅ REEMPLAZADO: Por clases unificadas del sistema de diseño
-✅ MANTENIDO: Solo estilos específicos de películas que no están en el sistema
-*/
-
-/* ===== ESTILOS ESPECÍFICOS DE MOVIE CREATE ===== */
-
-/* Contenedor más ancho para acomodar búsqueda TMDB */
-.page-container--wide {
-  max-width: 120rem; /* vs 80rem estándar */
-}
+/* ===== MOVIECREATEPAGE.CSS - SOLO ESPECÍFICOS ===== */
 
 /* Estados específicos de la página */
 .movie-create--loading {
@@ -24,42 +7,7 @@
   transition: opacity var(--transition-normal);
 }
 
-/* Integración específica con TMDBSearchView */
-.page-container .tmdb-search-view {
-  /* Hereda automáticamente del sistema de diseño */
-  /* Sin estilos adicionales necesarios */
-}
-
-/* Integración específica con MovieFormView */
-.page-container .movie-form-view {
-  /* Hereda automáticamente del sistema de diseño */
-  /* Sin estilos adicionales necesarios */
-}
-
-/* ===== RESPONSIVE ESPECÍFICO ===== */
-
-/* Solo ajustes que no están cubiertos por el sistema */
-@media (max-width: 768px) {
-  .page-container--wide {
-    max-width: 100%;
-    padding: var(--space-md);
-  }
-}
-
-@media (max-width: 480px) {
-  .page-container--wide {
-    padding: var(--space-sm);
-  }
-}
-
 /* ===== ACCESIBILIDAD ESPECÍFICA ===== */
-
-/* Focus management específico para movie create */
-.movie-create--loading * {
-  pointer-events: none;
-}
-
-/* High contrast support */
 @media (prefers-contrast: high) {
   .page-container--wide {
     border: 0.1rem solid var(--border-dark);
@@ -73,28 +21,3 @@
     box-shadow: none;
   }
 }
-
-/* 
-🎉 RESULTADO DE LA OPTIMIZACIÓN:
-
-ANTES (MovieCreatePage.css original):
-❌ 150+ líneas de CSS duplicado
-❌ Mensajes de estado duplicados
-❌ Header actions duplicados  
-❌ Responsive duplicado
-❌ Variables CSS redefinidas
-
-DESPUÉS (MovieCreatePage.css optimizado):
-✅ <30 líneas de CSS específico
-✅ Zero duplicación - todo viene del sistema
-✅ Solo estilos únicos de movies
-✅ Aprovecha .page-container, .status-message del sistema
-✅ Responsive design heredado
-
-BENEFICIOS:
-🚀 -80% menos código CSS
-🎯 Mantenimiento centralizado  
-📱 Responsive consistente
-🎨 Variables unificadas
-⚡ Mejor performance
-*/
