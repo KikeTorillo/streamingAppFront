@@ -1,6 +1,6 @@
-/* ===== TEXTINPUT COMPONENT - MEJORADO PARA SISTEMA DE DISEÑO ===== */
-/* TextInput.css */
-/* Molécula que extiende el átomo Input con funcionalidades adicionales */
+/* ===== TEXTINPUT COMPONENT - OPTIMIZADO SIN REDUNDANCIAS ===== */
+/* TextInput.css - Solo estilos específicos de la molécula */
+/* Aprovecha COMPLETAMENTE el átomo Input actualizado con variables centralizadas */
 
 /* ===== WRAPPER BASE ===== */
 .text-input-wrapper {
@@ -8,7 +8,7 @@
     flex-direction: column;
     position: relative;
     font-family: var(--font-family-base);
-    gap: var(--space-xs); /* Espaciado consistente */
+    gap: var(--space-xs);
 }
 
 .text-input-wrapper--full-width {
@@ -27,7 +27,8 @@
     color: var(--text-primary);
     font-size: var(--font-size-sm);
     line-height: var(--line-height-tight);
-    margin: 0; /* Usar gap del wrapper */
+    margin: 0;
+    transition: color var(--transition-normal);
 }
 
 .text-input__label--required::after {
@@ -60,93 +61,57 @@
     align-items: center;
 }
 
-/* ===== VARIANTES - Extendiendo el átomo Input mejorado ===== */
+/* ===== AJUSTES PARA ICONOS - USANDO VARIABLES DEL SISTEMA ===== */
+/* Padding adicional cuando hay iconos, calculado correctamente con variables */
 
-/* Success - extiende las variantes del átomo Input */
-.input-base.text-input--success {
-    border-color: var(--color-success);
-    background-color: var(--color-success-light);
-}
-
-.input-base.text-input--success:focus {
-    border-color: var(--color-success);
-    box-shadow: 0 0 0 0.3rem rgba(34, 197, 94, 0.1);
-    outline-color: var(--color-success);
-}
-
-.input-base.text-input--success:hover:not(:disabled):not(:focus) {
-    border-color: var(--color-success-hover);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Warning - extiende las variantes del átomo Input */
-.input-base.text-input--warning {
-    border-color: var(--color-warning);
-    background-color: var(--color-warning-light);
-}
-
-.input-base.text-input--warning:focus {
-    border-color: var(--color-warning);
-    box-shadow: 0 0 0 0.3rem rgba(245, 158, 11, 0.1);
-    outline-color: var(--color-warning);
-}
-
-.input-base.text-input--warning:hover:not(:disabled):not(:focus) {
-    border-color: var(--color-warning-hover);
-    box-shadow: var(--shadow-sm);
-}
-
-/* Error - extiende las variantes del átomo Input */
-.input-base.text-input--error {
-    border-color: var(--color-danger);
-    background-color: var(--color-danger-light);
-}
-
-.input-base.text-input--error:focus {
-    border-color: var(--color-danger);
-    box-shadow: 0 0 0 0.3rem rgba(239, 68, 68, 0.1);
-    outline-color: var(--color-danger);
-}
-
-.input-base.text-input--error:hover:not(:disabled):not(:focus) {
-    border-color: var(--color-danger-hover);
-    box-shadow: var(--shadow-sm);
-}
-
-/* ===== AJUSTES PARA ICONOS ===== */
+/* Iconos izquierdos/derechos - cálculo basado en variables del sistema */
 .input-base.text-input--with-left-icon {
-    padding-left: calc(var(--space-md) * 2.5); /* 40px para md */
+    padding-left: calc(var(--component-padding-lg) + 2.4rem);
 }
 
 .input-base.text-input--with-right-icon {
-    padding-right: calc(var(--space-md) * 2.5);
+    padding-right: calc(var(--space-lg) + var(--space-xl)); /* 16px + 24px = 40px */
 }
 
-/* Ajustes por tamaño usando variables del sistema */
+/* Ajustes precisos por tamaño usando variables del sistema */
 .input-base--xs.text-input--with-left-icon {
-    padding-left: calc(var(--space-sm) * 3.5); /* 28px */
+    padding-left: calc(var(--space-md) + var(--space-lg)); /* 12px + 16px = 28px */
 }
 
 .input-base--xs.text-input--with-right-icon {
-    padding-right: calc(var(--space-sm) * 3.5);
+    padding-right: calc(var(--space-md) + var(--space-lg)); /* 12px + 16px = 28px */
 }
 
 .input-base--sm.text-input--with-left-icon {
-    padding-left: calc(var(--space-md) * 2); /* 32px */
+    padding-left: calc(var(--space-lg) + var(--space-lg)); /* 16px + 16px = 32px */
 }
 
 .input-base--sm.text-input--with-right-icon {
-    padding-right: calc(var(--space-md) * 2);
+    padding-right: calc(var(--space-lg) + var(--space-lg)); /* 16px + 16px = 32px */
 }
 
-.input-base--lg.text-input--with-left-icon,
+.input-base--md.text-input--with-left-icon {
+    padding-left: calc(var(--space-lg) + var(--space-xl)); /* 16px + 24px = 40px */
+}
+
+.input-base--md.text-input--with-right-icon {
+    padding-right: calc(var(--space-lg) + var(--space-xl)); /* 16px + 24px = 40px */
+}
+
+.input-base--lg.text-input--with-left-icon {
+    padding-left: calc(var(--space-xl) + var(--space-xl)); /* 24px + 24px = 48px */
+}
+
+.input-base--lg.text-input--with-right-icon {
+    padding-right: calc(var(--space-xl) + var(--space-xl)); /* 24px + 24px = 48px */
+}
+
 .input-base--xl.text-input--with-left-icon {
-    padding-left: calc(var(--space-lg) * 2); /* 48px */
+    padding-left: calc(var(--space-2xl) + var(--space-xl)); /* 32px + 24px = 56px */
 }
 
-.input-base--lg.text-input--with-right-icon,
 .input-base--xl.text-input--with-right-icon {
-    padding-right: calc(var(--space-lg) * 2);
+    padding-right: calc(var(--space-2xl) + var(--space-xl)); /* 32px + 24px = 56px */
 }
 
 /* ===== ICONOS ===== */
@@ -159,7 +124,7 @@
     justify-content: center;
     color: var(--text-muted);
     pointer-events: none;
-    z-index: 2; /* Sobre el input */
+    z-index: 2;
     transition: color var(--transition-normal);
 }
 
@@ -171,18 +136,17 @@
     right: var(--space-md);
 }
 
+/* Iconos clickeables */
 .text-input__icon--clickable {
     pointer-events: auto;
     cursor: pointer;
-    color: var(--text-secondary);
-    border-radius: var(--radius-sm);
     padding: var(--space-xs);
+    border-radius: var(--radius-sm);
     transition: all var(--transition-normal);
-    background-color: transparent;
 }
 
 .text-input__icon--clickable:hover {
-    background-color: var(--bg-hover);
+    background-color: var(--bg-secondary);
     color: var(--color-primary);
     transform: translateY(-50%) scale(1.1);
 }
@@ -190,14 +154,14 @@
 .text-input__icon--clickable:focus {
     outline: 0.2rem solid var(--border-focus);
     outline-offset: 0.2rem;
-    background-color: var(--bg-hover);
+    background-color: var(--bg-secondary);
 }
 
 .text-input__icon--clickable:active {
     transform: translateY(-50%) scale(0.95);
 }
 
-/* Estados de iconos según variante */
+/* Estados de iconos según variante del wrapper */
 .text-input-wrapper--error .text-input__icon:not(.text-input__icon--clickable) {
     color: var(--color-danger);
 }
@@ -214,13 +178,13 @@
     color: var(--border-focus);
 }
 
-/* Ajustes de iconos por tamaño del wrapper */
+/* Ajustes de iconos por tamaño del wrapper - USANDO VARIABLES DEL SISTEMA */
 .text-input-wrapper--xs .text-input__icon {
-    font-size: var(--font-size-xs);
+    font-size: var(--component-font-xs);
 }
 
 .text-input-wrapper--xs .text-input__icon--left {
-    left: var(--space-sm);
+    left: var(--space-sm); /* 8px - Variable del sistema */
 }
 
 .text-input-wrapper--xs .text-input__icon--right {
@@ -228,26 +192,42 @@
 }
 
 .text-input-wrapper--sm .text-input__icon {
-    font-size: var(--font-size-sm);
+    font-size: var(--component-font-sm);
+}
+
+.text-input-wrapper--sm .text-input__icon--left {
+    left: var(--space-md); /* 12px - Variable del sistema */
+}
+
+.text-input-wrapper--sm .text-input__icon--right {
+    right: var(--space-md);
 }
 
 .text-input-wrapper--md .text-input__icon {
-    font-size: var(--font-size-base);
+    font-size: var(--component-font-md);
+}
+
+.text-input-wrapper--md .text-input__icon--left {
+    left: var(--space-lg); /* 16px - Variable del sistema */
+}
+
+.text-input-wrapper--md .text-input__icon--right {
+    right: var(--space-lg);
 }
 
 .text-input-wrapper--lg .text-input__icon,
 .text-input-wrapper--xl .text-input__icon {
-    font-size: var(--font-size-lg);
+    font-size: var(--component-font-lg);
 }
 
 .text-input-wrapper--lg .text-input__icon--left,
 .text-input-wrapper--xl .text-input__icon--left {
-    left: var(--space-lg);
+    left: var(--space-xl); /* 24px - Variable del sistema */
 }
 
 .text-input-wrapper--lg .text-input__icon--right,
 .text-input-wrapper--xl .text-input__icon--right {
-    right: var(--space-lg);
+    right: var(--space-xl);
 }
 
 /* ===== FOOTER ===== */
@@ -256,29 +236,24 @@
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--space-md);
-    min-height: 2rem; /* Espacio reservado */
-}
-
-.text-input__messages {
-    flex: 1;
-    min-height: 1.8rem; /* Evitar saltos de layout */
+    min-height: 2rem;
 }
 
 /* ===== MENSAJES ===== */
 .text-input__helper-text {
     display: block;
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
-    line-height: var(--line-height-tight);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+    line-height: var(--line-height-normal);
     margin: 0;
     transition: color var(--transition-normal);
 }
 
 .text-input__error-text {
     display: block;
-    font-size: var(--font-size-xs);
+    font-size: var(--font-size-sm);
     color: var(--color-danger);
-    line-height: var(--line-height-tight);
+    line-height: var(--line-height-normal);
     font-weight: var(--font-weight-medium);
     margin: 0;
     animation: slideInError 0.2s ease-out;
@@ -298,11 +273,11 @@
 
 /* ===== CONTADOR DE CARACTERES ===== */
 .text-input__char-count {
-    font-size: var(--font-size-xs);
-    color: var(--text-muted);
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
     white-space: nowrap;
     font-weight: var(--font-weight-medium);
-    line-height: var(--line-height-tight);
+    line-height: var(--line-height-normal);
     transition: color var(--transition-normal);
 }
 
@@ -323,124 +298,54 @@
     50% { transform: scale(1.05); }
 }
 
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE ESPECÍFICO SOLO PARA ICONOS - USANDO VARIABLES ===== */
 @media (max-width: 768px) {
-    /* Ajustar iconos en móvil para tamaños grandes */
-    .input-base--lg.text-input--with-left-icon,
-    .input-base--xl.text-input--with-left-icon {
-        padding-left: calc(var(--space-md) * 2.5);
-    }
-    
-    .input-base--lg.text-input--with-right-icon,
-    .input-base--xl.text-input--with-right-icon {
-        padding-right: calc(var(--space-md) * 2.5);
-    }
-    
-    .text-input-wrapper--lg .text-input__icon--left,
-    .text-input-wrapper--xl .text-input__icon--left {
-        left: var(--space-md);
-    }
-    
-    .text-input-wrapper--lg .text-input__icon--right,
-    .text-input-wrapper--xl .text-input__icon--right {
-        right: var(--space-md);
-    }
-    
-    /* Mejorar área táctil de iconos clickeables */
+    /* Solo ajustes específicos de iconos en móviles */
     .text-input__icon--clickable {
+        /* Área táctil mínima para iconos */
+        min-width: var(--touch-target-min);
+        min-height: var(--touch-target-min);
         padding: var(--space-sm);
-        min-width: 4.4rem;
-        min-height: 4.4rem;
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
+    /* Mantener posiciones usando variables del sistema */
+    .text-input-wrapper--lg .text-input__icon--left,
+    .text-input-wrapper--xl .text-input__icon--left {
+        left: var(--space-xl); /* 24px - Consistente con desktop */
+    }
+    
+    .text-input-wrapper--lg .text-input__icon--right,
+    .text-input-wrapper--xl .text-input__icon--right {
+        right: var(--space-xl); /* 24px - Consistente con desktop */
+    }
+    
     /* Ajustar footer en móvil */
     .text-input__footer {
         flex-direction: column;
-        align-items: flex-start;
+        align-items: stretch;
         gap: var(--space-xs);
     }
     
     .text-input__char-count {
-        align-self: flex-end;
+        text-align: right;
     }
 }
 
-/* ===== MODO OSCURO ===== */
-.dark .text-input__label {
-    color: var(--text-primary);
-}
-
-.dark .text-input__helper-text {
-    color: var(--text-muted);
-}
-
-.dark .text-input__char-count {
-    color: var(--text-muted);
-}
-
-.dark .text-input__icon {
-    color: var(--text-muted);
-}
-
-.dark .text-input__icon--clickable:hover {
-    background-color: var(--bg-hover);
-    color: var(--color-primary);
-}
-
-/* Estados específicos en modo oscuro */
-.dark .text-input-wrapper--focused .text-input__label {
-    color: var(--border-focus);
-}
-
-.dark .text-input-wrapper--error .text-input__label {
-    color: var(--color-danger);
-}
-
-.dark .text-input-wrapper--success .text-input__label {
-    color: var(--color-success);
-}
-
-.dark .text-input-wrapper--warning .text-input__label {
-    color: var(--color-warning);
-}
-
-/* ===== UTILIDADES ADICIONALES ===== */
-
-/* Variante compacta */
-.text-input-wrapper--compact .text-input__label {
-    font-size: var(--font-size-xs);
-    margin-bottom: var(--space-xs);
+/* ===== VERSIÓN COMPACTA (ESPECÍFICA DE TEXTINPUT) ===== */
+.text-input-wrapper--compact {
+    gap: calc(var(--space-xs) / 2);
 }
 
 .text-input-wrapper--compact .text-input__footer {
+    min-height: 1.6rem;
     gap: var(--space-sm);
 }
 
-/* Estado de loading para iconos */
-.text-input__icon--loading {
-    animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-    from { transform: translateY(-50%) rotate(0deg); }
-    to { transform: translateY(-50%) rotate(360deg); }
-}
-
-/* Performance optimization */
-.text-input__icon--clickable:hover {
-    will-change: transform, background-color;
-}
-
-.text-input__icon--clickable:not(:hover) {
-    will-change: auto;
-}
-
-/* Mejorar contraste de focus para accesibilidad */
-.text-input__icon--clickable:focus-visible {
-    outline: 0.2rem solid var(--border-focus);
-    outline-offset: 0.2rem;
-    z-index: 3;
+.text-input-wrapper--compact .text-input__helper-text,
+.text-input-wrapper--compact .text-input__error-text,
+.text-input-wrapper--compact .text-input__char-count {
+    font-size: var(--font-size-xs);
 }

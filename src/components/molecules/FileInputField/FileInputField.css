@@ -1,5 +1,6 @@
-/* ===== FILEINPUTFIELD COMPONENT - MOLÉCULA DEL SISTEMA DE DISEÑO ===== */
-/* FileInputField.css - Siguiendo exactamente el patrón de TextInput.css */
+/* ===== FILEINPUTFIELD COMPONENT - OPTIMIZADO SIN REDUNDANCIAS ===== */
+/* FileInputField.css - Solo estilos específicos de la molécula */
+/* Aprovecha COMPLETAMENTE el átomo FileInput actualizado con variables centralizadas */
 
 /* ===== WRAPPER BASE ===== */
 .file-input-field-wrapper {
@@ -7,7 +8,7 @@
     flex-direction: column;
     position: relative;
     font-family: var(--font-family-base);
-    gap: var(--space-xs); /* Espaciado consistente con TextInput */
+    gap: var(--space-xs);
 }
 
 .file-input-field-wrapper--full-width {
@@ -19,14 +20,15 @@
     pointer-events: none;
 }
 
-/* ===== LABEL ===== */
+/* ===== LABEL (IDÉNTICO A TEXTINPUT Y TEXTSELECT) ===== */
 .file-input-field__label {
-    display: block;
+     display: block;
     font-weight: var(--font-weight-medium);
     color: var(--text-primary);
     font-size: var(--font-size-sm);
     line-height: var(--line-height-tight);
-    margin: 0; /* Usar gap del wrapper */
+    margin: 0;
+    transition: color var(--transition-normal);
 }
 
 .file-input-field__label--required::after {
@@ -35,7 +37,7 @@
     font-weight: var(--font-weight-bold);
 }
 
-/* ===== ESTADOS DEL LABEL (igual que TextInput) ===== */
+/* Estados del label */
 .file-input-field-wrapper--focused .file-input-field__label {
     color: var(--border-focus);
 }
@@ -52,52 +54,38 @@
     color: var(--color-warning);
 }
 
-/* ===== TAMAÑOS DEL WRAPPER (afectan al label) ===== */
-.file-input-field-wrapper--xs .file-input-field__label {
-    font-size: var(--font-size-xs);
-}
 
-.file-input-field-wrapper--sm .file-input-field__label {
-    font-size: var(--font-size-xs);
-}
 
-.file-input-field-wrapper--md .file-input-field__label {
-    font-size: var(--font-size-sm);
-}
-
-.file-input-field-wrapper--lg .file-input-field__label,
-.file-input-field-wrapper--xl .file-input-field__label {
-    font-size: var(--font-size-base);
-}
-
-/* ===== FOOTER ===== */
+/* ===== FOOTER (IDÉNTICO A TEXTINPUT Y TEXTSELECT) ===== */
 .file-input-field__footer {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
     gap: var(--space-md);
-    min-height: 2rem; /* Espacio reservado igual que TextInput */
+    min-height: 2rem;
 }
 
 /* ===== MENSAJES ===== */
 .file-input-field__helper-text {
+    display: block;
     font-size: var(--font-size-sm);
     color: var(--text-secondary);
     line-height: var(--line-height-normal);
     margin: 0;
-    flex: 1;
+    transition: color var(--transition-normal);
 }
 
 .file-input-field__error-text {
+    display: block;
     font-size: var(--font-size-sm);
     color: var(--color-danger);
     line-height: var(--line-height-normal);
+    font-weight: var(--font-weight-medium);
     margin: 0;
-    animation: slideInError 0.3s ease-out;
-    flex: 1;
+    animation: slideInError 0.2s ease-out;
 }
 
-/* Animación de error (igual que TextInput) */
+/* Animación sutil para errores (igual que TextInput) */
 @keyframes slideInError {
     from {
         opacity: 0;
@@ -109,29 +97,14 @@
     }
 }
 
-/* ===== ESTADOS DE VARIANTE EN EL FILEINPUT ===== */
-/* El FileInput átomo ya maneja sus propios estilos de variante */
-/* Pero podemos agregar estados adicionales específicos de la molécula */
-
-.file-input-field-wrapper--error .file-input-wrapper {
-    /* El FileInput ya recibe variant="danger" automáticamente */
-}
-
-.file-input-field-wrapper--success .file-input-wrapper {
-    /* El FileInput ya recibe variant="success" */
-}
-
-.file-input-field-wrapper--warning .file-input-wrapper {
-    /* El FileInput ya recibe variant="warning" */
-}
-
-/* ===== VERSIÓN COMPACTA ===== */
+/* ===== VERSIÓN COMPACTA (ESPECÍFICA DE FILEINPUTFIELD) ===== */
 .file-input-field-wrapper--compact {
-    gap: calc(var(--space-xs) / 2); /* Spacing reducido */
+    gap: calc(var(--space-xs) / 2);
 }
 
-.file-input-field-wrapper--compact .file-input-field__label {
-    font-size: var(--font-size-xs);
+.file-input-field-wrapper--compact .file-input-field__footer {
+    min-height: 1.6rem;
+    gap: var(--space-sm);
 }
 
 .file-input-field-wrapper--compact .file-input-field__helper-text,
@@ -139,67 +112,24 @@
     font-size: var(--font-size-xs);
 }
 
-.file-input-field-wrapper--compact .file-input-field__footer {
-    min-height: 1.6rem;
-}
-
-/* ===== RESPONSIVE ===== */
+/* ===== RESPONSIVE ESPECÍFICO SOLO PARA MENSAJES ===== */
 @media (max-width: 768px) {
+    /* Solo ajustes específicos del footer en móviles */
     .file-input-field__footer {
         flex-direction: column;
-        gap: var(--space-xs);
         align-items: stretch;
-    }
-    
-    .file-input-field__helper-text,
-    .file-input-field__error-text {
-        font-size: var(--font-size-sm); /* Legible en móviles */
+        gap: var(--space-xs);
     }
 }
 
-/* ===== MODO OSCURO ===== */
-.dark .file-input-field__label {
-    color: var(--text-primary);
-}
-
-.dark .file-input-field__helper-text {
-    color: var(--text-secondary);
-}
-
-.dark .file-input-field__error-text {
-    color: var(--color-danger);
-}
-
-/* Estados focus en modo oscuro */
-.dark .file-input-field-wrapper--focused .file-input-field__label {
-    color: var(--border-focus);
-}
-
-.dark .file-input-field-wrapper--error .file-input-field__label {
-    color: var(--color-danger);
-}
-
-.dark .file-input-field-wrapper--success .file-input-field__label {
-    color: var(--color-success);
-}
-
-.dark .file-input-field-wrapper--warning .file-input-field__label {
-    color: var(--color-warning);
-}
-
-/* ===== ACCESIBILIDAD ===== */
+/* Accesibilidad específica solo para animaciones de la molécula */
 @media (prefers-reduced-motion: reduce) {
     .file-input-field__error-text {
         animation: none;
     }
-}
-
-@media (prefers-contrast: high) {
-    .file-input-field__label {
-        font-weight: var(--font-weight-semibold);
-    }
     
-    .file-input-field__error-text {
-        font-weight: var(--font-weight-bold);
+    .file-input-field__label,
+    .file-input-field__helper-text {
+        transition: none;
     }
 }
