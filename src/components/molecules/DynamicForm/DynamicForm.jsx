@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { TextInput } from '../TextInput/TextInput';
 import { TextSelect } from '../TextSelect/TextSelect'; // ← NUEVA IMPORTACIÓN
 import { Button } from '../../atoms/Button/Button';
+import { FileInput } from '../../atoms/FileInput/FileInput';
 import './DynamicForm.css';
 
 /**
@@ -38,7 +39,7 @@ import './DynamicForm.css';
 const DynamicForm = ({
   fields = [],
   onSubmit,
-  onChange = () => {},
+  onChange = () => { },
   initialData = {},
   columnsPerRow = 1,
   tabletColumns = 2,
@@ -50,7 +51,7 @@ const DynamicForm = ({
   disabled = false,
   compact = false,
   className = '',
-  
+
   // Props para componentes del sistema
   fieldSize = 'md',
   fieldRounded = 'md',
@@ -64,12 +65,12 @@ const DynamicForm = ({
   // Estado del formulario con datos iniciales
   const [formData, setFormData] = useState(() => {
     const initialFormData = { ...initialData };
-    
+
     fields.forEach(field => {
       const fieldName = typeof field === 'string' ? field : field.name;
       const fieldType = typeof field === 'string' ? 'text' : (field.type || 'text');
       const defaultValue = typeof field === 'string' ? '' : (field.defaultValue || '');
-      
+
       // Solo usar defaultValue si no hay dato inicial
       if (!(fieldName in initialFormData)) {
         switch (fieldType) {
@@ -81,7 +82,7 @@ const DynamicForm = ({
         }
       }
     });
-    
+
     return initialFormData;
   });
 
@@ -120,7 +121,7 @@ const DynamicForm = ({
   // Función para obtener el número de columnas según el tamaño de pantalla
   const getResponsiveColumns = () => {
     if (!responsive) return columnsPerRow;
-    
+
     switch (screenSize) {
       case 'mobile':
         return mobileColumns;
@@ -137,11 +138,11 @@ const DynamicForm = ({
     const fieldRequired = typeof field === 'string' ? false : (field.required || false);
     const fieldValidation = typeof field === 'string' ? null : field.validation;
     const fieldType = typeof field === 'string' ? 'text' : (field.type || 'text');
-    
+
     if (fieldRequired && (!value || value.toString().trim() === '')) {
       return 'Este campo es requerido';
     }
-    
+
     // Validaciones por tipo usando las mismas que TextInput
     if (value && value.toString().trim() !== '') {
       switch (fieldType) {
@@ -169,7 +170,7 @@ const DynamicForm = ({
           break;
       }
     }
-    
+
     // Validación personalizada
     if (fieldValidation && typeof fieldValidation === 'function') {
       const customError = fieldValidation(value);
@@ -177,7 +178,7 @@ const DynamicForm = ({
         return customError;
       }
     }
-    
+
     return null;
   };
 
@@ -192,7 +193,7 @@ const DynamicForm = ({
     if (validateOnChange) {
       const field = fields.find(f => (typeof f === 'string' ? f : f.name) === fieldName);
       const error = validateField(field, value);
-      
+
       setErrors(prev => ({
         ...prev,
         [fieldName]: error
@@ -210,7 +211,7 @@ const DynamicForm = ({
     if (validateOnBlur) {
       const field = fields.find(f => (typeof f === 'string' ? f : f.name) === fieldName);
       const error = validateField(field, formData[fieldName]);
-      
+
       setErrors(prev => ({
         ...prev,
         [fieldName]: error
@@ -221,7 +222,7 @@ const DynamicForm = ({
   // Manejar envío del formulario
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const newErrors = {};
     const allTouched = {};
 
@@ -230,7 +231,7 @@ const DynamicForm = ({
       const fieldName = typeof field === 'string' ? field : field.name;
       const value = formData[fieldName];
       const error = validateField(field, value);
-      
+
       allTouched[fieldName] = true;
       if (error) {
         newErrors[fieldName] = error;
@@ -250,46 +251,46 @@ const DynamicForm = ({
   const getFieldGridClasses = (field) => {
     const fieldWidth = typeof field === 'string' ? 'auto' : (field.width || 'auto');
     const fieldType = typeof field === 'string' ? 'text' : (field.type || 'text');
-    
+
     const classes = ['dynamic-form__field'];
-    
+
     // Agregar clase de tipo
     classes.push(`dynamic-form__field--${fieldType}`);
-    
+
     // Agregar clase de ancho
     if (fieldWidth !== 'auto') {
       classes.push(`dynamic-form__field--${fieldWidth}`);
     }
-    
+
     return classes;
   };
 
   // Función para normalizar opciones (compatible con TextSelect)
   const normalizeOptions = (options) => {
     if (!options || !Array.isArray(options)) return [];
-    
+
     return options.map(option => {
       if (typeof option === 'string') {
         return { value: option, label: option };
       }
-      
+
       // Si tiene 'id' y 'name' (formato actual), convertir a 'value' y 'label'
       if (option.id && option.name) {
-        return { 
-          value: option.id, 
+        return {
+          value: option.id,
           label: option.name,
-          disabled: option.disabled 
+          disabled: option.disabled
         };
       }
-      
+
       // Si ya tiene 'value' y 'label', mantener como está
       if (option.value && option.label) {
         return option;
       }
-      
+
       // Fallback
-      return { 
-        value: option.value || option.id || option, 
+      return {
+        value: option.value || option.id || option,
         label: option.label || option.name || option.toString(),
         disabled: option.disabled
       };
@@ -348,10 +349,39 @@ const DynamicForm = ({
       );
     }
 
+    // Para campos de tipo file
+    if (fieldType === 'file') {
+      return (
+        <div key={index} className={fieldClasses.join(' ')}>
+          <FileInput
+            name={fieldName}
+            accept={field.accept}
+            multiple={field.multiple || false}
+            text={field.text || fieldPlaceholder || 'Seleccionar archivo'}
+            helperText={!hasError ? fieldHelperText : ''}
+            errorText={hasError ? fieldError : ''}
+            required={fieldRequired}
+            disabled={fieldDisabled}
+            size={fieldSize}
+            rounded={fieldRounded}
+            variant={hasError ? 'danger' : (field.variant || 'default')}
+            ariaLabel={fieldLabel}
+            onChange={(e) => {
+              // Manejar archivos de manera especial
+              const files = Array.from(e.target.files || []);
+              const value = field.multiple ? files : files[0] || null;
+              handleFieldChange(fieldName, value);
+            }}
+            onBlur={() => handleFieldBlur(fieldName)}
+          />
+        </div>
+      );
+    }
+
     // ✨ NUEVO: Para campos select - USAR TEXTSELECT
     if (fieldType === 'select') {
       const normalizedOptions = normalizeOptions(fieldOptions);
-      
+
       return (
         <div key={index} className={fieldClasses.join(' ')}>
           <TextSelect
@@ -392,8 +422,8 @@ const DynamicForm = ({
               required={fieldRequired}
               disabled={fieldDisabled}
             />
-            <label 
-              htmlFor={fieldName} 
+            <label
+              htmlFor={fieldName}
               className="dynamic-form__checkbox-label"
             >
               {fieldLabel}
@@ -437,8 +467,8 @@ const DynamicForm = ({
                   required={fieldRequired}
                   disabled={fieldDisabled}
                 />
-                <label 
-                  htmlFor={`${fieldName}_${optIndex}`} 
+                <label
+                  htmlFor={`${fieldName}_${optIndex}`}
                   className="dynamic-form__radio-label"
                 >
                   {typeof option === 'string' ? option : option.label}
@@ -517,14 +547,14 @@ const DynamicForm = ({
   ].join(' ');
 
   return (
-    <div className={formClasses}>      
+    <div className={formClasses}>
       {fields.length === 0 ? (
         <div className="dynamic-form__empty-message">
           No hay campos definidos para este formulario.
         </div>
       ) : (
         <form onSubmit={handleSubmit} noValidate>
-          <div 
+          <div
             className={gridClasses}
             style={{
               gridTemplateColumns: `repeat(${currentColumns}, 1fr)`
@@ -532,7 +562,7 @@ const DynamicForm = ({
           >
             {fields.map(renderField)}
           </div>
-          
+
           <div className="dynamic-form__submit-container">
             <Button
               type="submit"

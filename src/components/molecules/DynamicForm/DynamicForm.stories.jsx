@@ -544,3 +544,382 @@ AdvancedConfiguration.parameters = {
     }
   }
 };
+
+// Agregar esta story al final del archivo DynamicForm.stories.jsx
+
+// ========== FORMULARIO CON FILEINPUT ==========
+
+export const FormWithFileInputs = () => {
+  const [formData, setFormData] = useState({});
+  const [submittedData, setSubmittedData] = useState(null);
+
+  const movieFormFields = [
+    {
+      name: 'title',
+      type: 'text',
+      label: 'Título de la película',
+      placeholder: 'Ej: Avatar, Inception, etc.',
+      required: true,
+      leftIcon: '🎬',
+      helperText: 'Título original o traducido'
+    },
+    {
+      name: 'year',
+      type: 'number',
+      label: 'Año de estreno',
+      placeholder: '2024',
+      required: true,
+      leftIcon: '📅',
+      helperText: 'Año de lanzamiento original'
+    },
+    {
+      name: 'description',
+      type: 'textarea',
+      label: 'Descripción',
+      placeholder: 'Sinopsis de la película...',
+      required: true,
+      helperText: 'Descripción detallada del contenido',
+      maxLength: 500,
+      showCharCount: true
+    },
+    {
+      name: 'video',                    // ← NUEVO: Campo de video con FileInput
+      type: 'file',
+      label: 'Archivo de video',
+      accept: 'video/*',
+      required: true,
+      text: 'Seleccionar archivo de video',
+      helperText: 'MP4, WebM, AVI (máx. 100MB)',
+      variant: 'default'
+    },
+    {
+      name: 'poster',                   // ← NUEVO: Campo de poster con FileInput
+      type: 'file',
+      label: 'Poster de la película',
+      accept: 'image/*',
+      required: false,
+      text: 'Subir poster personalizado',
+      helperText: 'JPG, PNG, WebP (máx. 5MB)',
+      variant: 'default'
+    },
+    {
+      name: 'subtitles',                // ← NUEVO: Múltiples archivos
+      type: 'file',
+      label: 'Archivos de subtítulos',
+      accept: '.srt,.vtt,.ass',
+      multiple: true,
+      required: false,
+      text: 'Seleccionar subtítulos',
+      helperText: 'Archivos .srt, .vtt o .ass (opcional)',
+      variant: 'default'
+    },
+    {
+      name: 'category',
+      type: 'select',
+      label: 'Categoría',
+      required: true,
+      leftIcon: '📂',
+      options: [
+        { value: 'action', label: 'Acción' },
+        { value: 'comedy', label: 'Comedia' },
+        { value: 'drama', label: 'Drama' },
+        { value: 'horror', label: 'Terror' },
+        { value: 'scifi', label: 'Ciencia Ficción' }
+      ],
+      helperText: 'Selecciona la categoría principal'
+    },
+    {
+      name: 'rating',
+      type: 'select',
+      label: 'Clasificación',
+      required: true,
+      leftIcon: '🔞',
+      options: [
+        { value: 'G', label: 'G - Audiencia General' },
+        { value: 'PG', label: 'PG - Guía Parental' },
+        { value: 'PG-13', label: 'PG-13 - Mayores de 13' },
+        { value: 'R', label: 'R - Restringida' },
+        { value: 'NC-17', label: 'NC-17 - Solo Adultos' }
+      ],
+      helperText: 'Clasificación por edad'
+    }
+  ];
+
+  const handleSubmit = (data) => {
+    console.log('🎬 Datos del formulario completo:', data);
+    
+    // Mostrar información detallada de archivos
+    if (data.video) {
+      console.log('📹 Video:', {
+        name: data.video.name,
+        size: `${(data.video.size / 1024 / 1024).toFixed(2)} MB`,
+        type: data.video.type
+      });
+    }
+    
+    if (data.poster) {
+      console.log('🖼️ Poster:', {
+        name: data.poster.name,
+        size: `${(data.poster.size / 1024).toFixed(1)} KB`,
+        type: data.poster.type
+      });
+    }
+    
+    if (data.subtitles && data.subtitles.length > 0) {
+      console.log('📝 Subtítulos:', data.subtitles.map(file => ({
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(1)} KB`,
+        type: file.type
+      })));
+    }
+
+    // Simular creación de FormData para backend
+    const formDataToSend = new FormData();
+    
+    // Agregar campos regulares
+    Object.keys(data).forEach(key => {
+      if (data[key] && !['video', 'poster', 'subtitles'].includes(key)) {
+        formDataToSend.append(key, data[key]);
+      }
+    });
+    
+    // Agregar archivos
+    if (data.video) {
+      formDataToSend.append('video', data.video);
+    }
+    
+    if (data.poster) {
+      formDataToSend.append('poster', data.poster);
+    }
+    
+    if (data.subtitles && data.subtitles.length > 0) {
+      data.subtitles.forEach((file, index) => {
+        formDataToSend.append(`subtitle_${index}`, file);
+      });
+    }
+
+    console.log('📦 FormData preparado para backend');
+    setSubmittedData(data);
+  };
+
+  const handleChange = (data) => {
+    setFormData(data);
+  };
+
+  return (
+    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div style={{
+        marginBottom: 'var(--space-xl)',
+        padding: 'var(--space-lg)',
+        backgroundColor: 'var(--bg-secondary)',
+        borderRadius: 'var(--radius-lg)',
+        border: '1px solid var(--border-default)'
+      }}>
+        <h3 style={{ 
+          margin: '0 0 var(--space-md) 0', 
+          color: 'var(--text-primary)',
+          fontSize: 'var(--font-size-xl)'
+        }}>
+          🎬 Formulario de Película con FileInput
+        </h3>
+        <p style={{ 
+          margin: '0', 
+          color: 'var(--text-secondary)',
+          fontSize: 'var(--font-size-base)',
+          lineHeight: 'var(--line-height-relaxed)'
+        }}>
+          Este ejemplo demuestra la integración de <strong>FileInput</strong> en <strong>DynamicForm</strong>. 
+          Incluye campos para video, poster e múltiples subtítulos, todos manejados automáticamente por la configuración.
+        </p>
+      </div>
+
+      <DynamicForm
+        fields={movieFormFields}
+        onSubmit={handleSubmit}
+        onChange={handleChange}
+        columnsPerRow={2}
+        tabletColumns={1}
+        mobileColumns={1}
+        fieldSize="lg"
+        fieldRounded="md"
+        submitText="🎬 Crear Película"
+        submitVariant="primary"
+        submitSize="lg"
+        validateOnBlur={true}
+        validateOnChange={false}
+      />
+
+      {/* Información en tiempo real */}
+      {Object.keys(formData).length > 0 && (
+        <div style={{
+          marginTop: 'var(--space-xl)',
+          padding: 'var(--space-lg)',
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: 'var(--radius-md)',
+          border: '1px solid var(--border-default)'
+        }}>
+          <h4 style={{ 
+            margin: '0 0 var(--space-md) 0',
+            color: 'var(--text-primary)',
+            fontSize: 'var(--font-size-lg)'
+          }}>
+            📊 Estado actual del formulario
+          </h4>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: 'var(--space-md)',
+            marginBottom: 'var(--space-md)'
+          }}>
+            {/* Info de archivos */}
+            {formData.video && (
+              <div style={{
+                padding: 'var(--space-sm)',
+                backgroundColor: 'var(--color-primary-light)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-primary)'
+              }}>
+                <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>
+                  📹 Video: {formData.video.name}
+                </div>
+                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)' }}>
+                  {(formData.video.size / 1024 / 1024).toFixed(2)} MB
+                </div>
+              </div>
+            )}
+            
+            {formData.poster && (
+              <div style={{
+                padding: 'var(--space-sm)',
+                backgroundColor: 'var(--color-success-light)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-success)'
+              }}>
+                <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>
+                  🖼️ Poster: {formData.poster.name}
+                </div>
+                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)' }}>
+                  {(formData.poster.size / 1024).toFixed(1)} KB
+                </div>
+              </div>
+            )}
+            
+            {formData.subtitles && formData.subtitles.length > 0 && (
+              <div style={{
+                padding: 'var(--space-sm)',
+                backgroundColor: 'var(--color-warning-light)',
+                borderRadius: 'var(--radius-sm)',
+                border: '1px solid var(--color-warning)'
+              }}>
+                <div style={{ fontSize: 'var(--font-size-sm)', fontWeight: 'var(--font-weight-medium)' }}>
+                  📝 Subtítulos: {formData.subtitles.length} archivos
+                </div>
+                <div style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-secondary)' }}>
+                  {formData.subtitles.map(f => f.name).join(', ')}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* JSON del formulario */}
+          <details style={{ marginTop: 'var(--space-md)' }}>
+            <summary style={{ 
+              cursor: 'pointer', 
+              fontSize: 'var(--font-size-sm)',
+              fontWeight: 'var(--font-weight-medium)',
+              color: 'var(--text-primary)',
+              marginBottom: 'var(--space-sm)'
+            }}>
+              🔍 Ver datos JSON completos
+            </summary>
+            <pre style={{
+              fontSize: 'var(--font-size-xs)',
+              color: 'var(--text-secondary)',
+              backgroundColor: 'var(--bg-primary)',
+              padding: 'var(--space-sm)',
+              borderRadius: 'var(--radius-sm)',
+              overflow: 'auto',
+              maxHeight: '200px'
+            }}>
+              {JSON.stringify(
+                Object.fromEntries(
+                  Object.entries(formData).map(([key, value]) => [
+                    key,
+                    value instanceof File 
+                      ? `[File: ${value.name}]`
+                      : Array.isArray(value) && value.every(v => v instanceof File)
+                      ? `[${value.length} Files: ${value.map(f => f.name).join(', ')}]`
+                      : value
+                  ])
+                ),
+                null,
+                2
+              )}
+            </pre>
+          </details>
+        </div>
+      )}
+
+      {/* Resultado de envío */}
+      {submittedData && (
+        <div style={{
+          marginTop: 'var(--space-lg)',
+          padding: 'var(--space-lg)',
+          backgroundColor: 'var(--color-success-light)',
+          borderRadius: 'var(--radius-lg)',
+          border: '2px solid var(--color-success)'
+        }}>
+          <h4 style={{ 
+            margin: '0 0 var(--space-sm) 0',
+            color: 'var(--color-success-dark)',
+            fontSize: 'var(--font-size-lg)'
+          }}>
+            ✅ Película enviada correctamente
+          </h4>
+          <p style={{ 
+            margin: '0',
+            color: 'var(--color-success-dark)',
+            fontSize: 'var(--font-size-sm)'
+          }}>
+            Revisa la consola del navegador para ver los detalles completos del envío, 
+            incluyendo la información de archivos y el FormData preparado.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+FormWithFileInputs.parameters = {
+  docs: {
+    description: {
+      story: `
+**Formulario avanzado con FileInput integrado**
+
+Este ejemplo demuestra cómo usar FileInput dentro de DynamicForm para crear formularios complejos con subida de archivos.
+
+**Características:**
+- **Video**: Archivo individual requerido (video/*)
+- **Poster**: Imagen opcional (image/*)  
+- **Subtítulos**: Múltiples archivos (.srt, .vtt, .ass)
+- **Validación**: Automática por tipo de archivo
+- **Preview**: Información en tiempo real de archivos seleccionados
+- **Backend ready**: FormData preparado para envío
+
+**Configuración de campo file:**
+\`\`\`javascript
+{
+  name: 'video',
+  type: 'file',           // ← Tipo especial
+  accept: 'video/*',      // ← Tipos MIME
+  multiple: false,        // ← Archivo único
+  required: true,         // ← Validación
+  text: 'Seleccionar video',
+  helperText: 'MP4, WebM (máx. 100MB)'
+}
+\`\`\`
+      `
+    }
+  }
+};
