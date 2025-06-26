@@ -1,0 +1,255 @@
+/* ===== CONTAINER COMPONENT - CSS ESPECÍFICO ===== */
+/* src/components/atoms/Container/Container.css */
+
+/* 
+🎯 FILOSOFÍA: Solo CSS específico del componente Container
+✅ SISTEMA: Usa variables CSS definidas en App.css
+✅ CONSISTENCIA: Misma estructura que Button.css, Input.css, etc.
+✅ MANTENIBLE: Separación clara de responsabilidades
+*/
+
+/* ===== CONTENEDORES BASE ===== */
+
+/* Container Extra Pequeño - Modales, formularios login */
+.container-xs {
+  max-width: 48rem;  /* 480px */
+  margin: 0 auto;
+  padding: var(--space-lg);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 0.1rem solid var(--border-light);
+  font-family: var(--font-family-base);
+}
+
+/* Container Pequeño - Artículos, detalles de contenido */
+.container-sm {
+  max-width: 64rem;  /* 640px */
+  margin: 0 auto;
+  padding: var(--space-xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 0.1rem solid var(--border-light);
+  font-family: var(--font-family-base);
+}
+
+/* Container Mediano - Páginas estándar (equivale a .page-container) */
+.container-md {
+  max-width: 80rem;  /* 800px */
+  margin: 0 auto;
+  padding: var(--space-xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 0.1rem solid var(--border-light);
+  min-height: calc(100vh - var(--space-4xl));
+  font-family: var(--font-family-base);
+}
+
+/* Container Grande - Dashboards, admin panels (equivale a .page-container--wide) */
+.container-lg {
+  max-width: 120rem; /* 1200px */
+  margin: 0 auto;
+  padding: var(--space-xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 0.1rem solid var(--border-light);
+  min-height: calc(100vh - var(--space-4xl));
+  font-family: var(--font-family-base);
+}
+
+/* Container Extra Grande - Layout principal */
+.container-xl {
+  max-width: 144rem; /* 1440px */
+  margin: 0 auto;
+  padding: var(--space-xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 0.1rem solid var(--border-light);
+  min-height: calc(100vh - var(--space-4xl));
+  font-family: var(--font-family-base);
+}
+
+/* Container Full - Sin límite de ancho */
+.container-full {
+  max-width: none;
+  margin: 0;
+  padding: var(--space-xl);
+  background-color: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  border: 0.1rem solid var(--border-light);
+  min-height: calc(100vh - var(--space-4xl));
+  font-family: var(--font-family-base);
+}
+
+/* ===== VARIANTES ===== */
+
+/* Variante Simple - Sin estilos de card */
+.container-xs--simple,
+.container-sm--simple,
+.container-md--simple,
+.container-lg--simple,
+.container-xl--simple,
+.container-full--simple {
+  background-color: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+/* Variante Compact - Menos padding */
+.container-xs--compact { padding: var(--space-md); }
+.container-sm--compact { padding: var(--space-lg); }
+.container-md--compact { padding: var(--space-lg); }
+.container-lg--compact { padding: var(--space-lg); }
+.container-xl--compact { padding: var(--space-lg); }
+.container-full--compact { padding: var(--space-lg); }
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 1200px) {
+  .container-lg,
+  .container-xl,
+  .container-full {
+    margin-left: var(--space-lg);
+    margin-right: var(--space-lg);
+  }
+}
+
+@media (max-width: 768px) {
+  .container-xs,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl {
+    margin: var(--space-md);
+    padding: var(--space-lg);
+    min-height: calc(100vh - var(--space-lg));
+  }
+  
+  .container-full {
+    margin: 0;
+    padding: var(--space-lg);
+  }
+  
+  /* Variantes compact en móviles */
+  .container-xs--compact,
+  .container-sm--compact,
+  .container-md--compact,
+  .container-lg--compact,
+  .container-xl--compact {
+    padding: var(--space-xs);
+  }
+}
+
+@media (max-width: 480px) {
+  .container-xs,
+  .container-sm,
+  .container-md,
+  .container-lg,
+  .container-xl {
+    margin: var(--space-sm);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+  }
+  
+  .container-full {
+    padding: var(--space-md);
+  }
+  
+  /* Variantes compact en móviles pequeños */
+  .container-xs--compact,
+  .container-sm--compact,
+  .container-md--compact,
+  .container-lg--compact,
+  .container-xl--compact {
+    padding: var(--space-xs);
+  }
+}
+
+/* ===== UTILIDADES PARA DEBUGGING ===== */
+
+/* Labels para identificar contenedores en modo debug */
+.container-xs::before { content: "XS (480px)"; }
+.container-sm::before { content: "SM (640px)"; }
+.container-md::before { content: "MD (800px)"; }
+.container-lg::before { content: "LG (1200px)"; }
+.container-xl::before { content: "XL (1440px)"; }
+.container-full::before { content: "FULL (sin límite)"; }
+
+/* Ocultar labels por defecto */
+.container-xs::before,
+.container-sm::before,
+.container-md::before,
+.container-lg::before,
+.container-xl::before,
+.container-full::before {
+  display: none;
+  position: absolute;
+  top: -2rem;
+  left: 0;
+  font-size: 1rem;
+  color: var(--color-primary);
+  background: var(--bg-secondary);
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: var(--font-weight-bold);
+  z-index: 1000;
+}
+
+/* Mostrar labels solo en modo debug */
+.debug-containers .container-xs::before,
+.debug-containers .container-sm::before,
+.debug-containers .container-md::before,
+.debug-containers .container-lg::before,
+.debug-containers .container-xl::before,
+.debug-containers .container-full::before {
+  display: block;
+}
+
+/* Bordes de debug */
+.debug-containers .container-xs,
+.debug-containers .container-sm,
+.debug-containers .container-md,
+.debug-containers .container-lg,
+.debug-containers .container-xl,
+.debug-containers .container-full {
+  position: relative;
+  outline: 0.2rem dashed var(--color-primary);
+  outline-offset: -0.2rem;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .container-xs, .container-sm, .container-md, 
+  .container-lg, .container-xl {
+    box-shadow: none;
+    border: none;
+    margin: 0;
+    padding: var(--space-lg);
+    background-color: transparent;
+  }
+  
+  .container-full {
+    padding: var(--space-md);
+  }
+}
+
+/* ===== ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+  .container-xs, .container-sm, .container-md,
+  .container-lg, .container-xl, .container-full {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .container-xs, .container-sm, .container-md,
+  .container-lg, .container-xl, .container-full {
+    border-color: var(--gray-600);
+    box-shadow: 0 0.1rem 0.2rem rgba(0, 0, 0, 0.3);
+  }
+}

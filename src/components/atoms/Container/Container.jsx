@@ -1,12 +1,13 @@
-// Container.jsx
+// Container.jsx - HOMOLOGADO CON EL RESTO DE COMPONENTES
 import React from 'react';
 import PropTypes from 'prop-types';
+import './Container.css'; // ← NUEVO: CSS propio del componente
 
 /**
  * Componente Container unificado que implementa el sistema de contenedores estandarizado
  * Reemplaza el uso directo de clases CSS por un componente reutilizable
  */
-export const Container = ({ 
+function Container({ 
   size = 'md',
   variant = 'default',
   debug = false,
@@ -14,7 +15,7 @@ export const Container = ({
   className = '',
   as = 'div',
   ...props 
-}) => {
+}) {
   // Generar clase base del contenedor
   const baseClass = `container-${size}`;
   
@@ -37,7 +38,7 @@ export const Container = ({
       {children}
     </Element>
   );
-};
+}
 
 Container.propTypes = {
   /**
@@ -79,7 +80,12 @@ Container.defaultProps = {
   as: 'div'
 };
 
-// Exportar tamaños disponibles para uso externo
+// ===== EXPORTS CONSISTENTES CON EL SISTEMA =====
+
+// Export principal (como Button, Input, FileInput, etc.)
+export { Container };
+
+// Exports de constantes para uso externo
 export const CONTAINER_SIZES = {
   XS: 'xs',    // 480px - Modales, formularios login
   SM: 'sm',    // 640px - Artículos, detalles
