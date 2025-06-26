@@ -16,11 +16,6 @@
   width: 100%;
 }
 
-/* ===== FORMULARIO DE BÚSQUEDA ===== */
-.tmdb-search-view__search-card {
-  /* Hereda estilos de Card del sistema */
-}
-
 .tmdb-search-view__description {
   color: var(--text-muted);
   margin: var(--space-xs) 0 0 0;

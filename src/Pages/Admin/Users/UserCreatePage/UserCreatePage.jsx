@@ -107,7 +107,6 @@ function UserCreatePage() {
       // Limpiar datos para envío (quitar confirmPassword)
       const { confirmPassword, ...userData } = formData;
 
-
       // Crear usuario
       const result = await createUserService(userData);
 

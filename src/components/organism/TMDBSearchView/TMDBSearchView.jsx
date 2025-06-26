@@ -174,7 +174,7 @@ function TMDBSearchView({
     <div className="tmdb-search-view">
       
       {/* Formulario de búsqueda */}
-      <Card className="tmdb-search-view__search-card">
+      <Card>
         <CardHeader>
           <CardTitle>{title}</CardTitle>
           <p className="tmdb-search-view__description">
