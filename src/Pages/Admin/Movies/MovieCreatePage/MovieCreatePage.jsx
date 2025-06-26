@@ -100,13 +100,14 @@ function MovieCreatePage() {
       helperText: 'Imagen de portada (opcional)'
     },
     {
-      name: 'videoUrl',
-      type: 'url',
-      label: 'URL del Video',
-      placeholder: 'https://example.com/video.mp4',
+      // ✅ CAMBIO PRINCIPAL: De videoUrl a video con FileInput
+      name: 'video',                               // ← Era 'videoUrl'
+      type: 'file',                               // ← Era 'url'
+      label: 'Archivo de Video',                  // ← Era 'URL del Video'
+      accept: 'video/*',                          // ← NUEVO
       required: true,
-      leftIcon: '🎥',
-      helperText: 'Enlace directo al contenido multimedia'
+      text: 'Seleccionar archivo de video',      // ← NUEVO
+      helperText: 'MP4, WebM, AVI, MOV (máx. 100MB)' // ← Actualizado
     }
   ];
 
@@ -322,31 +323,74 @@ function MovieCreatePage() {
     try {
       console.log('📤 Enviando datos al backend:', formData);
 
-      // TODO: Implementar createMovieService
-      // const result = await createMovieService(formData);
+      // ✅ VALIDACIONES DE ARCHIVO
+      if (!formData.video) {
+        setError('El archivo de video es obligatorio');
+        return;
+      }
 
-      // Simulación temporal
+      // Validar tamaño (máximo 100MB)
+      const maxSizeInBytes = 100 * 1024 * 1024;
+      if (formData.video.size > maxSizeInBytes) {
+        setError(`El archivo es demasiado grande. Máximo: 100MB. Actual: ${(formData.video.size / 1024 / 1024).toFixed(1)}MB`);
+        return;
+      }
+
+      // Validar tipo de archivo
+      const allowedTypes = ['video/mp4', 'video/webm', 'video/avi', 'video/mov', 'video/quicktime'];
+      if (!allowedTypes.includes(formData.video.type)) {
+        setError('Tipo de archivo no válido. Formatos permitidos: MP4, WebM, AVI, MOV');
+        return;
+      }
+
+      // ✅ CREAR FORMDATA PARA ARCHIVOS
+      const submitData = new FormData();
+
+      // Agregar campos regulares
+      Object.keys(formData).forEach(key => {
+        if (key !== 'video' && formData[key] !== null && formData[key] !== undefined) {
+          submitData.append(key, formData[key]);
+        }
+      });
+
+      // Agregar archivo de video
+      if (formData.video) {
+        submitData.append('video', formData.video);
+        console.log('🎥 Video agregado:', {
+          name: formData.video.name,
+          size: `${(formData.video.size / 1024 / 1024).toFixed(2)} MB`,
+          type: formData.video.type
+        });
+      }
+
+      // Debug del FormData
+      console.log('📋 Contenido del FormData:');
+      for (let [key, value] of submitData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}:`, `[File] ${value.name} (${(value.size / 1024 / 1024).toFixed(2)} MB)`);
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
+
+      // TODO: Reemplazar con llamada real al backend
+      // const result = await createMovieService(submitData);
+
+      // Simulación de subida
+      console.log('📤 Iniciando subida...');
       await new Promise(resolve => setTimeout(resolve, 2000));
+      console.log('✅ Video subido correctamente');
 
-      console.log('✅ Contenido creado exitosamente');
-
-      // Marcar como exitoso
       setSuccess(true);
       setHasChanges(false);
 
-      // Redireccionar después de 3 segundos
       setTimeout(() => {
         navigate('/admin/movies');
       }, 3000);
 
     } catch (err) {
-      console.error('❌ Error al crear contenido:', err);
-
-      const errorMessage = err.response?.data?.message ||
-        err.message ||
-        'Error inesperado al crear el contenido';
-
-      setError(errorMessage);
+      console.error('❌ Error:', err);
+      setError(err.response?.data?.message || err.message || 'Error inesperado');
     } finally {
       setFormLoading(false);
     }
@@ -356,7 +400,6 @@ function MovieCreatePage() {
   const getInitialFormData = () => {
     if (!selectedItem) return {};
 
-    // Mapear datos de TMDB a formato del formulario
     return {
       title: selectedItem.title || selectedItem.name || '',
       type: selectedItem.media_type === 'movie' ? 'movie' : 'tv',
@@ -365,6 +408,8 @@ function MovieCreatePage() {
       poster: selectedItem.poster_path
         ? `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`
         : ''
+      // ✅ NOTA: No incluimos 'video' porque es un archivo que sube el usuario
+      // TMDB solo proporciona metadatos, no archivos
     };
   };
 
