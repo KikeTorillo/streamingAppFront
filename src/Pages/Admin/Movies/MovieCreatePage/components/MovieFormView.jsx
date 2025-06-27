@@ -73,6 +73,26 @@ function MovieFormView({
   };
 
   /**
+   * ✅ NUEVA: Obtener URL de vista previa segura para la imagen
+   */
+  const getImagePreviewSrc = () => {
+    if (imageInfo?.type === 'url') {
+      return imageInfo.url;
+    }
+    
+    if (imageInfo?.type === 'file' && currentFormData.coverImage instanceof File) {
+      try {
+        return URL.createObjectURL(currentFormData.coverImage);
+      } catch (error) {
+        console.error('❌ Error creating object URL:', error);
+        return null; // Fallback gracefully
+      }
+    }
+    
+    return null;
+  };
+
+  /**
    * Manejar envío del formulario con validaciones
    */
   const handleFormSubmit = (formData) => {
@@ -132,36 +152,25 @@ function MovieFormView({
   // ===== RENDER =====
   return (
     <div className="movie-form-view">
-
-      {/* ===== BOTÓN DE VOLVER (OPCIONAL) ===== */}
-      {showBackButton && (
-        <div style={{ marginBottom: 'var(--space-lg)' }}>
-          <Button
-            variant="outline"
-            size="sm"
-            leftIcon="←"
-            onClick={onBackToSearch}
-            disabled={formLoading}
-          >
-            Volver a la Búsqueda
-          </Button>
-        </div>
-      )}
-
-      {/* ===== VISTA PREVIA DE TMDB (SI HAY ITEM SELECCIONADO) ===== */}
+      
+      {/* ===== VISTA PREVIA DEL ITEM SELECCIONADO ===== */}
       {selectedItem && (
-        <Card variant="default" className="movie-form-view__preview-card">
+        <Card className="movie-form-view__preview-card">
           <CardHeader>
             <div className="movie-form-view__preview-header">
-              <CardTitle>📽️ Vista Previa de TMDB</CardTitle>
-              <Button
-                variant="outline"
-                size="xs"
-                onClick={onBackToSearch}
-                disabled={formLoading}
-              >
-                Cambiar selección
-              </Button>
+              <CardTitle>
+                🎬 Información de TMDB
+              </CardTitle>
+              {showBackButton && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={onBackToSearch}
+                  disabled={formLoading}
+                >
+                  ← Buscar Otro
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardBody>
@@ -171,11 +180,10 @@ function MovieFormView({
                 <div className="movie-form-view__preview-poster">
                   <ContentImage
                     src={`https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`}
-                    alt={`Poster de ${selectedItem.title || selectedItem.name}`}
-                    aspectRatio="2/3"
-                    objectFit="cover"
-                    contentType="movie"
+                    alt={selectedItem.title || selectedItem.name}
                     className="movie-form-view__poster-image"
+                    contentType="movie"
+                    aspectRatio="2/3"
                   />
                 </div>
               )}
@@ -194,7 +202,8 @@ function MovieFormView({
                     <span>📅 {new Date(selectedItem.first_air_date).getFullYear()}</span>
                   )}
                   {selectedItem.media_type && (
-                    <span>🎭 {selectedItem.media_type === 'movie' ? 'Película' : 'Serie'}</span>
+                    <span>🎭 {selectedItem.media_type === 'movie' ? 
+                      'Película' : 'Serie'}</span>
                   )}
                   {selectedItem.vote_average && (
                     <span>⭐ {selectedItem.vote_average.toFixed(1)}</span>
@@ -231,17 +240,19 @@ function MovieFormView({
             <h4>🖼️ Imagen de Portada Actual</h4>
             {renderImageInfo()}
             
-            {/* Mostrar preview de la imagen */}
+            {/* ✅ ACTUALIZADO: Vista previa segura de la imagen */}
             {(imageInfo.type === 'url' || imageInfo.type === 'file') && (
               <div className="movie-form-view__image-preview">
-                <ContentImage
-                  src={imageInfo.type === 'url' ? imageInfo.url : URL.createObjectURL(currentFormData.coverImage)}
-                  alt="Vista previa de portada"
-                  aspectRatio="16/9"
-                  objectFit="cover"
-                  contentType="movie"
-                  style={{ maxWidth: '300px', borderRadius: 'var(--radius-md)' }}
-                />
+                {getImagePreviewSrc() && (
+                  <ContentImage
+                    src={getImagePreviewSrc()}
+                    alt="Vista previa de portada"
+                    aspectRatio="16/9"
+                    objectFit="cover"
+                    contentType="movie"
+                    style={{ maxWidth: '300px', borderRadius: 'var(--radius-md)' }}
+                  />
+                )}
               </div>
             )}
           </div>

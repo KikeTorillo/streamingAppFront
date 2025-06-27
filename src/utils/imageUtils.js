@@ -1,90 +1,9 @@
 // src/utils/imageUtils.js
 
 /**
- * Utilidades para manejo de imágenes
- * Funciones compartidas para convertir URLs a Files y validaciones
+ * Utilidades para manejo de imágenes - VERSIÓN SIN DESCARGA CORS
+ * Funciones para validación de URLs e imágenes locales
  */
-
-/**
- * Convierte una URL de imagen a un objeto File
- * @param {string} imageUrl - URL de la imagen
- * @param {string} prefix - Prefijo para el nombre del archivo ('movie', 'series', etc.)
- * @returns {Promise<File>} - Archivo convertido
- */
-export const urlToFile = async (imageUrl, prefix = 'cover') => {
-  try {
-    console.log('🌐 Descargando imagen desde:', imageUrl);
-    
-    const response = await fetch(imageUrl, {
-      mode: 'cors', // Permitir CORS para TMDB
-      headers: {
-        'Accept': 'image/*'
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-    
-    const blob = await response.blob();
-    
-    if (blob.size === 0) {
-      throw new Error('La imagen descargada está vacía');
-    }
-    
-    // Determinar el tipo de archivo correcto
-    const contentType = response.headers.get('content-type') || blob.type || 'image/jpeg';
-    
-    // Validar que sea realmente una imagen
-    if (!contentType.startsWith('image/')) {
-      throw new Error('El archivo descargado no es una imagen válida');
-    }
-    
-    // Ajustar la extensión basada en el content-type
-    let extension = 'jpg';
-    if (contentType.includes('png')) extension = 'png';
-    else if (contentType.includes('webp')) extension = 'webp';
-    else if (contentType.includes('gif')) extension = 'gif';
-    else if (contentType.includes('svg')) extension = 'svg';
-    
-    // Crear nombre de archivo único basado en la URL
-    const urlHash = btoa(imageUrl).slice(0, 10).replace(/[+/=]/g, '');
-    const timestamp = Date.now().toString(36);
-    const finalFilename = `${prefix}-${urlHash}-${timestamp}.${extension}`;
-    
-    const file = new File([blob], finalFilename, { type: contentType });
-    
-    console.log('✅ Imagen convertida exitosamente:', {
-      name: file.name,
-      size: `${Math.round(file.size / 1024)}KB`,
-      type: file.type
-    });
-    
-    return file;
-    
-  } catch (error) {
-    console.error('❌ Error convirtiendo URL a File:', error);
-    
-    // Mejorar mensajes de error específicos
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('No se pudo conectar para descargar la imagen. Verifica tu conexión a internet.');
-    }
-    
-    if (error.message.includes('HTTP 404')) {
-      throw new Error('La imagen no existe en el servidor');
-    }
-    
-    if (error.message.includes('HTTP 403')) {
-      throw new Error('No tienes permisos para acceder a esta imagen');
-    }
-    
-    if (error.message.includes('CORS')) {
-      throw new Error('Error de permisos al descargar la imagen');
-    }
-    
-    throw new Error(`Error al descargar imagen: ${error.message}`);
-  }
-};
 
 /**
  * Validar si un valor es un archivo File válido
@@ -152,14 +71,13 @@ export const isValidImageFile = (file) => {
 };
 
 /**
- * Procesar imagen de portada (URL o File)
- * Función principal que maneja tanto URLs como archivos
+ * Procesar imagen de portada (URL o File) - SIN DESCARGA
+ * Esta función ya NO descarga URLs, solo las valida
  * 
  * @param {string|File} coverImage - URL de imagen o archivo File
- * @param {string} prefix - Prefijo para nombre de archivo si es URL
- * @returns {Promise<File>} - Archivo File procesado
+ * @returns {Promise<File|string>} - Archivo File o URL validada
  */
-export const processCoverImage = async (coverImage, prefix = 'cover') => {
+export const processCoverImage = async (coverImage) => {
   // Si ya es un archivo válido, validarlo y retornarlo
   if (isValidFile(coverImage)) {
     console.log('📁 Procesando archivo File local...');
@@ -174,13 +92,15 @@ export const processCoverImage = async (coverImage, prefix = 'cover') => {
       type: coverImage.type
     });
     
-    return coverImage;
+    return coverImage; // Retorna el File
   }
   
-  // Si es una URL válida, convertirla a File
+  // Si es una URL válida, solo validarla (NO descargar)
   if (isValidImageUrl(coverImage)) {
-    console.log('🌐 Procesando URL de imagen...');
-    return await urlToFile(coverImage, prefix);
+    console.log('🌐 URL de imagen válida detectada (backend se encargará de la descarga)');
+    console.log('- URL:', coverImage);
+    
+    return coverImage; // Retorna la URL como string
   }
   
   // Si no es ni File ni URL válida, lanzar error descriptivo
@@ -246,7 +166,7 @@ export const createImagePreview = async (image) => {
   }
   
   if (isValidImageUrl(image)) {
-    return image;
+    return image; // Para URLs, usar directamente (el navegador manejará la carga)
   }
   
   throw new Error('No se puede crear vista previa de esta imagen');

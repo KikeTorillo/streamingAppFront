@@ -1,11 +1,11 @@
 // src/services/Series/createSeriesService.js
 import axios from "axios";
 import { environmentService } from "../environmentService";
-import { processCoverImage, isValidFile } from "../../utils/imageUtils";
+import { processCoverImage, isValidFile, isValidImageUrl } from "../../utils/imageUtils";
 
 /**
- * Crear nueva serie - VERSIÓN MEJORADA
- * Acepta tanto archivos File como URLs para la portada
+ * Crear nueva serie - VERSIÓN SIN DESCARGA CORS
+ * Maneja Files locales y URLs (que el backend descargará)
  * 
  * @param {Object} seriesData - Datos de la serie
  * @param {string} seriesData.title - Título de la serie
@@ -28,9 +28,9 @@ const createSeriesService = async (seriesData) => {
       throw new Error('La imagen de portada es requerida');
     }
     
-    // Procesar la imagen de portada (URL → File si es necesario)
+    // Procesar la imagen de portada (valida pero NO descarga URLs)
     console.log('📺 Procesando imagen de portada para serie...');
-    const processedCoverImage = await processCoverImage(seriesData.coverImage, 'series-cover');
+    const processedCoverImage = await processCoverImage(seriesData.coverImage);
     
     // Crear FormData
     const formData = new FormData();
@@ -38,12 +38,25 @@ const createSeriesService = async (seriesData) => {
     formData.append("categoryId", seriesData.categoryId);
     formData.append("releaseYear", seriesData.releaseYear);
     formData.append("description", seriesData.description || "");
-    formData.append("coverImage", processedCoverImage); // ← Siempre es File aquí
+    
+    // Manejar coverImage según el tipo (File vs URL)
+    if (isValidFile(processedCoverImage)) {
+      // Es un archivo local - enviarlo como File
+      formData.append("coverImage", processedCoverImage);
+      console.log('📤 Enviando archivo de imagen local al backend');
+      console.log('- Portada (archivo):', processedCoverImage.name, `(${Math.round(processedCoverImage.size / 1024)}KB)`);
+    } else if (isValidImageUrl(processedCoverImage)) {
+      // Es una URL - enviarla como string en un campo separado
+      formData.append("coverImageUrl", processedCoverImage);
+      console.log('📤 Enviando URL de imagen al backend para descarga');
+      console.log('- Portada (URL):', processedCoverImage);
+    } else {
+      throw new Error('Error interno: imagen procesada no es válida');
+    }
     
     console.log('📤 Enviando datos de serie al backend...');
     console.log('- Título:', seriesData.title);
     console.log('- Año:', seriesData.releaseYear);
-    console.log('- Portada:', processedCoverImage.name, `(${Math.round(processedCoverImage.size / 1024)}KB)`);
     
     // Realizar petición al backend
     const response = await axios.post(`${urlBackend}/api/v1/series`, formData, {
@@ -61,10 +74,6 @@ const createSeriesService = async (seriesData) => {
     console.error("❌ Error al crear serie:", error);
     
     // Mejorar mensajes de error para el usuario
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
-      throw new Error('Error de red al descargar la imagen de TMDB');
-    }
-    
     if (error.response?.status === 413) {
       throw new Error('La imagen es demasiado grande');
     }
@@ -73,14 +82,18 @@ const createSeriesService = async (seriesData) => {
       throw new Error('Esta serie ya existe en el sistema');
     }
     
+    if (error.response?.status === 400 && error.response?.data?.message?.includes('imagen')) {
+      throw new Error('Error al procesar la imagen: ' + error.response.data.message);
+    }
+    
     if (error.code === 'ECONNABORTED') {
       throw new Error('La subida tardó demasiado tiempo. Inténtalo de nuevo');
     }
     
     // Si es un error que ya lanzamos nosotros, mantenerlo
-    if (error.message.includes('coverImage debe ser') || 
-        error.message.includes('requerido') ||
-        error.message.includes('descargar la imagen')) {
+    if (error.message.includes('requerido') || 
+        error.message.includes('URL de imagen no es válida') ||
+        error.message.includes('archivo seleccionado no es una imagen')) {
       throw error;
     }
     
