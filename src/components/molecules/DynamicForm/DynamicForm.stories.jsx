@@ -923,3 +923,199 @@ Este ejemplo demuestra cómo usar FileInput dentro de DynamicForm para crear for
     }
   }
 };
+
+export const WithCheckboxes = () => {
+  const [formData, setFormData] = useState({});
+
+  const checkboxFields = [
+    {
+      name: 'email',
+      type: 'email',
+      label: 'Correo electrónico',
+      placeholder: 'tu@ejemplo.com',
+      required: true,
+      helperText: 'Te enviaremos confirmaciones aquí'
+    },
+    {
+      name: 'acceptTerms',
+      type: 'checkbox',
+      label: 'Acepto los términos y condiciones',
+      helperText: 'Es necesario para continuar',
+      required: true
+    },
+    {
+      name: 'newsletter',
+      type: 'checkbox',
+      label: 'Suscribirse al newsletter',
+      helperText: 'Recibe actualizaciones semanales',
+      required: false,
+      defaultValue: false
+    },
+    {
+      name: 'marketing',
+      type: 'checkbox',
+      label: 'Comunicaciones de marketing',
+      helperText: 'Ofertas y promociones especiales',
+      required: false,
+      defaultValue: true
+    },
+    {
+      name: 'notifications',
+      type: 'checkbox',
+      label: 'Notificaciones push',
+      helperText: 'Alertas en tiempo real',
+      required: false,
+      size: 'sm' // Tamaño específico
+    }
+  ];
+
+  return (
+    <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <DynamicForm
+        fields={checkboxFields}
+        onSubmit={(data) => {
+          console.log('Formulario enviado:', data);
+          alert('Formulario enviado! Revisa la consola.');
+        }}
+        onChange={setFormData}
+        fieldSize="md"
+        submitText="Crear cuenta"
+        submitVariant="primary"
+      />
+      
+      <div style={{ 
+        marginTop: 'var(--space-xl)', 
+        padding: 'var(--space-md)', 
+        backgroundColor: 'var(--bg-secondary)', 
+        borderRadius: 'var(--radius-md)',
+        fontSize: 'var(--font-size-sm)'
+      }}>
+        <strong>Estado actual:</strong>
+        <pre style={{ 
+          marginTop: 'var(--space-xs)', 
+          color: 'var(--text-muted)',
+          fontSize: 'var(--font-size-xs)'
+        }}>
+          {JSON.stringify(formData, null, 2)}
+        </pre>
+      </div>
+    </div>
+  );
+};
+
+WithCheckboxes.parameters = {
+  docs: {
+    description: {
+      story: `
+### Formulario con Checkboxes
+
+Demuestra el uso del nuevo componente Checkbox integrado en DynamicForm:
+
+- ✅ **Componente Checkbox**: Usa el átomo Checkbox del sistema de diseño
+- ✅ **Diferentes configuraciones**: required, helperText, defaultValue
+- ✅ **Tamaños**: Se puede especificar tamaño por campo o heredar del formulario
+- ✅ **Estados**: Error, focus, disabled según configuración
+- ✅ **Validación**: Campos requeridos con mensajes de error
+
+**Configuración de ejemplo:**
+\`\`\`jsx
+{
+  name: 'acceptTerms',
+  type: 'checkbox',
+  label: 'Acepto los términos y condiciones',
+  helperText: 'Es necesario para continuar',
+  required: true,
+  size: 'md' // Opcional: override del tamaño global
+}
+\`\`\`
+      `
+    }
+  }
+};
+
+// ===== STORY PARA DIFERENTES TAMAÑOS DE CHECKBOX =====
+export const CheckboxSizes = () => {
+  const sizeFields = [
+    {
+      name: 'xs_checkbox',
+      type: 'checkbox',
+      label: 'Checkbox Extra Pequeño (xs)',
+      size: 'xs',
+      helperText: 'Tamaño xs'
+    },
+    {
+      name: 'sm_checkbox',
+      type: 'checkbox',
+      label: 'Checkbox Pequeño (sm)',
+      size: 'sm',
+      helperText: 'Tamaño sm'
+    },
+    {
+      name: 'md_checkbox',
+      type: 'checkbox',
+      label: 'Checkbox Mediano (md)',
+      size: 'md',
+      helperText: 'Tamaño md (por defecto)'
+    },
+    {
+      name: 'lg_checkbox',
+      type: 'checkbox',
+      label: 'Checkbox Grande (lg)',
+      size: 'lg',
+      helperText: 'Tamaño lg'
+    }
+  ];
+
+  return (
+    <div style={{ maxWidth: '500px' }}>
+      <DynamicForm
+        fields={sizeFields}
+        onSubmit={(data) => console.log('Tamaños:', data)}
+        columnsPerRow={1}
+        submitText="Probar tamaños"
+      />
+    </div>
+  );
+};
+
+// ===== STORY PARA ESTADOS DE ERROR =====
+export const CheckboxValidation = () => {
+  const validationFields = [
+    {
+      name: 'required_checkbox',
+      type: 'checkbox',
+      label: 'Campo requerido',
+      required: true,
+      helperText: 'Debes marcar esta opción'
+    },
+    {
+      name: 'optional_checkbox',
+      type: 'checkbox',
+      label: 'Campo opcional',
+      required: false,
+      helperText: 'Esta opción es opcional'
+    }
+  ];
+
+  return (
+    <div style={{ maxWidth: '500px' }}>
+      <DynamicForm
+        fields={validationFields}
+        onSubmit={(data) => console.log('Validación:', data)}
+        validateOnBlur={true}
+        submitText="Validar campos"
+      />
+      
+      <div style={{ 
+        marginTop: 'var(--space-lg)',
+        padding: 'var(--space-md)',
+        backgroundColor: 'var(--bg-warning-light)',
+        borderRadius: 'var(--radius-md)',
+        fontSize: 'var(--font-size-sm)'
+      }}>
+        💡 <strong>Prueba la validación:</strong><br/>
+        Intenta enviar sin marcar el campo requerido para ver el mensaje de error.
+      </div>
+    </div>
+  );
+};

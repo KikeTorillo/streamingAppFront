@@ -4,6 +4,7 @@ import { TextInput } from '../TextInput/TextInput';
 import { TextSelect } from '../TextSelect/TextSelect'; // ← NUEVA IMPORTACIÓN
 import { Button } from '../../atoms/Button/Button';
 import { FileInputField } from '../FileInputField/FileInputField';
+import { Checkbox } from '../../atoms/Checkbox/Checkbox'; // ← AGREGAR ESTA LÍNEA
 import './DynamicForm.css';
 
 /**
@@ -409,39 +410,24 @@ const DynamicForm = ({
       );
     }
 
-    // Para campos checkbox
     if (fieldType === 'checkbox') {
       return (
         <div key={index} className={fieldClasses.join(' ')}>
-          <div className="dynamic-form__checkbox-container">
-            <input
-              id={fieldName}
-              type="checkbox"
-              className="dynamic-form__checkbox"
-              checked={formData[fieldName] || false}
-              onChange={(e) => handleFieldChange(fieldName, e.target.checked)}
-              onBlur={() => handleFieldBlur(fieldName)}
-              required={fieldRequired}
-              disabled={fieldDisabled}
-            />
-            <label
-              htmlFor={fieldName}
-              className="dynamic-form__checkbox-label"
-            >
-              {fieldLabel}
-              {fieldRequired && <span style={{ color: 'var(--color-danger)' }}> *</span>}
-            </label>
-          </div>
-          {hasError && (
-            <span className="dynamic-form__error-message" role="alert">
-              {fieldError}
-            </span>
-          )}
-          {!hasError && fieldHelperText && (
-            <span className="dynamic-form__helper-text">
-              {fieldHelperText}
-            </span>
-          )}
+          <Checkbox
+            id={fieldName}
+            name={fieldName}
+            value={fieldName}
+            checked={Boolean(formData[fieldName])}
+            onChange={(e) => handleFieldChange(fieldName, e.target.checked)}
+            onBlur={() => handleFieldBlur(fieldName)}
+            disabled={fieldDisabled}
+            required={fieldRequired}
+            label={fieldLabel}
+            helperText={!hasError ? fieldHelperText : ''}
+            error={hasError ? fieldError : ''}
+            size={field.size || fieldSize} // Permitir override por campo
+            className={field.className || ''}
+          />
         </div>
       );
     }
