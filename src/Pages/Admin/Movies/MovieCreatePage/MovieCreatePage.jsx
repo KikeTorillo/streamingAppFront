@@ -49,6 +49,7 @@ function MovieCreatePage() {
   const [submitError, setSubmitError] = useState(null);
 
   // ===== ESTADO DE PROGRESO DE SUBIDA =====
+
   const { progress, status, message, error: progressError, monitorProgress, resetProgress } = useUploadProgress();
 
   // ===== CARGAR CATEGORÍAS AL INICIO =====
@@ -267,6 +268,9 @@ function MovieCreatePage() {
       const result = await createMovieService(movieData);
 
       console.log('✅ Contenido creado exitosamente:', result);
+
+      setSuccess(true);
+      setHasChanges(false);
 
       const taskId = result?.taskId || result?.task_id || result?.id;
 
