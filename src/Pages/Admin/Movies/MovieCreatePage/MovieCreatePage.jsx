@@ -358,6 +358,7 @@ function MovieCreatePage() {
               fields={generateFormFields()}
               initialData={generateInitialFormData(selectedItem)}
               onSubmit={handleFormSubmit}
+              categoryOptions={categories.map(cat => ({ value: cat.id, label: cat.name }))}
               loading={formLoading}
               error={submitError}
               success={success}
