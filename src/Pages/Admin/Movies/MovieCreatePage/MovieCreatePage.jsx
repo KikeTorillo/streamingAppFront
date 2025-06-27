@@ -1,4 +1,4 @@
-// ===== MOVIE CREATE PAGE - VERSIÓN ACTUALIZADA CON TMDB REAL =====
+// ===== MOVIE CREATE PAGE - VERSIÓN ACTUALIZADA SIN ORIGINAL_TITLE =====
 // src/Pages/Admin/Movies/MovieCreatePage/MovieCreatePage.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -25,7 +25,9 @@ import { useUploadProgress } from "../../../../hooks/useUploadProgress";
 import './MovieCreatePage.css';
 
 /**
- * MovieCreatePage - VERSIÓN ACTUALIZADA CON TMDB REAL
+ * MovieCreatePage - VERSIÓN ACTUALIZADA SIN ORIGINAL_TITLE
+ * ✅ CAMPO REMOVIDO: original_title eliminado del formulario
+ * ✅ FILTRO DE CAMPOS: Solo envía campos con valores al backend
  * ✅ INTEGRACIÓN TMDB: Conecta con la API real usando VITE_TMDB_API_KEY
  * ✅ BÚSQUEDA FUNCIONAL: Películas y series desde TMDB
  * ✅ FORMULARIO OPTIMIZADO: Campos correctos según el sistema de diseño
@@ -49,7 +51,6 @@ function MovieCreatePage() {
   const [submitError, setSubmitError] = useState(null);
 
   // ===== ESTADO DE PROGRESO DE SUBIDA =====
-
   const { progress, status, message, error: progressError, monitorProgress, resetProgress } = useUploadProgress();
 
   // ===== CARGAR CATEGORÍAS AL INICIO =====
@@ -62,18 +63,19 @@ function MovieCreatePage() {
         console.log('📂 Cargando categorías...');
         const response = await getCategoriesService();
 
-        const data = Array.isArray(response) ? response : response?.data;
+        const data = Array.isArray(response) ? response : 
+                     response?.data ? response.data : 
+                     response?.categories ? response.categories : [];
 
-        if (Array.isArray(data)) {
-          setCategories(data);
-          console.log(`✅ Categorías cargadas: ${data.length}`);
-        } else {
-          setCategories([]);
-          setCategoriesError('No se encontraron categorías disponibles');
+        console.log('📂 Categorías cargadas:', data);
+        setCategories(data);
+
+        if (data.length === 0) {
+          setCategoriesError('No hay categorías disponibles. Ve a Administrar > Categorías para crear una.');
         }
-      } catch (error) {
-        console.error('❌ Error al cargar categorías:', error);
-        setCategoriesError('Error al cargar las categorías. Verifica tu conexión.');
+      } catch (err) {
+        console.error('❌ Error cargando categorías:', err);
+        setCategoriesError('Error al cargar categorías. Verifica tu conexión.');
         setCategories([]);
       } finally {
         setCategoriesLoading(false);
@@ -83,49 +85,27 @@ function MovieCreatePage() {
     loadCategories();
   }, []);
 
-  // ===== HANDLERS DE TMDB SEARCH =====
-  const handleSelectFromTMDB = async (item) => {
-    console.log('🎯 Item seleccionado desde TMDB:', item);
-
-    try {
-      // Obtener detalles completos del item seleccionado
-      let detailedItem = item;
-
-      if (item.type === 'movie') {
-        console.log('🎬 Obteniendo detalles de película...');
-        detailedItem = await tmdbService.getMovieDetails(item.tmdb_id);
-      } else if (item.type === 'tv') {
-        console.log('📺 Obteniendo detalles de serie...');
-        detailedItem = await tmdbService.getTVDetails(item.tmdb_id);
-      }
-
-      setSelectedItem(detailedItem);
-      setCurrentView('form');
-      setHasChanges(true);
-
-      console.log('✅ Datos completos obtenidos:', detailedItem);
-
-    } catch (error) {
-      console.error('❌ Error al obtener detalles:', error);
-      // Si no se pueden obtener detalles, usar los datos básicos
-      setSelectedItem(item);
-      setCurrentView('form');
-      setHasChanges(true);
-    }
+  // ===== HANDLERS DE NAVEGACIÓN =====
+  const handleSelectFromTMDB = (item) => {
+    console.log('🎬 Elemento seleccionado de TMDB:', item);
+    setSelectedItem(item);
+    setCurrentView('form');
+    setHasChanges(false);
+    setSubmitError(null);
   };
 
   const handleManualCreate = () => {
-    console.log('✏️ Creación manual seleccionada');
+    console.log('✏️ Creación manual iniciada');
     setSelectedItem(null);
     setCurrentView('form');
-    setHasChanges(true);
+    setHasChanges(false);
+    setSubmitError(null);
   };
 
-  // ===== HANDLER DE VUELTA A BÚSQUEDA =====
   const handleBackToSearch = () => {
     if (hasChanges) {
       const confirmLeave = window.confirm(
-        '¿Estás seguro de que quieres volver? Se perderán los cambios no guardados.'
+        '⚠️ Hay cambios sin guardar. ¿Estás seguro de que quieres volver? Se perderán los cambios no guardados.'
       );
       if (!confirmLeave) return;
     }
@@ -136,7 +116,7 @@ function MovieCreatePage() {
     setSubmitError(null);
   };
 
-  // ===== GENERACIÓN DE CAMPOS DEL FORMULARIO =====
+  // ===== GENERACIÓN DE CAMPOS DEL FORMULARIO (SIN ORIGINAL_TITLE) =====
   const generateFormFields = () => {
     return [
       {
@@ -147,14 +127,6 @@ function MovieCreatePage() {
         required: true,
         leftIcon: '🎬',
         helperText: 'Título principal que aparecerá en el catálogo'
-      },
-      {
-        name: 'original_title',
-        type: 'text',
-        label: 'Título Original',
-        placeholder: 'Ej: Avatar: The Way of Water',
-        leftIcon: '🌐',
-        helperText: 'Título en el idioma original (opcional)'
       },
       {
         name: 'description',
@@ -197,6 +169,14 @@ function MovieCreatePage() {
         helperText: categoriesError || 'Categoría principal para organizar el contenido'
       },
       {
+        name: 'email',
+        type: 'email',
+        label: 'Correo Electrónico',
+        placeholder: 'opcional@ejemplo.com',
+        leftIcon: '📧',
+        helperText: 'Correo de contacto opcional (no se enviará si está vacío)'
+      },
+      {
         name: 'coverImageUrl',
         type: 'text',
         label: 'URL de Portada',
@@ -224,14 +204,14 @@ function MovieCreatePage() {
     ];
   };
 
-  // ===== GENERACIÓN DE DATOS INICIALES =====
+  // ===== GENERACIÓN DE DATOS INICIALES (SIN ORIGINAL_TITLE) =====
   const generateInitialFormData = (item) => {
     const baseData = {
       title: '',
-      original_title: '',
       description: '',
       releaseYear: new Date().getFullYear(),
       categoryId: categories.length > 0 ? categories[0].id : '',
+      email: '',
       coverImageUrl: '',
       coverImageFile: null,
       video: null,
@@ -244,7 +224,6 @@ function MovieCreatePage() {
       return {
         ...baseData,
         title: item.title || item.name || baseData.title,
-        original_title: item.original_title || item.original_name || baseData.original_title,
         description: item.overview || baseData.description,
         releaseYear: item.year || (item.release_date ? new Date(item.release_date).getFullYear() :
           item.first_air_date ? new Date(item.first_air_date).getFullYear() : baseData.releaseYear),
@@ -257,15 +236,50 @@ function MovieCreatePage() {
     return baseData;
   };
 
-  // ===== HANDLER DEL FORMULARIO =====
+  // ===== FUNCIÓN PARA FILTRAR CAMPOS VACÍOS =====
+  const filterEmptyFields = (data) => {
+    const filteredData = {};
+    
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+      
+      // Solo incluir el campo si tiene un valor válido
+      if (value !== null && value !== undefined && value !== '') {
+        // Para archivos, verificar que sea un File válido
+        if (value instanceof File) {
+          filteredData[key] = value;
+        }
+        // Para strings, verificar que no estén vacíos después de trim
+        else if (typeof value === 'string' && value.trim() !== '') {
+          filteredData[key] = value.trim();
+        }
+        // Para números, verificar que sean válidos
+        else if (typeof value === 'number' && !isNaN(value)) {
+          filteredData[key] = value;
+        }
+        // Para otros tipos de datos válidos
+        else if (typeof value !== 'string') {
+          filteredData[key] = value;
+        }
+      }
+    });
+    
+    return filteredData;
+  };
+
+  // ===== HANDLER DEL FORMULARIO CON FILTRO DE CAMPOS VACÍOS =====
   const handleFormSubmit = async (movieData) => {
     setFormLoading(true);
     setSubmitError(null);
 
     try {
-      console.log('📤 Enviando datos:', movieData);
+      console.log('📤 Datos originales:', movieData);
+      
+      // Filtrar campos vacíos antes de enviar
+      const filteredData = filterEmptyFields(movieData);
+      console.log('📤 Datos filtrados (sin campos vacíos):', filteredData);
 
-      const result = await createMovieService(movieData);
+      const result = await createMovieService(filteredData);
 
       console.log('✅ Contenido creado exitosamente:', result);
 
@@ -321,9 +335,7 @@ function MovieCreatePage() {
   // ===== RENDER PRINCIPAL =====
   return (
     <AdminLayout>
-      <Container
-        size='lg'
-      >
+      <Container size='lg'>
         <div className="movie-create-page">
           {/* Header */}
           <Card className="movie-create-page__header">

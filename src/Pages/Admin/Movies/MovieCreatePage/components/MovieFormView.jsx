@@ -1,78 +1,51 @@
-// ===== MOVIE FORM VIEW - VERSIÓN CORREGIDA SIN CAMPOS INNECESARIOS =====
+// ===== MOVIE FORM VIEW - VERSIÓN ACTUALIZADA CON FILTRO DE CAMPOS =====
 // src/Pages/Admin/Movies/MovieCreatePage/components/MovieFormView.jsx
 
 import React, { useState, useEffect } from 'react';
 import { DynamicForm } from '../../../../../components/molecules/DynamicForm/DynamicForm';
-import { Button } from '../../../../../components/atoms/Button/Button';
-import { Container } from '../../../../../components/atoms/Container/Container';
 import { Card, CardHeader, CardBody, CardTitle } from '../../../../../components/atoms/Card/Card';
+import { Button } from '../../../../../components/atoms/Button/Button';
 import { ContentImage } from '../../../../../components/atoms/ContentImage/ContentImage';
 import './MovieFormView.css';
 
 /**
- * MovieFormView - VERSIÓN OPTIMIZADA Y CORREGIDA
- * ❌ REMOVIDO: rating, duration (campos innecesarios)
- * ✅ CORREGIDO: Soporte completo para URL + archivo de imagen
- * ✅ MEJORADO: Indicadores visuales del tipo de imagen seleccionada
- * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
+ * MovieFormView - VERSIÓN ACTUALIZADA CON FILTRO DE CAMPOS VACÍOS
+ * ✅ FILTRO AUTOMÁTICO: Solo envía campos con valores válidos al backend
+ * ✅ VALIDACIÓN: Verifica que campos requeridos tengan valores
+ * ✅ OPTIMIZACIÓN: Elimina campos vacíos, null o undefined de la petición
+ * ✅ UX MEJORADA: Información clara sobre campos opcionales
  */
 function MovieFormView({
-  // Item seleccionado de TMDB (opcional)
-  selectedItem = null,
-
-  // Configuración del formulario
-  fields = [], // ← props esperados desde el contenedor
-  formFields = null, // compatibilidad con versiones anteriores
+  fields = [],
   initialData = {},
-  initialFormData = null,
-
-  // Estados del formulario
-  formLoading = false,
+  onSubmit,
+  categoryOptions = [],
+  loading = false,
+  error = null,
   success = false,
   hasChanges = false,
-
-  // Handlers principales
-  onSubmit,
   onChange,
-  onChangeDetected,
-  onBackToSearch,
-
-  // Datos adicionales
-  categoryOptions = [],
-
-  // Configuración de UI
-  showBackButton = true,
-  categoriesLoading = false
+  selectedItem = null,
+  showBackButton = false,
+  onBackToSearch
 }) {
-
-  const baseFields = formFields || fields;
-  const resolvedFields = baseFields.map((field) => {
-    if ((field.name === 'categoryId' || field.name === 'category_id') && categoryOptions.length > 0) {
-      return {
-        ...field,
-        options: categoryOptions
-      };
-    }
-    return field;
-  });
-  const resolvedInitialData = initialFormData || initialData;
-
-  // ===== ESTADOS LOCALES =====
-  const [currentFormData, setCurrentFormData] = useState(resolvedInitialData);
+  // ===== ESTADOS =====
+  const [currentFormData, setCurrentFormData] = useState(initialData);
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageType, setImageType] = useState(null); // 'url', 'file', 'tmdb', null
+  const [imageType, setImageType] = useState(null);
+  const [formLoading, setFormLoading] = useState(loading);
 
   // ===== EFECTOS =====
-
-  /**
-   * Actualizar datos del formulario cuando cambian los datos iniciales
-   */
   useEffect(() => {
-    setCurrentFormData(resolvedInitialData);
-  }, [resolvedInitialData]);
+    setCurrentFormData(initialData);
+  }, [initialData]);
+
+  useEffect(() => {
+    setFormLoading(loading);
+  }, [loading]);
 
   /**
-   * ✅ CORREGIDO: Analizar tipo de imagen y generar preview
+   * ✅ NUEVO: Gestión automática de preview de imagen
    */
   useEffect(() => {
     const { coverImageUrl, coverImageFile, coverImage } = currentFormData;
@@ -145,35 +118,80 @@ function MovieFormView({
   };
 
   /**
-   * Manejar envío del formulario con validaciones
+   * ✅ NUEVA FUNCIÓN: Filtrar campos vacíos antes del envío
+   */
+  const filterEmptyFields = (formData) => {
+    const filteredData = {};
+    
+    Object.keys(formData).forEach(key => {
+      const value = formData[key];
+      
+      // Solo incluir el campo si tiene un valor válido
+      if (value !== null && value !== undefined && value !== '') {
+        // Para archivos, verificar que sea un File válido
+        if (value instanceof File) {
+          filteredData[key] = value;
+        }
+        // Para strings, verificar que no estén vacíos después de trim
+        else if (typeof value === 'string' && value.trim() !== '') {
+          filteredData[key] = value.trim();
+        }
+        // Para números, verificar que sean válidos
+        else if (typeof value === 'number' && !isNaN(value)) {
+          filteredData[key] = value;
+        }
+        // Para booleans y otros tipos válidos
+        else if (typeof value !== 'string') {
+          filteredData[key] = value;
+        }
+      }
+    });
+    
+    return filteredData;
+  };
+
+  /**
+   * ✅ ACTUALIZADO: Manejar envío del formulario con filtrado de campos vacíos
    */
   const handleFormSubmit = (formData) => {
+    console.log('📝 Datos del formulario (originales):', formData);
+    
+    // Filtrar campos vacíos
+    const filteredData = filterEmptyFields(formData);
+    console.log('📝 Datos del formulario (filtrados):', filteredData);
+
+    // Preparar datos para el servicio con nombres correctos
     const movieData = {
-      title: formData.title,
-      categoryId: formData.categoryId || formData.category_id,
-      releaseYear: formData.releaseYear || formData.year,
-      description: formData.description,
-      video: formData.video || formData.video_file,
-      coverImage: formData.coverImage || formData.coverImageFile || formData.coverImageUrl
+      title: filteredData.title,
+      categoryId: filteredData.categoryId || filteredData.category_id,
+      releaseYear: filteredData.releaseYear || filteredData.year,
+      description: filteredData.description,
+      video: filteredData.video || filteredData.video_file,
+      coverImage: filteredData.coverImage || filteredData.coverImageFile || filteredData.coverImageUrl,
+      // Solo incluir email si tiene valor
+      ...(filteredData.email && { email: filteredData.email }),
+      // Solo incluir tmdb_id si tiene valor
+      ...(filteredData.tmdb_id && { tmdb_id: filteredData.tmdb_id }),
+      // Solo incluir media_type si tiene valor
+      ...(filteredData.media_type && { media_type: filteredData.media_type })
     };
-    onSubmit?.(movieData);
+
+    // Filtrar una vez más para asegurar que no hay campos undefined
+    const finalData = filterEmptyFields(movieData);
+    
+    console.log('📤 Datos finales para el servicio:', finalData);
+    onSubmit?.(finalData);
   };
 
   /**
    * Manejar cambios en el formulario
    */
-  const handleFormChange = (formData) => {
-    setCurrentFormData(formData);
-    const movieData = {
-      title: formData.title,
-      categoryId: formData.categoryId || formData.category_id,
-      releaseYear: formData.releaseYear || formData.year,
-      description: formData.description,
-      video: formData.video || formData.video_file,
-      coverImage: formData.coverImage || formData.coverImageFile || formData.coverImageUrl
-    };
-    onChange?.(movieData);
-    onChangeDetected?.(movieData);
+  const handleFormChange = (fieldName, value) => {
+    setCurrentFormData(prev => ({
+      ...prev,
+      [fieldName]: value
+    }));
+    onChange?.();
   };
 
   /**
@@ -186,62 +204,51 @@ function MovieFormView({
     return (
       <div className={`movie-form-view__image-info ${imageInfo.bgClass}`}>
         <span className="movie-form-view__image-badge">{imageInfo.badge}</span>
-        <span className="movie-form-view__image-text">{imageInfo.description}</span>
+        <span className="movie-form-view__image-description">{imageInfo.description}</span>
       </div>
     );
   };
 
-  // ===== RENDER PRINCIPAL =====
+  // ===== RESOLUCIÓN DE CAMPOS CON OPCIONES DINÁMICAS =====
+  const resolvedFields = fields.map(field => {
+    if (field.name === 'categoryId' && categoryOptions.length > 0) {
+      return {
+        ...field,
+        options: categoryOptions
+      };
+    }
+    return field;
+  });
+
+  // ===== RENDER =====
   return (
     <div className="movie-form-view">
-
-      {/* ===== VISTA PREVIA DEL ITEM SELECCIONADO (TMDB) ===== */}
+      {/* ===== TARJETA DE VISTA PREVIA DE TMDB ===== */}
       {selectedItem && (
-        <Card className="movie-form-view__preview-card">
+        <Card className="movie-form-view__preview">
           <CardHeader>
-            <div className="movie-form-view__preview-header">
-              <CardTitle>
-                🎬 Información de TMDB
-              </CardTitle>
-              {showBackButton && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={onBackToSearch}
-                  disabled={formLoading}
-                  leftIcon="←"
-                >
-                  Buscar Otro
-                </Button>
-              )}
-            </div>
+            <CardTitle>🎬 Vista Previa de TMDB</CardTitle>
           </CardHeader>
           <CardBody>
-            <div className="movie-form-view__preview">
-              {/* Poster */}
+            <div className="movie-form-view__preview-content">
               {selectedItem.poster_path && (
-                <div className="movie-form-view__preview-poster">
+                <div className="movie-form-view__preview-image">
                   <ContentImage
-                    src={selectedItem.poster_path.startsWith('http') ?
-                      selectedItem.poster_path :
-                      `https://image.tmdb.org/t/p/w500${selectedItem.poster_path}`
-                    }
-                    alt={`Poster de ${selectedItem.title || selectedItem.name}`}
+                    src={selectedItem.poster_path}
+                    alt={selectedItem.title || selectedItem.name}
                     fallbackIcon="🎬"
-                    className="movie-form-view__poster-image"
                   />
                 </div>
               )}
 
-              {/* Información */}
               <div className="movie-form-view__preview-info">
                 <h3 className="movie-form-view__preview-title">
                   {selectedItem.title || selectedItem.name}
                 </h3>
 
                 <div className="movie-form-view__preview-meta">
-                  <span>
-                    {selectedItem.type === 'tv' ? '📺 Serie' : '🎬 Película'}
+                  <span className="movie-form-view__preview-type">
+                    {selectedItem.type === 'tv' || selectedItem.media_type === 'tv' || selectedItem.name ? '📺 Serie' : '🎬 Película'}
                   </span>
                   {selectedItem.year && <span>📅 {selectedItem.year}</span>}
                   {selectedItem.rating && <span>⭐ {selectedItem.rating}</span>}
@@ -335,10 +342,12 @@ function MovieFormView({
             <div className="movie-form-view__info">
               <h4>💡 Información importante:</h4>
               <ul>
+                <li><strong>Campos opcionales:</strong> Los campos como "Correo Electrónico" son opcionales y no se enviarán si están vacíos.</li>
                 <li><strong>Portada:</strong> Puedes usar una URL externa o subir un archivo. El archivo tendrá prioridad.</li>
                 <li><strong>Video:</strong> Se aceptan formatos mp4, avi, mkv y webm.</li>
                 <li><strong>Procesamiento:</strong> El video será procesado automáticamente para diferentes calidades.</li>
                 <li><strong>Categoría:</strong> Selecciona la categoría que mejor describa el contenido.</li>
+                <li><strong>Datos optimizados:</strong> Solo se envían al servidor los campos que tienen valores válidos.</li>
               </ul>
             </div>
           )}
