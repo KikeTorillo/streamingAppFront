@@ -67,10 +67,12 @@ function MovieCreatePage() {
       try {
         console.log('📂 Cargando categorías...');
         const response = await getCategoriesService();
-        
-        if (response && Array.isArray(response.data)) {
-          setCategories(response.data);
-          console.log(`✅ Categorías cargadas: ${response.data.length}`);
+
+        const data = Array.isArray(response) ? response : response?.data;
+
+        if (Array.isArray(data)) {
+          setCategories(data);
+          console.log(`✅ Categorías cargadas: ${data.length}`);
         } else {
           setCategories([]);
           setCategoriesError('No se encontraron categorías disponibles');
@@ -358,6 +360,7 @@ function MovieCreatePage() {
               fields={generateFormFields()}
               initialData={generateInitialFormData(selectedItem)}
               onSubmit={handleFormSubmit}
+              categoryOptions={categories.map(cat => ({ value: cat.id, label: cat.name }))}
               loading={formLoading}
               error={submitError}
               success={success}

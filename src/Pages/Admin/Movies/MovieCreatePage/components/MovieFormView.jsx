@@ -45,7 +45,16 @@ function MovieFormView({
   categoriesLoading = false
 }) {
 
-  const resolvedFields = formFields || fields;
+  const baseFields = formFields || fields;
+  const resolvedFields = baseFields.map((field) => {
+    if ((field.name === 'categoryId' || field.name === 'category_id') && categoryOptions.length > 0) {
+      return {
+        ...field,
+        options: categoryOptions
+      };
+    }
+    return field;
+  });
   const resolvedInitialData = initialFormData || initialData;
 
   // ===== ESTADOS LOCALES =====
