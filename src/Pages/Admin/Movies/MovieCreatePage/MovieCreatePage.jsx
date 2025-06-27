@@ -13,13 +13,10 @@ import { Card, CardHeader, CardBody, CardTitle } from '../../../../components/at
 // ===== COMPONENTES ESPECÍFICOS =====
 import { TMDBSearchView } from '../../../../components/organism/TMDBSearchView/TMDBSearchView';
 import { MovieFormView } from './components/MovieFormView';
-import { TranscodingModal } from '../../../../components/molecules/TranscodingModal/TranscodingModal';
 
 // ===== SERVICIOS Y HOOKS =====
 import { createMovieService } from '../../../../services/Movies/createMovieService';
-import { createSeriesService } from '../../../../services/Series/createSeriesService';
 import { getCategoriesService } from '../../../../services/Categories/getCategoriesService';
-import { useUploadProgress } from '../../../../hooks/useUploadProgress';
 import { tmdbService } from '../../../../services/tmdb/TMDBService';
 
 // ===== ESTILOS =====
@@ -50,13 +47,6 @@ function MovieCreatePage() {
   const [submitError, setSubmitError] = useState(null);
 
   // ===== ESTADO DE PROGRESO DE SUBIDA =====
-  const { 
-    progress, 
-    isTranscoding, 
-    startProgress, 
-    updateProgress, 
-    completeProgress 
-  } = useUploadProgress();
 
   // ===== CARGAR CATEGORÍAS AL INICIO =====
   useEffect(() => {
@@ -67,10 +57,12 @@ function MovieCreatePage() {
       try {
         console.log('📂 Cargando categorías...');
         const response = await getCategoriesService();
-        
-        if (response && Array.isArray(response.data)) {
-          setCategories(response.data);
-          console.log(`✅ Categorías cargadas: ${response.data.length}`);
+
+        const data = Array.isArray(response) ? response : response?.data;
+
+        if (Array.isArray(data)) {
+          setCategories(data);
+          console.log(`✅ Categorías cargadas: ${data.length}`);
         } else {
           setCategories([]);
           setCategoriesError('No se encontraron categorías disponibles');
@@ -171,7 +163,7 @@ function MovieCreatePage() {
         helperText: 'Descripción que aparecerá en la página de detalles'
       },
       {
-        name: 'year',
+        name: 'releaseYear',
         type: 'number',
         label: 'Año de Estreno *',
         placeholder: new Date().getFullYear().toString(),
@@ -182,7 +174,7 @@ function MovieCreatePage() {
         helperText: 'Año de estreno original'
       },
       {
-        name: 'category_id',
+        name: 'categoryId',
         type: 'select',
         label: (() => {
           if (categoriesLoading) return '⏳ Cargando categorías...';
@@ -217,7 +209,7 @@ function MovieCreatePage() {
         helperText: 'Sube una imagen como portada (opcional si usas URL)'
       },
       {
-        name: 'video_file',
+        name: 'video',
         type: 'file',
         label: 'Archivo de Video *',
         accept: 'video/*',
@@ -234,11 +226,11 @@ function MovieCreatePage() {
       title: '',
       original_title: '',
       description: '',
-      year: new Date().getFullYear(),
-      category_id: categories.length > 0 ? categories[0].id : '',
+      releaseYear: new Date().getFullYear(),
+      categoryId: categories.length > 0 ? categories[0].id : '',
       coverImageUrl: '',
       coverImageFile: null,
-      video_file: null,
+      video: null,
       tmdb_id: null,
       media_type: 'movie'
     };
@@ -250,8 +242,8 @@ function MovieCreatePage() {
         title: item.title || item.name || baseData.title,
         original_title: item.original_title || item.original_name || baseData.original_title,
         description: item.overview || baseData.description,
-        year: item.year || (item.release_date ? new Date(item.release_date).getFullYear() :
-          item.first_air_date ? new Date(item.first_air_date).getFullYear() : baseData.year),
+        releaseYear: item.year || (item.release_date ? new Date(item.release_date).getFullYear() :
+          item.first_air_date ? new Date(item.first_air_date).getFullYear() : baseData.releaseYear),
         coverImageUrl: item.poster_path || baseData.coverImageUrl,
         tmdb_id: item.id || item.tmdb_id || baseData.tmdb_id,
         media_type: item.type || item.media_type || (item.name ? 'tv' : 'movie')
@@ -262,51 +254,18 @@ function MovieCreatePage() {
   };
 
   // ===== HANDLER DEL FORMULARIO =====
-  const handleFormSubmit = async (formData) => {
+  const handleFormSubmit = async (movieData) => {
     setFormLoading(true);
     setSubmitError(null);
-    startProgress();
 
     try {
-      console.log('📤 Enviando formulario:', formData);
+      console.log('📤 Enviando datos:', movieData);
 
-      // Preparar datos para envío
-      const submitData = new FormData();
-
-      // Campos básicos
-      submitData.append('title', formData.title || '');
-      submitData.append('original_title', formData.original_title || '');
-      submitData.append('description', formData.description || '');
-      submitData.append('year', formData.year || new Date().getFullYear());
-      submitData.append('category_id', formData.category_id || '');
-
-      // Imagen de portada: priorizar archivo sobre URL
-      if (formData.coverImageFile) {
-        submitData.append('coverImage', formData.coverImageFile);
-      } else if (formData.coverImageUrl) {
-        submitData.append('coverImageUrl', formData.coverImageUrl);
-      }
-
-      // Video (requerido)
-      if (formData.video_file) {
-        submitData.append('video', formData.video_file);
-      }
-
-      // Datos TMDB (si aplica)
-      if (formData.tmdb_id) {
-        submitData.append('tmdb_id', formData.tmdb_id);
-      }
-      submitData.append('media_type', formData.media_type || 'movie');
-
-      // Seleccionar servicio según tipo de contenido
-      const createService = formData.media_type === 'tv' ? createSeriesService : createMovieService;
-
-      const result = await createService(submitData);
+      const result = await createMovieService(movieData);
 
       console.log('✅ Contenido creado exitosamente:', result);
       setSuccess(true);
       setHasChanges(false);
-      completeProgress();
 
       // Mostrar mensaje de éxito y redirigir
       setTimeout(() => {
@@ -389,27 +348,15 @@ function MovieCreatePage() {
               fields={generateFormFields()}
               initialData={generateInitialFormData(selectedItem)}
               onSubmit={handleFormSubmit}
+              categoryOptions={categories.map(cat => ({ value: cat.id, label: cat.name }))}
               loading={formLoading}
               error={submitError}
               success={success}
               hasChanges={hasChanges}
-              onChangeDetected={() => setHasChanges(true)}
+              onChange={() => setHasChanges(true)}
             />
           )}
 
-          {/* Modal de transcodificación */}
-          {isTranscoding && (
-            <TranscodingModal
-              isVisible={isTranscoding}
-              progress={progress}
-              onClose={() => {
-                // Solo permitir cerrar si no está en progreso activo
-                if (progress === 100 || formLoading === false) {
-                  completeProgress();
-                }
-              }}
-            />
-          )}
         </div>
       </Container>
     </AdminLayout>
