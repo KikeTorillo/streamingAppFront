@@ -13,13 +13,10 @@ import { Card, CardHeader, CardBody, CardTitle } from '../../../../components/at
 // ===== COMPONENTES ESPECÍFICOS =====
 import { TMDBSearchView } from '../../../../components/organism/TMDBSearchView/TMDBSearchView';
 import { MovieFormView } from './components/MovieFormView';
-import { TranscodingModal } from '../../../../components/molecules/TranscodingModal/TranscodingModal';
 
 // ===== SERVICIOS Y HOOKS =====
 import { createMovieService } from '../../../../services/Movies/createMovieService';
-import { createSeriesService } from '../../../../services/Series/createSeriesService';
 import { getCategoriesService } from '../../../../services/Categories/getCategoriesService';
-import { useUploadProgress } from '../../../../hooks/useUploadProgress';
 import { tmdbService } from '../../../../services/tmdb/TMDBService';
 
 // ===== ESTILOS =====
@@ -50,13 +47,6 @@ function MovieCreatePage() {
   const [submitError, setSubmitError] = useState(null);
 
   // ===== ESTADO DE PROGRESO DE SUBIDA =====
-  const { 
-    progress, 
-    isTranscoding, 
-    startProgress, 
-    updateProgress, 
-    completeProgress 
-  } = useUploadProgress();
 
   // ===== CARGAR CATEGORÍAS AL INICIO =====
   useEffect(() => {
@@ -267,7 +257,6 @@ function MovieCreatePage() {
   const handleFormSubmit = async (movieData) => {
     setFormLoading(true);
     setSubmitError(null);
-    startProgress();
 
     try {
       console.log('📤 Enviando datos:', movieData);
@@ -277,7 +266,6 @@ function MovieCreatePage() {
       console.log('✅ Contenido creado exitosamente:', result);
       setSuccess(true);
       setHasChanges(false);
-      completeProgress();
 
       // Mostrar mensaje de éxito y redirigir
       setTimeout(() => {
@@ -369,19 +357,6 @@ function MovieCreatePage() {
             />
           )}
 
-          {/* Modal de transcodificación */}
-          {isTranscoding && (
-            <TranscodingModal
-              isVisible={isTranscoding}
-              progress={progress}
-              onClose={() => {
-                // Solo permitir cerrar si no está en progreso activo
-                if (progress === 100 || formLoading === false) {
-                  completeProgress();
-                }
-              }}
-            />
-          )}
         </div>
       </Container>
     </AdminLayout>
