@@ -86,11 +86,11 @@ function MovieCreatePage() {
   // ===== HANDLERS DE TMDB SEARCH =====
   const handleSelectFromTMDB = async (item) => {
     console.log('🎯 Item seleccionado desde TMDB:', item);
-    
+
     try {
       // Obtener detalles completos del item seleccionado
       let detailedItem = item;
-      
+
       if (item.type === 'movie') {
         console.log('🎬 Obteniendo detalles de película...');
         detailedItem = await tmdbService.getMovieDetails(item.tmdb_id);
@@ -104,7 +104,7 @@ function MovieCreatePage() {
       setHasChanges(true);
 
       console.log('✅ Datos completos obtenidos:', detailedItem);
-      
+
     } catch (error) {
       console.error('❌ Error al obtener detalles:', error);
       // Si no se pueden obtener detalles, usar los datos básicos
@@ -321,7 +321,9 @@ function MovieCreatePage() {
   // ===== RENDER PRINCIPAL =====
   return (
     <AdminLayout>
-      <Container>
+      <Container
+        size='lg'
+      >
         <div className="movie-create-page">
           {/* Header */}
           <Card className="movie-create-page__header">
@@ -330,15 +332,15 @@ function MovieCreatePage() {
                 {currentView === 'search' ? '🔍 Buscar Contenido' : '📝 Crear Contenido'}
               </CardTitle>
               <p className="movie-create-page__description">
-                {currentView === 'search' 
+                {currentView === 'search'
                   ? 'Busca películas y series en TMDB o crea contenido manualmente'
-                  : selectedItem 
+                  : selectedItem
                     ? `Creando: ${selectedItem.title || selectedItem.name || 'Contenido desde TMDB'}`
                     : 'Creando contenido manualmente'
                 }
               </p>
             </CardHeader>
-            
+
             {currentView === 'form' && (
               <CardBody>
                 <Button
