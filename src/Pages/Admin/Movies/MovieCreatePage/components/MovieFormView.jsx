@@ -21,8 +21,10 @@ function MovieFormView({
   selectedItem = null,
 
   // Configuración del formulario
-  formFields = [],
-  initialFormData = {},
+  fields = [], // ← props esperados desde el contenedor
+  formFields = null, // compatibilidad con versiones anteriores
+  initialData = {},
+  initialFormData = null,
 
   // Estados del formulario
   formLoading = false,
@@ -32,6 +34,7 @@ function MovieFormView({
   // Handlers principales
   onSubmit,
   onChange,
+  onChangeDetected,
   onBackToSearch,
 
   // Datos adicionales
@@ -42,25 +45,28 @@ function MovieFormView({
   categoriesLoading = false
 }) {
 
+  const resolvedFields = formFields || fields;
+  const resolvedInitialData = initialFormData || initialData;
+
   // ===== ESTADOS LOCALES =====
-  const [currentFormData, setCurrentFormData] = useState(initialFormData);
+  const [currentFormData, setCurrentFormData] = useState(resolvedInitialData);
   const [imagePreview, setImagePreview] = useState(null);
   const [imageType, setImageType] = useState(null); // 'url', 'file', 'tmdb', null
 
   // ===== EFECTOS =====
 
   /**
-   * Actualizar datos del formulario cuando cambia initialFormData
+   * Actualizar datos del formulario cuando cambian los datos iniciales
    */
   useEffect(() => {
-    setCurrentFormData(initialFormData);
-  }, [initialFormData]);
+    setCurrentFormData(resolvedInitialData);
+  }, [resolvedInitialData]);
 
   /**
    * ✅ CORREGIDO: Analizar tipo de imagen y generar preview
    */
   useEffect(() => {
-    const { coverImageUrl, coverImageFile } = currentFormData;
+    const { coverImageUrl, coverImageFile, coverImage } = currentFormData;
 
     // Prioridad: archivo > URL > TMDB
     if (coverImageFile && coverImageFile instanceof File) {
@@ -75,18 +81,19 @@ function MovieFormView({
         console.error('❌ Error creando preview del archivo:', error);
         setImagePreview(null);
       }
-    } else if (coverImageUrl && typeof coverImageUrl === 'string' && coverImageUrl.trim()) {
-      if (coverImageUrl.includes('image.tmdb.org')) {
+    } else if ((coverImageUrl && typeof coverImageUrl === 'string' && coverImageUrl.trim()) || (typeof coverImage === 'string' && coverImage.trim())) {
+      const urlToCheck = coverImageUrl || coverImage;
+      if (urlToCheck.includes('image.tmdb.org')) {
         setImageType('tmdb');
       } else {
         setImageType('url');
       }
-      setImagePreview(coverImageUrl);
+      setImagePreview(urlToCheck);
     } else {
       setImageType(null);
       setImagePreview(null);
     }
-  }, [currentFormData.coverImageUrl, currentFormData.coverImageFile]);
+  }, [currentFormData.coverImageUrl, currentFormData.coverImageFile, currentFormData.coverImage]);
 
   // ===== FUNCIONES AUXILIARES =====
 
@@ -114,7 +121,7 @@ function MovieFormView({
       case 'file':
         return {
           badge: '📁 Archivo',
-          description: `Archivo subido: ${currentFormData.coverImageFile?.name || 'Unknown'}`,
+          description: `Archivo subido: ${currentFormData.coverImageFile?.name || currentFormData.coverImage?.name || 'Unknown'}`,
           bgClass: 'movie-form-view__image-info--file'
         };
       case 'url':
@@ -132,7 +139,15 @@ function MovieFormView({
    * Manejar envío del formulario con validaciones
    */
   const handleFormSubmit = (formData) => {
-    onSubmit?.(formData);
+    const movieData = {
+      title: formData.title,
+      categoryId: formData.categoryId || formData.category_id,
+      releaseYear: formData.releaseYear || formData.year,
+      description: formData.description,
+      video: formData.video || formData.video_file,
+      coverImage: formData.coverImage || formData.coverImageFile || formData.coverImageUrl
+    };
+    onSubmit?.(movieData);
   };
 
   /**
@@ -140,7 +155,16 @@ function MovieFormView({
    */
   const handleFormChange = (formData) => {
     setCurrentFormData(formData);
-    onChange?.(formData);
+    const movieData = {
+      title: formData.title,
+      categoryId: formData.categoryId || formData.category_id,
+      releaseYear: formData.releaseYear || formData.year,
+      description: formData.description,
+      video: formData.video || formData.video_file,
+      coverImage: formData.coverImage || formData.coverImageFile || formData.coverImageUrl
+    };
+    onChange?.(movieData);
+    onChangeDetected?.(movieData);
   };
 
   /**
@@ -269,7 +293,7 @@ function MovieFormView({
           {/* ===== FORMULARIO DINÁMICO ===== */}
           <div className="movie-form-view__form">
             <DynamicForm
-              fields={formFields}
+              fields={resolvedFields}
               onSubmit={handleFormSubmit}
               onChange={handleFormChange}
               initialData={currentFormData}
