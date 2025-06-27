@@ -155,8 +155,15 @@ function TMDBSearchView({
     if (formData.searchQuery !== undefined) {
       setSearchQuery(formData.searchQuery);
     }
+
     if (formData.sortBy !== undefined) {
-      setSortBy(formData.sortBy);
+      const newSort = formData.sortBy;
+      setSortBy(newSort);
+
+      // Reordenar resultados actuales si ya se ha buscado
+      setResults(prevResults =>
+        tmdbService.sortResults(Array.from(prevResults), newSort)
+      );
     }
   }, []);
 
