@@ -17,6 +17,15 @@
   transition: opacity var(--transition-normal);
 }
 
+/* Barra de progreso flotante */
+.movie-create-page__progress {
+  position: fixed;
+  left: 50%;
+  bottom: var(--space-xl);
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+}
+
 /* ===== ACCESIBILIDAD ===== */
 
 @media (prefers-reduced-motion: reduce) {
