@@ -18,6 +18,8 @@ import { MovieFormView } from './components/MovieFormView';
 import { createMovieService } from '../../../../services/Movies/createMovieService';
 import { getCategoriesService } from '../../../../services/Categories/getCategoriesService';
 import { tmdbService } from '../../../../services/tmdb/TMDBService';
+import { UploadProgress } from "../../../../components/atoms/UploadProgress/UploadProgress";
+import { useUploadProgress } from "../../../../hooks/useUploadProgress";
 
 // ===== ESTILOS =====
 import './MovieCreatePage.css';
@@ -47,6 +49,8 @@ function MovieCreatePage() {
   const [submitError, setSubmitError] = useState(null);
 
   // ===== ESTADO DE PROGRESO DE SUBIDA =====
+
+  const { progress, status, message, error: progressError, monitorProgress, resetProgress } = useUploadProgress();
 
   // ===== CARGAR CATEGORÍAS AL INICIO =====
   useEffect(() => {
@@ -264,13 +268,33 @@ function MovieCreatePage() {
       const result = await createMovieService(movieData);
 
       console.log('✅ Contenido creado exitosamente:', result);
+
       setSuccess(true);
       setHasChanges(false);
 
-      // Mostrar mensaje de éxito y redirigir
-      setTimeout(() => {
-        navigate('/admin/movies');
-      }, 2000);
+      const taskId = result?.taskId || result?.task_id || result?.id;
+
+      if (taskId) {
+        monitorProgress(taskId, 'movies', null, (finished, err) => {
+          if (finished) {
+            setSuccess(true);
+            setHasChanges(false);
+            setTimeout(() => {
+              navigate('/admin/movies');
+              resetProgress();
+            }, 2000);
+          } else if (err) {
+            setSubmitError(err);
+            resetProgress();
+          }
+        });
+      } else {
+        setSuccess(true);
+        setHasChanges(false);
+        setTimeout(() => {
+          navigate('/admin/movies');
+        }, 2000);
+      }
 
     } catch (err) {
       console.error('❌ Error al crear contenido:', err);
@@ -359,6 +383,16 @@ function MovieCreatePage() {
 
         </div>
       </Container>
+      {status !== 'idle' && (
+        <div className="movie-create-page__progress">
+          <UploadProgress
+            progress={progress}
+            status={status}
+            message={progressError || message}
+            size="md"
+          />
+        </div>
+      )}
     </AdminLayout>
   );
 }
