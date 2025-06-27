@@ -113,10 +113,17 @@ const DynamicForm = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Efecto para notificar cambios en los datos
+  // Mantener la última referencia de onChange para evitar loops
+  const onChangeRef = React.useRef(onChange);
+
   useEffect(() => {
-    onChange(formData);
-  }, [formData, onChange]);
+    onChangeRef.current = onChange;
+  }, [onChange]);
+
+  // Efecto para notificar cambios en los datos sin provocar ciclos infinitos
+  useEffect(() => {
+    onChangeRef.current(formData);
+  }, [formData]);
 
   // Función para obtener el número de columnas según el tamaño de pantalla
   const getResponsiveColumns = () => {
