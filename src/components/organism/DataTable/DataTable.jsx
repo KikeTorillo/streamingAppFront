@@ -1,4 +1,4 @@
-// ===== DATA TABLE ORGANISM - FIXED PROPS =====
+// ===== DATA TABLE ORGANISM - CON COMPONENTES BUTTON =====
 // src/components/organism/DataTable/DataTable.jsx
 
 import React, { useState, useMemo } from 'react';
@@ -40,7 +40,9 @@ function useDebounce(value, delay) {
 /**
  * DataTable - Organismo completo para mostrar datos tabulares
  * 
- * ✅ CORREGIDO: Props filtradas para evitar errores de DOM
+ * ✅ SISTEMA DE DISEÑO: Usa componente Button para todos los botones
+ * ✅ CONSISTENCIA: Headers, paginación y acciones con mismo estilo
+ * ✅ STORYBOOK: Solo componentes con stories
  */
 function DataTable({
   // Props de datos
@@ -50,6 +52,7 @@ function DataTable({
   // Props de estado
   loading = false,
   error = null,
+  deleting = null, // ID del elemento siendo eliminado
   
   // Props de acciones
   showActions = true,
@@ -65,7 +68,7 @@ function DataTable({
   pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 25,
   
-  // ✅ PROPS DE ESTADOS VACÍOS - FILTRADAS
+  // Props de estados vacíos
   emptyTitle = 'No hay datos',
   emptyDescription = 'No se encontraron resultados',
   emptyIcon = "📋",
@@ -75,44 +78,32 @@ function DataTable({
   className = '',
   variant = 'default', // 'default' | 'striped' | 'bordered' | 'compact'
   
-  // ✅ FILTRAR TODAS LAS PROPS PERSONALIZADAS
   ...restProps
 }) {
   
-  // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
+  // Filtrar props que no deben ir al DOM
   const {
-    // Props de datos
     data: _data,
     columns: _columns,
-    
-    // Props de estado
     loading: _loading,
     error: _error,
-    
-    // Props de acciones
+    deleting: _deleting,
     showActions: _showActions,
     onEdit: _onEdit,
     onDelete: _onDelete,
     onView: _onView,
     actionsColumnHeader: _actionsColumnHeader,
-    
-    // Props de búsqueda y paginación
     searchable: _searchable,
     searchPlaceholder: _searchPlaceholder,
     pageSize: _pageSize,
     pageSizeOptions: _pageSizeOptions,
     defaultPageSize: _defaultPageSize,
-    
-    // Props de estados vacíos
     emptyTitle: _emptyTitle,
     emptyDescription: _emptyDescription,
     emptyIcon: _emptyIcon,
     emptyAction: _emptyAction,
-    
-    // Props de customización
     variant: _variant,
-    
-    ...domProps // ✅ Solo props válidas para el DOM
+    ...domProps
   } = restProps;
 
   // ===== ESTADOS =====
@@ -127,7 +118,10 @@ function DataTable({
     return {
       id: 'actions',
       header: actionsColumnHeader,
+      size: 120,
       cell: ({ row }) => {
+        const isDeleting = deleting === row.original.id;
+        
         // Crear array de acciones dinámicamente
         const actions = [];
         
@@ -136,7 +130,8 @@ function DataTable({
             label: 'Ver detalle',
             icon: '👁️',
             onClick: onView,
-            description: 'Ver información completa'
+            description: 'Ver información completa',
+            disabled: isDeleting
           });
         }
         
@@ -145,17 +140,19 @@ function DataTable({
             label: 'Editar',
             icon: '✏️', 
             onClick: onEdit,
-            description: 'Modificar este elemento'
+            description: 'Modificar este elemento',
+            disabled: isDeleting
           });
         }
         
         if (onDelete) {
           actions.push({
-            label: 'Eliminar',
-            icon: '🗑️',
+            label: isDeleting ? 'Eliminando...' : 'Eliminar',
+            icon: isDeleting ? '⏳' : '🗑️',
             variant: 'danger',
             onClick: onDelete,
-            description: 'Eliminar permanentemente'
+            description: 'Eliminar permanentemente',
+            disabled: isDeleting
           });
         }
 
@@ -164,81 +161,48 @@ function DataTable({
             actions={actions}
             data={row.original}
             size="sm"
-            variant="ghost"
             position="bottom-right"
-            triggerLabel={`Acciones para fila ${row.index + 1}`}
+            disabled={loading || isDeleting}
           />
         );
-      },
-      size: 120,
-      enableSorting: false,
-      enableGlobalFilter: false,
+      }
     };
-  }, [showActions, actionsColumnHeader, onEdit, onDelete, onView]);
+  }, [showActions, onView, onEdit, onDelete, actionsColumnHeader, loading, deleting]);
 
+  // ===== COLUMNAS MEMOIZADAS =====
   const memoColumns = useMemo(() => {
-    const cols = [...columns];
-    if (actionColumn) {
-      cols.push(actionColumn);
-    }
-    return cols;
+    const baseColumns = columns || [];
+    return actionColumn ? [...baseColumns, actionColumn] : baseColumns;
   }, [columns, actionColumn]);
 
-  // ===== CONFIGURACIÓN DE REACT TABLE =====
+  // ===== CONFIGURACIÓN DE TABLA =====
   const table = useReactTable({
     data: data || [],
     columns: memoColumns,
-    state: { 
+    state: {
       globalFilter: debouncedGlobalFilter,
-      pagination: { pageIndex: 0, pageSize: currentPageSize }
+      pagination: {
+        pageIndex: 0,
+        pageSize: currentPageSize,
+      },
     },
     onGlobalFilterChange: setGlobalFilter,
-    onPaginationChange: (updater) => {
-      if (typeof updater === 'function') {
-        const newState = updater({ pageIndex: 0, pageSize: currentPageSize });
-        setCurrentPageSize(newState.pageSize);
-      }
-    },
+    globalFilterFn: 'includesString',
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
   });
 
-  // ===== MANEJO DE ERRORES =====
-  if (error) {
-    return (
-      <div 
-        className={`data-table ${className}`} 
-        {...domProps} // ✅ Solo props válidas del DOM
-      >
-        <div className="data-table__error">
-          <EmptyState
-            icon="❌"
-            title="Error al cargar datos"
-            description={error}
-            action={
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => window.location.reload()}
-              >
-                Reintentar
-              </Button>
-            }
-          />
-        </div>
-      </div>
-    );
-  }
+  // ===== ACTUALIZAR TAMAÑO DE PÁGINA =====
+  React.useEffect(() => {
+    table.setPageSize(currentPageSize);
+  }, [currentPageSize, table]);
 
-  // ===== ESTADO VACÍO =====
-  if (!loading && (!data || data.length === 0)) {
+  // ===== RENDER DE ESTADO VACÍO =====
+  if (!loading && (!data || data.length === 0) && !debouncedGlobalFilter) {
     return (
-      <div 
-        className={`data-table ${className}`} 
-        {...domProps} // ✅ Solo props válidas del DOM
-      >
+      <div className={`data-table data-table--empty data-table--${variant} ${className}`} {...domProps}>
         <div className="data-table__empty">
           <EmptyState
             icon={emptyIcon}
@@ -253,10 +217,7 @@ function DataTable({
 
   // ===== RENDER PRINCIPAL =====
   return (
-    <div 
-      className={`data-table data-table--${variant} ${className}`} 
-      {...domProps} // ✅ Solo props válidas del DOM
-    >
+    <div className={`data-table data-table--${variant} ${className}`} {...domProps}>
       {/* ===== CONTROLES SUPERIORES ===== */}
       {searchable && (
         <div className="data-table__controls">
@@ -279,13 +240,12 @@ function DataTable({
               onChange={(e) => setCurrentPageSize(Number(e.target.value))}
               size="sm"
               disabled={loading}
-            >
-              {pageSizeOptions.map(size => (
-                <option key={size} value={size}>
-                  {size} filas
-                </option>
-              ))}
-            </Select>
+              options={pageSizeOptions.map(size => ({
+                value: size,
+                label: `${size} filas`
+              }))}
+              placeholder="Tamaño"
+            />
           </div>
         </div>
       )}
@@ -293,7 +253,7 @@ function DataTable({
       {/* ===== TABLA ===== */}
       <div className="data-table__container">
         <table className="data-table__table">
-          {/* Header */}
+          {/* ===== HEADER CON COMPONENTE BUTTON ===== */}
           <thead className="data-table__thead">
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className="data-table__header-row">
@@ -307,21 +267,46 @@ function DataTable({
                   >
                     {header.isPlaceholder ? null : (
                       header.column.getCanSort() ? (
-                        <button
-                          className="data-table__sort-button"
+                        <Button
+                          variant="ghost"
+                          size="sm"
                           onClick={header.column.getToggleSortingHandler()}
-                          aria-label={`Ordenar por ${header.column.id}`}
+                          className="data-table__sort-button"
+                          style={{
+                            width: '100%',
+                            justifyContent: 'space-between',
+                            padding: 'var(--space-sm) var(--space-md)',
+                            fontWeight: 'var(--font-weight-semibold)',
+                            color: 'var(--text-secondary)',
+                            borderRadius: '0'
+                          }}
+                          rightIcon={
+                            {
+                              asc: '↑',
+                              desc: '↓'
+                            }[header.column.getIsSorted()] || '↕️'
+                          }
+                          ariaLabel={`Ordenar por ${header.column.id}`}
+                          disabled={loading}
                         >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                          <span className="data-table__sort-indicator">
-                            {{
-                              asc: ' ↑',
-                              desc: ' ↓',
-                            }[header.column.getIsSorted()] ?? ' ↕️'}
+                          <span style={{ 
+                            textAlign: 'left',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {flexRender(header.column.columnDef.header, header.getContext())}
                           </span>
-                        </button>
+                        </Button>
                       ) : (
-                        flexRender(header.column.columnDef.header, header.getContext())
+                        <div style={{
+                          padding: 'var(--space-sm) var(--space-md)',
+                          fontWeight: 'var(--font-weight-semibold)',
+                          color: 'var(--text-secondary)',
+                          textAlign: 'left'
+                        }}>
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                        </div>
                       )
                     )}
                   </th>
@@ -330,7 +315,7 @@ function DataTable({
             ))}
           </thead>
 
-          {/* Body */}
+          {/* ===== BODY ===== */}
           <tbody className="data-table__tbody">
             {loading ? (
               // Skeleton loading
@@ -359,7 +344,7 @@ function DataTable({
         </table>
       </div>
 
-      {/* ===== PAGINACIÓN ===== */}
+      {/* ===== PAGINACIÓN CON COMPONENTES BUTTON ===== */}
       {!loading && data && data.length > 0 && (
         <div className="data-table__footer">
           {/* Info de resultados */}
@@ -372,31 +357,52 @@ function DataTable({
             </span>
           </div>
 
-          {/* Controles de paginación */}
+          {/* ===== CONTROLES DE PAGINACIÓN CON BUTTON ===== */}
           <div className="data-table__pagination">
+            {/* Botón Primera Página */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.setPageIndex(0)}
+              disabled={!table.getCanPreviousPage()}
+              ariaLabel="Primera página"
+              icon="⏮️"
+            />
+            
+            {/* Botón Página Anterior */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              aria-label="Página anterior"
-            >
-              ←
-            </Button>
+              ariaLabel="Página anterior"
+              icon="←"
+            />
             
+            {/* Información de página */}
             <span className="data-table__page-info">
               Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
             </span>
             
+            {/* Botón Página Siguiente */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              aria-label="Página siguiente"
-            >
-              →
-            </Button>
+              ariaLabel="Página siguiente"
+              icon="→"
+            />
+            
+            {/* Botón Última Página */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+              disabled={!table.getCanNextPage()}
+              ariaLabel="Última página"
+              icon="⏭️"
+            />
           </div>
         </div>
       )}
