@@ -4,8 +4,9 @@
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { Button } from '../../atoms/Button/Button';
 import { Card, CardHeader, CardBody, CardTitle } from '../../atoms/Card/Card';
-import { ContentImage } from '../../atoms/ContentImage/ContentImage';
 import { DynamicForm } from '../../molecules/DynamicForm/DynamicForm';
+import { ContentCard } from '../../molecules/ContentCard/ContentCard';
+import { EmptyState } from '../../molecules/EmptyState/EmptyState';
 import { tmdbService } from '../../../services/tmdb/TMDBService';
 import './TMDBSearchView.css';
 
@@ -176,219 +177,127 @@ function TMDBSearchView({
   }, [onSelectItem]);
 
   // ===== FUNCIONES DE RENDERIZADO =====
-  const renderResultItem = useCallback((item) => {
-    const {
-      id,
-      title = item.name || 'Sin título',
-      type = 'movie',
-      year = 'N/A',
-      rating = 'N/A',
-      overview = '',
-      poster_path = null,
-      tmdb_id = id
-    } = item;
+  const renderResultItem = useCallback(
+    (item) => {
+      const {
+        id,
+        title = item.name || 'Sin título',
+        type = 'movie',
+        year = 'N/A',
+        rating = 'N/A',
+        poster_path = null,
+      } = item;
 
-    const posterUrl = poster_path || null;
-    const contentTypeLabel = type === 'tv' ? 'Serie' : type === 'movie' ? 'Película' : 'Contenido';
-    const displayRating = typeof rating === 'number' ? rating.toFixed(1) : rating;
+      const content = {
+        id,
+        title,
+        cover: poster_path,
+        year,
+        rating,
+        type: type === 'tv' ? 'series' : type,
+      };
 
-    return (
-      <div 
-        key={`tmdb-${id}-${type}`}
-        className="tmdb-search-view__result-item"
-        onClick={() => handleItemClick(item)}
-        tabIndex={0}
-        role="button"
-        aria-label={`Seleccionar ${contentTypeLabel}: ${title} (${year})`}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleItemClick(item);
-          }
-        }}
-      >
-        <div className="tmdb-search-view__result-content">
-          <div className="tmdb-search-view__result-poster">
-            <ContentImage
-              src={posterUrl}
-              alt={`Poster de ${title}`}
-              className="tmdb-search-view__poster-image"
-              fallbackIcon="🎬"
-              loading="lazy"
-            />
-          </div>
-          
-          <div className="tmdb-search-view__result-info">
-            <h3 className="tmdb-search-view__result-title" title={title}>
-              {title}
-            </h3>
-            
-            <div className="tmdb-search-view__result-meta">
-              <span className="tmdb-search-view__result-type">
-                {contentTypeLabel}
-              </span>
-              <span className="tmdb-search-view__result-year">
-                {year}
-              </span>
-              {displayRating !== 'N/A' && (
-                <span className="tmdb-search-view__result-rating">
-                  ⭐ {displayRating}
-                </span>
-              )}
-            </div>
-            
-            {overview && (
-              <p className="tmdb-search-view__result-overview">
-                {overview}
-              </p>
-            )}
-            
-            <div className="tmdb-search-view__result-action">
-              <Button 
-                variant="outline" 
-                size="sm"
-                leftIcon="✅"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleItemClick(item);
-                }}
-              >
-                Seleccionar
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }, [handleItemClick]);
+      return (
+        <ContentCard
+          key={`tmdb-${id}-${type}`}
+          content={content}
+          size="md"
+          showCategory={false}
+          showMeta={false}
+          showRating={rating !== 'N/A'}
+          onClick={() => handleItemClick(item)}
+        />
+      );
+    },
+    [handleItemClick]
+  );
 
   // ===== ESTADOS DE LA INTERFAZ =====
   const renderWelcomeState = () => (
-    <Card className="tmdb-search-view__welcome-card">
-      <CardBody>
-        <div className="tmdb-search-view__welcome">
-          <div className="tmdb-search-view__welcome-icon">🎬</div>
-          <h3 className="tmdb-search-view__welcome-title">
-            Buscar en The Movie Database
-          </h3>
-          <p className="tmdb-search-view__welcome-description">
-            Ingresa el nombre de una película o serie para buscar en la base de datos más completa del mundo.
-          </p>
-          
-          <div className="tmdb-search-view__welcome-tips">
-            <h4>💡 Consejos para mejores resultados:</h4>
-            <ul>
-              <li>Usa el título original en inglés para mejores resultados</li>
-              <li>Incluye el año si hay múltiples versiones</li>
-              <li>Busca por palabras clave si no recuerdas el título exacto</li>
-              <li>Prueba con títulos alternativos o abreviaciones</li>
-            </ul>
-          </div>
+    <EmptyState
+      icon="🎬"
+      title="Buscar en The Movie Database"
+      description="Ingresa el nombre de una película o serie para buscar en la base de datos más completa del mundo."
+      action={(
+        <div className="tmdb-search-view__welcome-tips">
+          <h4>💡 Consejos para mejores resultados:</h4>
+          <ul>
+            <li>Usa el título original en inglés para mejores resultados</li>
+            <li>Incluye el año si hay múltiples versiones</li>
+            <li>Busca por palabras clave si no recuerdas el título exacto</li>
+            <li>Prueba con títulos alternativos o abreviaciones</li>
+          </ul>
         </div>
-      </CardBody>
-    </Card>
+      )}
+    />
   );
 
   const renderLoadingState = () => (
-    <Card className="tmdb-search-view__loading-card">
-      <CardBody>
-        <div className="tmdb-search-view__loading">
-          <div className="tmdb-search-view__loading-icon">⏳</div>
-          <h3 className="tmdb-search-view__loading-title">
-            Buscando en TMDB...
-          </h3>
-          <p className="tmdb-search-view__loading-description">
-            Consultando la base de datos de The Movie Database
-          </p>
-          <div className="tmdb-search-view__loading-spinner">
-            <div className="spinner"></div>
-          </div>
-        </div>
-      </CardBody>
-    </Card>
+    <EmptyState
+      icon={<div className="tmdb-search-view__loading-spinner"><div className="spinner" /></div>}
+      title="Buscando en TMDB..."
+      description="Consultando la base de datos de The Movie Database"
+    />
   );
 
   const renderErrorState = () => (
-    <Card className="tmdb-search-view__error-card">
-      <CardBody>
-        <div className="tmdb-search-view__error">
-          <div className="tmdb-search-view__error-icon">❌</div>
-          <h3 className="tmdb-search-view__error-title">
-            Error en la búsqueda
-          </h3>
-          <p className="tmdb-search-view__error-message">
-            {error}
-          </p>
-          
-          <div className="tmdb-search-view__error-actions">
-            <Button 
-              variant="outline" 
-              size="sm"
-              leftIcon="🔄"
-              onClick={performSearch}
-              disabled={!isApiKeyValid}
-            >
-              Intentar de nuevo
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              leftIcon="🗑️"
-              onClick={handleClearResults}
-            >
-              Limpiar
-            </Button>
-          </div>
+    <EmptyState
+      icon="❌"
+      title="Error en la búsqueda"
+      description={error}
+      action={(
+        <div className="tmdb-search-view__error-actions">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon="🔄"
+            onClick={performSearch}
+            disabled={!isApiKeyValid}
+          >
+            Intentar de nuevo
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            leftIcon="🗑️"
+            onClick={handleClearResults}
+          >
+            Limpiar
+          </Button>
         </div>
-      </CardBody>
-    </Card>
+      )}
+      variant="error"
+    />
   );
 
   const renderEmptyState = () => (
-    <Card className="tmdb-search-view__empty-card">
-      <CardBody>
-        <div className="tmdb-search-view__empty">
-          <div className="tmdb-search-view__empty-icon">🔍</div>
-          <h3 className="tmdb-search-view__empty-title">
-            Sin resultados
-          </h3>
-          <p className="tmdb-search-view__empty-description">
-            No se encontraron resultados para "{safeSearchQuery}".
-          </p>
-          
-          <div className="tmdb-search-view__empty-suggestions">
-            <h4>Intenta con:</h4>
-            <ul>
-              <li>Verificar la ortografía del título</li>
-              <li>Usar el título en inglés</li>
-              <li>Buscar con menos palabras</li>
-              <li>Usar palabras clave generales</li>
-            </ul>
-          </div>
-          
-          <div className="tmdb-search-view__empty-actions">
-            <Button 
-              variant="outline" 
+    <EmptyState
+      icon="🔍"
+      title="Sin resultados"
+      description={`No se encontraron resultados para "${safeSearchQuery}".`}
+      action={(
+        <div className="tmdb-search-view__empty-actions">
+          <Button
+            variant="outline"
+            size="sm"
+            leftIcon="🔄"
+            onClick={handleClearResults}
+          >
+            Nueva búsqueda
+          </Button>
+          {showManualCreate && (
+            <Button
+              variant="secondary"
               size="sm"
-              leftIcon="🔄"
-              onClick={handleClearResults}
+              leftIcon="✏️"
+              onClick={onManualCreate}
             >
-              Nueva búsqueda
+              Crear manualmente
             </Button>
-            {showManualCreate && (
-              <Button 
-                variant="secondary" 
-                size="sm"
-                leftIcon="✏️"
-                onClick={onManualCreate}
-              >
-                Crear manualmente
-              </Button>
-            )}
-          </div>
+          )}
         </div>
-      </CardBody>
-    </Card>
+      )}
+    />
   );
 
   // ===== RENDER PRINCIPAL =====
