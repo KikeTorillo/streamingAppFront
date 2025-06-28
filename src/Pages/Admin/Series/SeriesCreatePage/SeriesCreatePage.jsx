@@ -1,4 +1,4 @@
-// ===== SERIES CREATE PAGE - BASADO EN MOVIECREATEPAGE =====
+// ===== SERIES CREATE PAGE - VERSION ACTUALIZADA =====
 // src/Pages/Admin/Series/SeriesCreatePage/SeriesCreatePage.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -25,11 +25,12 @@ import { useUploadProgress } from "../../../../hooks/useUploadProgress";
 import './SeriesCreatePage.css';
 
 /**
- * SeriesCreatePage - Página para crear series usando TMDB y formulario manual
- * ✅ INTEGRACIÓN TMDB: Conecta con la API real para buscar series
- * ✅ FORMULARIO OPTIMIZADO: Campos específicos para series según el sistema de diseño
- * ✅ SERVICIO CORRECTO: Usa createSeriesService existente
+ * SeriesCreatePage - VERSIÓN ACTUALIZADA SIN ORIGINAL_TITLE
+ * ✅ CAMPO REMOVIDO: original_title eliminado del formulario
  * ✅ FILTRO DE CAMPOS: Solo envía campos con valores al backend
+ * ✅ INTEGRACIÓN TMDB: Conecta con la API real usando VITE_TMDB_API_KEY
+ * ✅ BÚSQUEDA FUNCIONAL: Películas y series desde TMDB
+ * ✅ FORMULARIO OPTIMIZADO: Campos correctos según el sistema de diseño
  * ✅ MANEJO DE ERRORES: Validaciones y estados de error mejorados
  * ✅ UX MEJORADA: Estados de carga, confirmaciones, navegación fluida
  */
@@ -40,236 +41,122 @@ function SeriesCreatePage() {
   const [currentView, setCurrentView] = useState('search'); // 'search' | 'form'
   const [selectedItem, setSelectedItem] = useState(null);
   const [categories, setCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
-  const [categoriesError, setCategoriesError] = useState(null);
-  const [formLoading, setFormLoading] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // ===== HOOK DE PROGRESO =====
-  const { progress, status, message, progressError, startProgress, updateProgress, completeProgress, errorProgress } = useUploadProgress();
+  // ===== ESTADOS DE FORMULARIO =====
+  const [formLoading, setFormLoading] = useState(false);
+  const [categoriesLoading, setCategoriesLoading] = useState(false);
+  const [categoriesError, setCategoriesError] = useState(null);
+  const [submitError, setSubmitError] = useState(null);
 
-  // ===== EFECTOS =====
+  // ===== ESTADO DE PROGRESO DE SUBIDA =====
+  const { progress, status, message, error: progressError, monitorProgress, resetProgress } = useUploadProgress();
+
+  // ===== CARGAR CATEGORÍAS AL INICIO =====
   useEffect(() => {
+    const loadCategories = async () => {
+      setCategoriesLoading(true);
+      setCategoriesError(null);
+
+      try {
+        console.log('📂 Cargando categorías...');
+        const response = await getCategoriesService();
+
+        const data = Array.isArray(response) ? response : 
+                     response?.data ? response.data : 
+                     response?.categories ? response.categories : [];
+
+        console.log('📂 Categorías cargadas:', data);
+        setCategories(data);
+
+        if (data.length === 0) {
+          setCategoriesError('No hay categorías disponibles. Ve a Administrar > Categorías para crear una.');
+        }
+      } catch (err) {
+        console.error('❌ Error cargando categorías:', err);
+        setCategoriesError('Error al cargar categorías. Verifica tu conexión.');
+        setCategories([]);
+      } finally {
+        setCategoriesLoading(false);
+      }
+    };
+
     loadCategories();
   }, []);
 
-  // ===== FUNCIONES DE CARGA =====
-  const loadCategories = async () => {
-    try {
-      setCategoriesLoading(true);
-      setCategoriesError(null);
-      const data = await getCategoriesService();
-      setCategories(data || []);
-    } catch (error) {
-      console.error('❌ Error cargando categorías:', error);
-      setCategoriesError('Error al cargar categorías');
-      setCategories([]);
-    } finally {
-      setCategoriesLoading(false);
-    }
-  };
-
-  // ===== MANEJADORES DE EVENTOS =====
-
-  /**
-   * Manejar selección de elemento desde TMDB
-   */
+  // ===== HANDLERS DE NAVEGACIÓN =====
   const handleSelectFromTMDB = (item) => {
-    console.log('📺 Serie seleccionada desde TMDB:', item);
+    console.log('📺 Elemento seleccionado de TMDB:', item);
     setSelectedItem(item);
     setCurrentView('form');
-    setSubmitError(null);
-    setSuccess(false);
     setHasChanges(false);
+    setSubmitError(null);
   };
 
-  /**
-   * Manejar creación manual (sin TMDB)
-   */
   const handleManualCreate = () => {
-    console.log('📝 Creación manual de serie');
+    console.log('✏️ Creación manual iniciada');
     setSelectedItem(null);
     setCurrentView('form');
-    setSubmitError(null);
-    setSuccess(false);
     setHasChanges(false);
+    setSubmitError(null);
   };
 
-  /**
-   * Regresar a la búsqueda
-   */
   const handleBackToSearch = () => {
     if (hasChanges) {
       const confirmLeave = window.confirm(
-        '¿Estás seguro de que quieres volver? Se perderán los cambios no guardados.'
+        '⚠️ Hay cambios sin guardar. ¿Estás seguro de que quieres volver? Se perderán los cambios no guardados.'
       );
       if (!confirmLeave) return;
     }
-    
-    setCurrentView('search');
+
     setSelectedItem(null);
-    setSubmitError(null);
-    setSuccess(false);
+    setCurrentView('search');
     setHasChanges(false);
+    setSubmitError(null);
   };
 
-  /**
-   * Filtrar campos vacíos antes de enviar
-   */
-  const filterEmptyFields = (formData) => {
-    const filteredData = {};
-    
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value !== null && value !== undefined && value !== '') {
-        if (value instanceof File) {
-          filteredData[key] = value;
-        } else if (typeof value === 'string' && value.trim()) {
-          filteredData[key] = value.trim();
-        } else if (typeof value === 'number' && !isNaN(value)) {
-          filteredData[key] = value;
-        } else if (typeof value === 'boolean') {
-          filteredData[key] = value;
-        }
-      }
-    });
-
-    return filteredData;
-  };
-
-  /**
-   * Manejar envío del formulario
-   */
-  const handleFormSubmit = async (formData) => {
-    console.log('📤 Enviando datos de serie:', formData);
-    
-    try {
-      setFormLoading(true);
-      setSubmitError(null);
-      startProgress();
-
-      // Validar campos requeridos específicos para series
-      if (!formData.title?.trim()) {
-        throw new Error('El título es requerido');
-      }
-      
-      if (!formData.categoryId) {
-        throw new Error('La categoría es requerida');
-      }
-
-      // Determinar imagen de portada (prioridad: archivo > URL > TMDB)
-      let coverImage = null;
-      if (formData.coverImageFile && formData.coverImageFile instanceof File) {
-        coverImage = formData.coverImageFile;
-      } else if (formData.coverImageUrl?.trim()) {
-        coverImage = formData.coverImageUrl.trim();
-      } else if (selectedItem?.poster_path) {
-        coverImage = selectedItem.poster_path;
-      }
-
-      if (!coverImage) {
-        throw new Error('La imagen de portada es requerida');
-      }
-
-      // Filtrar campos vacíos y preparar datos finales
-      const filteredData = filterEmptyFields({
-        title: formData.title,
-        description: formData.description,
-        categoryId: formData.categoryId,
-        releaseYear: formData.releaseYear || new Date().getFullYear(),
-        tmdb_id: selectedItem?.id || formData.tmdb_id,
-        media_type: 'tv' // Series siempre son 'tv'
-      });
-
-      // Agregar imagen de portada
-      filteredData.coverImage = coverImage;
-
-      updateProgress(50, 'Procesando datos de la serie...');
-
-      // Llamar al servicio para crear la serie
-      const result = await createSeriesService(filteredData);
-      
-      updateProgress(100, 'Serie creada exitosamente');
-      completeProgress();
-      
-      console.log('✅ Serie creada exitosamente:', result);
-      setSuccess(true);
-      setHasChanges(false);
-
-      // Redirigir después de 2 segundos
-      setTimeout(() => {
-        navigate('/admin/series');
-      }, 2000);
-
-    } catch (err) {
-      console.error('❌ Error al crear serie:', err);
-      errorProgress();
-      
-      let errorMessage = 'Error inesperado al crear la serie';
-      if (err.response?.status === 400) {
-        errorMessage = err.response.data?.message || 'Datos inválidos en el formulario.';
-      } else if (err.response?.status === 401) {
-        errorMessage = 'Sesión expirada. Inicia sesión nuevamente.';
-      } else if (err.response?.status === 403) {
-        errorMessage = 'No tienes permisos para crear series.';
-      } else if (err.response?.status === 409) {
-        errorMessage = 'Esta serie ya existe en el sistema.';
-      } else if (err.response?.status >= 500) {
-        errorMessage = 'Error del servidor. Intenta más tarde.';
-      } else if (err.message) {
-        errorMessage = err.message;
-      }
-
-      setSubmitError(errorMessage);
-    } finally {
-      setFormLoading(false);
-    }
-  };
-
-  // ===== GENERACIÓN DE CAMPOS DEL FORMULARIO =====
+  // ===== GENERACIÓN DE CAMPOS DEL FORMULARIO (SIN ORIGINAL_TITLE) =====
   const generateFormFields = () => {
     return [
       {
         name: 'title',
         type: 'text',
-        label: 'Título de la Serie *',
+        label: 'Título *',
         placeholder: 'Ej: Breaking Bad, Game of Thrones...',
         required: true,
         leftIcon: '📺',
-        helperText: 'Nombre oficial o título principal de la serie',
-        maxLength: 200,
-        showCharCount: true
+        helperText: 'Título principal que aparecerá en el catálogo'
       },
       {
         name: 'description',
         type: 'textarea',
-        label: 'Sinopsis/Descripción',
-        placeholder: 'Escribe una descripción atractiva de la serie...',
+        label: 'Descripción *',
+        placeholder: 'Escribe una descripción atractiva del contenido...',
+        required: true,
+        rows: 4,
         leftIcon: '📝',
-        helperText: 'Resumen de la trama y características principales',
-        maxLength: 1000,
-        showCharCount: true,
-        rows: 4
+        helperText: 'Descripción que aparecerá en la página de detalles'
       },
       {
         name: 'releaseYear',
         type: 'number',
         label: 'Año de Estreno *',
-        placeholder: new Date().getFullYear(),
+        placeholder: new Date().getFullYear().toString(),
         required: true,
-        leftIcon: '📅',
-        helperText: 'Año en que se estrenó la primera temporada',
         min: 1900,
-        max: new Date().getFullYear() + 5
+        max: new Date().getFullYear() + 5,
+        leftIcon: '📅',
+        helperText: 'Año de estreno original'
       },
       {
         name: 'categoryId',
         type: 'select',
         label: (() => {
-          if (categoriesError) return '❌ Error al cargar categorías';
           if (categoriesLoading) return '⏳ Cargando categorías...';
-          return `📋 Categoría Principal * (${categories.length} disponibles)`;
+          if (categoriesError) return '❌ Error al cargar categorías';
+          if (categories.length === 0) return '📋 Sin categorías disponibles - Ve a Administrar > Categorías para crear una.';
+          return `📋 Selecciona la categoría principal (${categories.length} disponibles)`;
         })(),
         placeholder: categoriesLoading ? 'Cargando categorías...' : 'Selecciona una categoría',
         required: true,
@@ -279,7 +166,7 @@ function SeriesCreatePage() {
           label: cat.name
         })),
         disabled: categoriesLoading || categories.length === 0,
-        helperText: categoriesError || 'Categoría principal para organizar la serie'
+        helperText: categoriesError || 'Categoría principal para organizar el contenido'
       },
       {
         name: 'email',
@@ -308,7 +195,7 @@ function SeriesCreatePage() {
     ];
   };
 
-  // ===== GENERACIÓN DE DATOS INICIALES =====
+  // ===== GENERACIÓN DE DATOS INICIALES (SIN ORIGINAL_TITLE) =====
   const generateInitialFormData = (item) => {
     const baseData = {
       title: '',
@@ -328,7 +215,7 @@ function SeriesCreatePage() {
         ...baseData,
         title: item.name || item.title || baseData.title,
         description: item.overview || baseData.description,
-        releaseYear: item.year || (item.first_air_date ? new Date(item.first_air_date).getFullYear() : 
+        releaseYear: item.year || (item.first_air_date ? new Date(item.first_air_date).getFullYear() :
           item.release_date ? new Date(item.release_date).getFullYear() : baseData.releaseYear),
         coverImageUrl: item.poster_path || baseData.coverImageUrl,
         tmdb_id: item.id || item.tmdb_id || baseData.tmdb_id,
@@ -339,23 +226,119 @@ function SeriesCreatePage() {
     return baseData;
   };
 
+  // ===== FUNCIÓN PARA FILTRAR CAMPOS VACÍOS =====
+  const filterEmptyFields = (data) => {
+    const filteredData = {};
+    
+    Object.keys(data).forEach(key => {
+      const value = data[key];
+      
+      // Solo incluir el campo si tiene un valor válido
+      if (value !== null && value !== undefined && value !== '') {
+        // Para archivos, verificar que sea un File válido
+        if (value instanceof File) {
+          filteredData[key] = value;
+        }
+        // Para strings, verificar que no estén vacíos después de trim
+        else if (typeof value === 'string' && value.trim() !== '') {
+          filteredData[key] = value.trim();
+        }
+        // Para números, verificar que sean válidos
+        else if (typeof value === 'number' && !isNaN(value)) {
+          filteredData[key] = value;
+        }
+        // Para otros tipos de datos válidos
+        else if (typeof value !== 'string') {
+          filteredData[key] = value;
+        }
+      }
+    });
+    
+    return filteredData;
+  };
+
+  // ===== HANDLER DEL FORMULARIO CON FILTRO DE CAMPOS VACÍOS =====
+  const handleFormSubmit = async (seriesData) => {
+    setFormLoading(true);
+    setSubmitError(null);
+
+    try {
+      console.log('📤 Datos originales:', seriesData);
+      
+      // Filtrar campos vacíos antes de enviar
+      const filteredData = filterEmptyFields(seriesData);
+      console.log('📤 Datos filtrados (sin campos vacíos):', filteredData);
+
+      const result = await createSeriesService(filteredData);
+
+      console.log('✅ Contenido creado exitosamente:', result);
+
+      setSuccess(true);
+      setHasChanges(false);
+
+      const taskId = result?.taskId || result?.task_id || result?.id;
+
+      if (taskId) {
+        monitorProgress(taskId, 'series', null, (finished, err) => {
+          if (finished) {
+            setSuccess(true);
+            setHasChanges(false);
+            setTimeout(() => {
+              navigate('/admin/series');
+              resetProgress();
+            }, 2000);
+          } else if (err) {
+            setSubmitError(err);
+            resetProgress();
+          }
+        });
+      } else {
+        setSuccess(true);
+        setHasChanges(false);
+        setTimeout(() => {
+          navigate('/admin/series');
+        }, 2000);
+      }
+
+    } catch (err) {
+      console.error('❌ Error al crear contenido:', err);
+
+      let errorMessage = 'Error desconocido al crear el contenido.';
+      if (err.response?.status === 400) {
+        errorMessage = err.response.data?.message || 'Datos inválidos en el formulario.';
+      } else if (err.response?.status === 401) {
+        errorMessage = 'Sesión expirada. Inicia sesión nuevamente.';
+      } else if (err.response?.status === 403) {
+        errorMessage = 'No tienes permisos para crear contenido.';
+      } else if (err.response?.status >= 500) {
+        errorMessage = 'Error del servidor. Intenta más tarde.';
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+
+      setSubmitError(errorMessage);
+    } finally {
+      setFormLoading(false);
+    }
+  };
+
   // ===== RENDER PRINCIPAL =====
   return (
     <AdminLayout>
       <Container size='lg'>
-        <div className={`series-create-page ${formLoading ? 'series-create--loading' : ''}`}>
+        <div className="series-create-page">
           {/* Header */}
           <Card className="series-create-page__header">
             <CardHeader>
               <CardTitle>
-                {currentView === 'search' ? '🔍 Buscar Series' : '📺 Crear Serie'}
+                {currentView === 'search' ? '🔍 Buscar Series' : '📝 Crear Serie'}
               </CardTitle>
               <p className="series-create-page__description">
                 {currentView === 'search'
-                  ? 'Busca series en TMDB o crea series manualmente'
+                  ? 'Busca series en TMDB o crea contenido manualmente'
                   : selectedItem
                     ? `Creando: ${selectedItem.name || selectedItem.title || 'Serie desde TMDB'}`
-                    : 'Creando serie manualmente'
+                    : 'Creando contenido manualmente'
                 }
               </p>
             </CardHeader>
@@ -380,7 +363,7 @@ function SeriesCreatePage() {
               onSelectItem={handleSelectFromTMDB}
               onManualCreate={handleManualCreate}
               contentType="tv"
-              title="📺 Buscar Series en TMDB"
+              title="📺 Buscar en TMDB"
               description="Busca series en The Movie Database para agregar a tu catálogo"
               placeholder="Ej: Breaking Bad, Game of Thrones, The Office..."
               helperText="Busca por título, año o palabras clave"
