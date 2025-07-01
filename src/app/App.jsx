@@ -1,4 +1,4 @@
-// App.jsx - Actualizado con rutas completas del panel de administración
+// App.jsx - Actualizado con rutas completas del panel de administración + Episodes
 import React from "react";
 import { useRoutes, BrowserRouter } from "react-router-dom";
 
@@ -27,6 +27,11 @@ import { MovieCreatePage } from "../Pages/Admin/Movies/MovieCreatePage/MovieCrea
 // ===== RUTAS DE SERIES - ACTIVADAS =====
 import { SeriesListPage } from '../Pages/Admin/Series/SeriesListPage/SeriesListPage';
 import { SeriesCreatePage } from '../Pages/Admin/Series/SeriesCreatePage/SeriesCreatePage';
+
+// ===== 🆕 RUTAS DE EPISODES - NUEVAS =====
+import { EpisodesListPage } from '../Pages/Admin/Episodes/EpisodesListPage/EpisodesListPage';
+// import { EpisodeCreatePage } from '../Pages/Admin/Episodes/EpisodeCreatePage/EpisodeCreatePage'; // Para futuro
+// import { EpisodeEditPage } from '../Pages/Admin/Episodes/EpisodeEditPage/EpisodeEditPage'; // Para futuro
 
 import "./App.css";
 
@@ -198,6 +203,43 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
+
+    // ===== 🆕 GESTIÓN DE EPISODES - NUEVAS RUTAS =====
+    {
+      path: "/admin/episodes",
+      element: (
+        <AdminRoute>
+          <EpisodesListPage />
+        </AdminRoute>
+      )
+    },
+    // 🔮 RUTAS FUTURAS - Descomenta cuando implementes las páginas
+    /*
+    {
+      path: "/admin/episodes/create",
+      element: (
+        <AdminRoute>
+          <EpisodeCreatePage />
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/episodes/edit/:id",
+      element: (
+        <AdminRoute>
+          <EpisodeEditPage />
+        </AdminRoute>
+      )
+    },
+    {
+      path: "/admin/episodes/view/:id",
+      element: (
+        <AdminRoute>
+          <EpisodeViewPage />
+        </AdminRoute>
+      )
+    },
+    */
 
     // ===== RUTA DE FALLBACK =====
     {
