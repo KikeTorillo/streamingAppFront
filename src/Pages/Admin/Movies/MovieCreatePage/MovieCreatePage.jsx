@@ -169,14 +169,6 @@ function MovieCreatePage() {
         helperText: categoriesError || 'Categoría principal para organizar el contenido'
       },
       {
-        name: 'email',
-        type: 'email',
-        label: 'Correo Electrónico',
-        placeholder: 'opcional@ejemplo.com',
-        leftIcon: '📧',
-        helperText: 'Correo de contacto opcional (no se enviará si está vacío)'
-      },
-      {
         name: 'coverImageUrl',
         type: 'text',
         label: 'URL de Portada',

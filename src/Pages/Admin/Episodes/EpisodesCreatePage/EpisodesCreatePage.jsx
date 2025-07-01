@@ -401,7 +401,7 @@ function EpisodesCreatePage() {
           columnsPerRow={2}
           tabletColumns={1}
           mobileColumns={1}
-          fieldSize="lg"
+          fieldSize="md"
           fieldRounded="md"
           submitText={
             status === 'processing' ? "Procesando..." :
