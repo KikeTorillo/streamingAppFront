@@ -1,7 +1,8 @@
-// atoms/Select/Select.stories.jsx
+// ===== SELECT ATOM STORIES =====
+// src/components/atoms/Select/Select.stories.jsx
+
 import React, { useState } from 'react';
 import { Select } from './Select';
-import './Select.css';
 
 export default {
   title: 'Components/Atoms/Select',
@@ -13,23 +14,20 @@ export default {
         component: `
 # Select Atom
 
-El átomo **Select** es el componente base para campos de selección en nuestro sistema de diseño. 
-Mantiene total consistencia con el átomo Input y proporciona una experiencia de selección accesible.
+El átomo **Select** es el componente base para campos de selección en nuestro sistema de diseño.
 
 ## 🎯 Características principales
 
-- **5 tamaños responsive**: XS, SM, MD, LG, XL (área táctil mínima de 44px en móviles)
-- **4 variantes semánticas**: Default, Error, Success, Warning
-- **5 opciones de border radius**: SM, MD, LG, XL, Full  
-- **Estados completos**: Normal, Focus, Hover, Disabled
-- **Flecha personalizada**: SVG con animaciones y estados reactivos
-- **Opciones flexibles**: Strings simples o objetos {value, label, disabled}
-- **Accesibilidad completa**: ARIA attributes, navegación por teclado
-- **Consistencia con Input**: Estilos y comportamientos idénticos
+- **5 tamaños**: XS (28px), SM (32px), MD (40px), LG (48px), XL (56px)
+- **4 variantes**: Default, Success, Warning, Error
+- **Estados completos**: Normal, Hover, Focus, Disabled
+- **Accesibilidad**: ARIA attributes, navegación por teclado, opciones deshabilitadas
+- **Theming**: Variables CSS del sistema, modo oscuro automático
+- **Mobile-first**: Área táctil mínima 44px, responsive
 
 ## 🔧 Uso básico
 
-\`\`\`jsx
+\\\`\\\`\\\`jsx
 import { Select } from './atoms/Select';
 
 // Opciones simples
@@ -42,31 +40,48 @@ const detailedOptions = [
   { value: 'ca', label: 'Canadá', disabled: true }
 ];
 
-// Uso básico
+// Uso simple
 <Select 
   options={options}
   placeholder="Selecciona una opción"
   onChange={handleChange}
 />
 
-// Con todas las opciones
+// Con variante semántica  
+<Select 
+  options={detailedOptions}
+  variant="success"
+  size="lg"
+  rounded="lg"
+/>
+
+// Ejemplo completo
 <Select 
   options={detailedOptions}
   size="lg"
-  variant="success"
-  rounded="lg"
+  variant="default"
+  rounded="md"
   placeholder="Selecciona tu país"
   required
   ariaLabel="País de residencia"
 />
-\`\`\`
+\\\`\\\`\\\`
 
 ## ♿ Accesibilidad
 
-- **ARIA attributes**: \`aria-label\`, \`aria-describedby\`, \`aria-errormessage\`
-- **Estados semánticos**: \`aria-invalid\` automático en errores
-- **Navegación por teclado**: Flechas, Enter, Escape, búsqueda por letra
-- **Opciones deshabilitadas**: Excluidas de navegación
+- **ARIA attributes**: aria-label, aria-describedby, aria-invalid automático
+- **Navegación por teclado**: Flechas arriba/abajo, Enter, Escape, Tab
+- **Estados semánticos**: aria-invalid en variante error
+- **Opciones deshabilitadas**: Excluidas de navegación por teclado
+- **Screen readers**: Anuncios contextuales y cambios de estado
+
+## 🏗️ Atomic Design
+
+Como **átomo**, Select es:
+- ✅ **Reutilizable**: Se puede usar en cualquier contexto
+- ✅ **Sin dependencias**: No depende de otros componentes del sistema
+- ✅ **Propósito único**: Selección de opciones con accesibilidad completa
+- ✅ **Altamente configurable**: 5 tamaños, 4 variantes, múltiples estados
         `
       }
     }
@@ -77,12 +92,13 @@ const detailedOptions = [
       description: 'Array de opciones - strings simples o objetos {value, label, disabled}',
       control: 'object',
       table: {
-        type: { summary: 'Array<string | {value: string, label: string, disabled?: boolean}>' }
+        type: { summary: 'Array<string | {value: string, label: string, disabled?: boolean}>' },
+        defaultValue: { summary: '[]' }
       }
     },
     size: {
       name: 'Tamaño',
-      description: 'Tamaño del select',
+      description: 'Tamaño del select - controla padding, font-size y altura mínima',
       control: 'select',
       options: ['xs', 'sm', 'md', 'lg', 'xl'],
       table: {
@@ -92,9 +108,9 @@ const detailedOptions = [
     },
     variant: {
       name: 'Variante',
-      description: 'Estilo visual del select',
+      description: 'Estilo visual semántico del select - afecta colores de borde y fondo',
       control: 'select',
-      options: ['default', 'error', 'success', 'warning'],
+      options: ['default', 'success', 'warning', 'error'],
       table: {
         type: { summary: 'string' },
         defaultValue: { summary: "'default'" }
@@ -102,7 +118,7 @@ const detailedOptions = [
     },
     rounded: {
       name: 'Radio de bordes',
-      description: 'Curvatura de las esquinas',
+      description: 'Curvatura de las esquinas del select',
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl', 'full'],
       table: {
@@ -112,7 +128,24 @@ const detailedOptions = [
     },
     placeholder: {
       name: 'Placeholder',
-      description: 'Texto mostrado como primera opción',
+      description: 'Texto mostrado como primera opción cuando no hay selección',
+      control: 'text',
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: "'Selecciona una opción'" }
+      }
+    },
+    value: {
+      name: 'Valor',
+      description: 'Valor controlado del select para componentes controlados',
+      control: 'text',
+      table: {
+        type: { summary: 'string' }
+      }
+    },
+    defaultValue: {
+      name: 'Valor por defecto',
+      description: 'Valor inicial para componentes no controlados',
       control: 'text',
       table: {
         type: { summary: 'string' }
@@ -120,7 +153,7 @@ const detailedOptions = [
     },
     disabled: {
       name: 'Deshabilitado',
-      description: 'Si el select está deshabilitado',
+      description: 'Si el select está deshabilitado - previene interacciones',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
@@ -129,7 +162,7 @@ const detailedOptions = [
     },
     required: {
       name: 'Requerido',
-      description: 'Si el select es requerido',
+      description: 'Si el select es requerido - afecta validación HTML5',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
@@ -138,11 +171,35 @@ const detailedOptions = [
     },
     compact: {
       name: 'Compacto',
-      description: 'Padding horizontal reducido',
+      description: 'Reduce el padding horizontal para espacios limitados',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' }
+      }
+    },
+    onChange: {
+      name: 'Función onChange',
+      description: 'Callback ejecutado cuando cambia la selección',
+      action: 'changed',
+      table: {
+        type: { summary: '(value: string, event: Event) => void' }
+      }
+    },
+    ariaLabel: {
+      name: 'ARIA Label',
+      description: 'Etiqueta accesible para lectores de pantalla',
+      control: 'text',
+      table: {
+        type: { summary: 'string' }
+      }
+    },
+    className: {
+      name: 'Clase CSS',
+      description: 'Clases CSS adicionales para extensibilidad',
+      control: 'text',
+      table: {
+        type: { summary: 'string' }
       }
     }
   }
@@ -166,164 +223,102 @@ const categoryOptions = [
   { value: 'health', label: '🏥 Salud', disabled: true }
 ];
 
-// ===== HISTORIA DEFAULT =====
+// ===== 1. DEFAULT STORY (OBLIGATORIA) =====
 export const Default = {
   args: {
     options: basicOptions,
     placeholder: 'Selecciona una estación',
     size: 'md',
-    variant: 'default',
-    rounded: 'md'
+    variant: 'default'
   }
 };
 
-// ===== TAMAÑOS =====
+// ===== BASIC STORY (PARA COMPATIBILIDAD) =====
+export const Basic = {
+  args: {
+    options: basicOptions,
+    placeholder: 'Ejemplo básico',
+    size: 'md',
+    variant: 'default'
+  }
+};
+
+// ===== 2. SIZES STORY (OBLIGATORIA) =====
 export const Sizes = () => (
   <div style={{
-    display: 'flex',
-    flexDirection: 'column',
+    display: 'grid',
     gap: 'var(--space-lg)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+    alignItems: 'center',
     padding: 'var(--space-md)'
   }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)' }}>
-        XS (28px) → SM (32px) → MD (40px) → LG (48px) → XL (56px)
-      </h4>
-    </div>
-    
-    <Select options={basicOptions} placeholder="XS - Extra Small" size="xs" />
-    <Select options={basicOptions} placeholder="SM - Small" size="sm" />
-    <Select options={basicOptions} placeholder="MD - Medium (Default)" size="md" />
-    <Select options={basicOptions} placeholder="LG - Large" size="lg" />
-    <Select options={basicOptions} placeholder="XL - Extra Large" size="xl" />
+    {['xs', 'sm', 'md', 'lg', 'xl'].map(size => (
+      <div key={size} style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>
+          {size.toUpperCase()}
+        </h4>
+        <Select 
+          size={size} 
+          options={basicOptions} 
+          placeholder={`${size.toUpperCase()}`}
+        />
+      </div>
+    ))}
   </div>
 );
+
 Sizes.parameters = {
   docs: {
     description: {
-      story: 'Cinco tamaños con alturas responsive. En móviles, XS y SM se ajustan a 44px mínimo para táctil.'
+      story: 'Los 5 tamaños estándar del sistema de diseño. XS para contextos compactos, MD para uso general, XL para destacar.'
     }
   }
 };
 
-// ===== VARIANTES SEMÁNTICAS =====
-export const SemanticVariants = () => (
+// ===== 3. VARIANTS STORY (OBLIGATORIA) =====
+export const Variants = () => (
   <div style={{
     display: 'grid',
     gap: 'var(--space-lg)',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    alignItems: 'center',
     padding: 'var(--space-md)'
   }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Default</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="Selecciona tu país"
-        variant="default"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--color-success)' }}>Success</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="País válido"
-        variant="success"
-        defaultValue="mx"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--color-warning)' }}>Warning</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="Atención requerida"
-        variant="warning"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--color-danger)' }}>Error</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="Campo requerido"
-        variant="error"
-        required
-      />
-    </div>
+    {['default', 'success', 'warning', 'error'].map(variant => (
+      <div key={variant} style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>
+          {variant.charAt(0).toUpperCase() + variant.slice(1)}
+        </h4>
+        <Select 
+          variant={variant} 
+          options={countryOptions}
+          placeholder={`Variante ${variant}`}
+          defaultValue={variant === 'success' ? 'mx' : undefined}
+        />
+      </div>
+    ))}
   </div>
 );
-SemanticVariants.parameters = {
+
+Variants.parameters = {
   docs: {
     description: {
-      story: 'Variantes semánticas idénticas al átomo Input. Los colores se heredan del sistema de diseño.'
+      story: 'Variantes semánticas del sistema: Default neutral, Success para confirmaciones, Warning para advertencias, Error para errores.'
     }
   }
 };
 
-// ===== TIPOS DE OPCIONES =====
-export const OptionTypes = () => (
-  <div style={{
-    display: 'grid',
-    gap: 'var(--space-xl)',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-    padding: 'var(--space-md)'
-  }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Strings simples</h4>
-      <Select 
-        options={['JavaScript', 'Python', 'Java', 'C++', 'Go']}
-        placeholder="Lenguaje de programación"
-        size="md"
-      />
-      <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>
-        Array simple de strings
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Objetos detallados</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="País de residencia"
-        size="md"
-      />
-      <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>
-        Objetos {`{value, label, disabled?}`}
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Con emojis y disabled</h4>
-      <Select 
-        options={categoryOptions}
-        placeholder="Categoría de interés"
-        size="md"
-      />
-      <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-xs)' }}>
-        Labels con emojis, "Salud" está deshabilitada
-      </p>
-    </div>
-  </div>
-);
-OptionTypes.parameters = {
-  docs: {
-    description: {
-      story: 'Flexibilidad en tipos de opciones: strings simples, objetos detallados, o combinaciones.'
-    }
-  }
-};
-
-// ===== ESTADOS INTERACTIVOS =====
-export const InteractiveStates = () => (
+// ===== 4. STATES STORY (OBLIGATORIA) =====
+export const States = () => (
   <div style={{
     display: 'grid',
     gap: 'var(--space-lg)',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    alignItems: 'center',
     padding: 'var(--space-md)'
   }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Normal</h4>
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Normal</h4>
       <Select 
         options={countryOptions}
         placeholder="Estado normal"
@@ -331,171 +326,145 @@ export const InteractiveStates = () => (
       />
     </div>
     
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Con valor</h4>
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Hover</h4>
       <Select 
+        className="pseudo-hover" 
         options={countryOptions}
-        placeholder="Selecciona país"
-        defaultValue="mx"
+        placeholder="Hover simulado"
         size="lg"
       />
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        (Simulated)
+      </small>
     </div>
     
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-disabled)' }}>Deshabilitado</h4>
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Focus</h4>
       <Select 
+        className="pseudo-focus" 
         options={countryOptions}
-        placeholder="No disponible"
-        disabled
+        placeholder="Focus simulado"
         size="lg"
       />
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        (Simulated)
+      </small>
     </div>
     
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Compacto</h4>
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Disabled</h4>
       <Select 
+        disabled 
         options={countryOptions}
-        placeholder="Padding reducido"
-        compact
+        placeholder="Deshabilitado"
         size="lg"
       />
     </div>
   </div>
 );
-InteractiveStates.parameters = {
+
+States.parameters = {
   docs: {
     description: {
-      story: 'Estados del select: normal, con valor, disabled y compacto. Prueba hover y navegación por teclado.'
+      story: 'Estados interactivos del componente. Focus y hover muestran feedback visual, disabled previene interacciones.'
     }
   }
 };
 
-// ===== ACCESIBILIDAD =====
-export const Accessibility = () => (
-  <div style={{
-    display: 'grid',
-    gap: 'var(--space-lg)',
-    padding: 'var(--space-md)',
-    maxWidth: '600px'
-  }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>Con ARIA Label</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="Selecciona tu país"
-        ariaLabel="País de residencia para configuración regional"
-        size="md"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--color-danger)' }}>Con Error Message</h4>
-      <Select 
-        options={countryOptions}
-        placeholder="Campo con error"
-        variant="error"
-        required
-        ariaErrorMessage="country-error"
-        size="md"
-      />
-      <div 
-        id="country-error" 
-        role="alert"
-        style={{ 
-          fontSize: 'var(--font-size-sm)', 
-          color: 'var(--color-danger)', 
-          marginTop: 'var(--space-xs)' 
-        }}
-      >
-        ⚠️ Este campo es obligatorio
-      </div>
-    </div>
-    
-    <div style={{ 
-      padding: 'var(--space-md)', 
-      backgroundColor: 'var(--bg-secondary)', 
-      borderRadius: 'var(--radius-md)',
-      border: '1px solid var(--border-default)'
-    }}>
-      <h5 style={{ margin: '0 0 1rem 0', fontSize: 'var(--font-size-sm)', fontWeight: '600' }}>
-        🔍 Navegación por teclado:
-      </h5>
-      <ul style={{ margin: '0', fontSize: 'var(--font-size-sm)', color: 'var(--text-muted)', lineHeight: 1.6 }}>
-        <li><strong>Tab</strong> - Navegar entre selects</li>
-        <li><strong>Enter/Space</strong> - Abrir dropdown</li>
-        <li><strong>↑/↓</strong> - Navegar opciones</li>
-        <li><strong>Enter</strong> - Seleccionar opción</li>
-        <li><strong>Escape</strong> - Cerrar dropdown</li>
-        <li><strong>Letra</strong> - Saltar a opción que inicie con esa letra</li>
-      </ul>
-    </div>
-  </div>
-);
-Accessibility.parameters = {
-  docs: {
-    description: {
-      story: 'Implementación completa de accesibilidad con ARIA y navegación por teclado nativa del HTML select.'
-    }
-  }
-};
-
-// ===== COMPONENTE CONTROLADO =====
-export const ControlledComponent = () => {
-  const [selectedCountry, setSelectedCountry] = useState('');
-
-  const handleCountryChange = (e) => {
-    setSelectedCountry(e.target.value);
+// ===== 5. INTERACTIVE STORY (OBLIGATORIA) =====
+export const Interactive = () => {
+  const [selectedValue, setSelectedValue] = useState('');
+  const [interactionCount, setInteractionCount] = useState(0);
+  
+  const handleChange = (value) => {
+    setSelectedValue(value);
+    setInteractionCount(prev => prev + 1);
   };
-
+  
   return (
     <div style={{
-      display: 'grid',
+      display: 'flex',
+      flexDirection: 'column',
       gap: 'var(--space-lg)',
-      padding: 'var(--space-md)',
-      maxWidth: '400px'
+      alignItems: 'center',
+      padding: 'var(--space-md)'
     }}>
-      <div>
-        <h4 style={{ marginBottom: 'var(--space-sm)', color: 'var(--text-primary)' }}>
-          Select Controlado
-        </h4>
-        <Select 
-          options={countryOptions}
-          placeholder="Selecciona tu país"
-          value={selectedCountry}
-          onChange={handleCountryChange}
-          size="lg"
-          variant={selectedCountry ? 'success' : 'default'}
-        />
-        <p style={{ 
-          fontSize: 'var(--font-size-sm)', 
-          color: 'var(--text-muted)', 
-          marginTop: 'var(--space-xs)' 
-        }}>
-          Valor actual: <strong>{selectedCountry || 'Ninguno'}</strong>
-        </p>
-      </div>
+      <Select 
+        options={categoryOptions}
+        placeholder="Selecciona una categoría"
+        value={selectedValue}
+        onChange={handleChange}
+        size="lg"
+        variant={selectedValue ? 'success' : 'default'}
+        ariaLabel="Categoría de interés principal"
+      />
       
-      <div style={{ 
-        padding: 'var(--space-md)', 
-        backgroundColor: 'var(--bg-secondary)', 
-        borderRadius: 'var(--radius-md)',
-        border: '1px solid var(--border-default)'
-      }}>
-        <pre style={{ 
-          margin: '0', 
-          fontSize: 'var(--font-size-xs)', 
-          color: 'var(--text-muted)'
-        }}>
-{`value: "${selectedCountry}"`}
-        </pre>
-      </div>
+      <small style={{ color: 'var(--text-muted)' }}>
+        Valor seleccionado: <strong>{selectedValue || 'Ninguno'}</strong>
+      </small>
+      
+      <small style={{ color: 'var(--text-muted)' }}>
+        Interacciones: <strong>{interactionCount}</strong>
+      </small>
+      
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        Prueba navegación por teclado: Tab + Flechas + Enter
+      </small>
     </div>
   );
 };
-ControlledComponent.parameters = {
+
+Interactive.parameters = {
   docs: {
     description: {
-      story: 'Ejemplo de uso como componente controlado con React state. La variante cambia dinámicamente.'
+      story: 'Ejemplo interactivo que demuestra onChange y navegación por teclado. Accesible vía Tab + Flechas + Enter.'
+    }
+  }
+};
+
+// ===== 6. ACCESSIBILITY STORY (OBLIGATORIA) =====
+export const Accessibility = () => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'var(--space-lg)',
+    padding: 'var(--space-md)'
+  }}>
+    <Select 
+      options={countryOptions}
+      ariaLabel="País de residencia para envío de productos"
+      placeholder="Selecciona tu país"
+      required
+      size="lg"
+    />
+    
+    <small style={{ color: 'var(--text-muted)' }}>
+      ✅ ARIA label descriptivo
+    </small>
+    
+    <small style={{ color: 'var(--text-muted)' }}>
+      ✅ Navegación por teclado
+    </small>
+    
+    <small style={{ color: 'var(--text-muted)' }}>
+      ✅ Estados semánticos
+    </small>
+    
+    <small style={{ color: 'var(--text-muted)' }}>
+      ✅ Opciones deshabilitadas excluidas
+    </small>
+    
+    <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+      Prueba con lector de pantalla y navegación por teclado
+    </small>
+  </div>
+);
+
+Accessibility.parameters = {
+  docs: {
+    description: {
+      story: 'Configuración completa de accesibilidad: ARIA labels, navegación por teclado, y estados semánticos.'
     }
   }
 };

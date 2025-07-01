@@ -1,3 +1,6 @@
+// ===== INPUT STORIES =====
+// src/components/atoms/Input/Input.stories.jsx
+
 import React, { useState } from 'react';
 import { Input } from './Input';
 
@@ -11,9 +14,7 @@ export default {
         component: `
 # Input Atom
 
-El átomo **Input** es el componente base para campos de entrada de texto en nuestro sistema de diseño. 
-Proporciona estilos consistentes, estados semánticos y excelente accesibilidad, siguiendo nuestras 
-variables de diseño y principios de Atomic Design.
+El átomo **Input** es el componente base para campos de entrada de texto en nuestro sistema de diseño.
 
 ## 🎯 Características principales
 
@@ -25,14 +26,9 @@ variables de diseño y principios de Atomic Design.
 - **Theming**: Variables CSS del sistema, modo oscuro automático
 - **Mobile-first**: Área táctil de 44px, sin zoom en iOS
 
-## 📱 Sistema de diseño
-
-Optimizado para sistemas con \`html { font-size: 62.5% }\` donde \`1rem = 10px\`
-Usa automáticamente todas las variables CSS del sistema de diseño.
-
 ## 🔧 Uso básico
 
-\`\`\`jsx
+\\\`\\\`\\\`jsx
 import { Input } from './atoms/Input';
 
 // Uso simple
@@ -48,7 +44,7 @@ import { Input } from './atoms/Input';
   ariaErrorMessage="error-msg"
 />
 
-// Con todas las opciones
+// Ejemplo completo
 <Input 
   type="email"
   size="lg"
@@ -59,32 +55,22 @@ import { Input } from './atoms/Input';
   autoComplete="email"
   ariaLabel="Correo electrónico"
 />
-\`\`\`
+\\\`\\\`\\\`
 
 ## ♿ Accesibilidad
 
-El componente incluye soporte completo para:
 - **ARIA attributes**: \`aria-label\`, \`aria-describedby\`, \`aria-errormessage\`
 - **Validación HTML5**: \`required\`, \`pattern\`, \`maxLength\`, \`minLength\`
 - **Estados semánticos**: \`aria-invalid\` automático en errores
 - **Autocompletado**: \`autoComplete\` para mejor UX
 
-## 🎨 Variables CSS del sistema
+## 🏗️ Atomic Design
 
-Usa automáticamente las variables del sistema:
-\`\`\`css
-:root {
-  --text-primary: #111827;
-  --text-placeholder: #9ca3af;
-  --bg-primary: #ffffff;
-  --border-default: #d1d5db;
-  --border-focus: #3b82f6;
-  --color-danger: #ef4444;
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  /* Y muchas más del sistema... */
-}
-\`\`\`
+Como **átomo**, Input es:
+- ✅ **Reutilizable**: Se puede usar en cualquier contexto
+- ✅ **Sin dependencias**: No depende de otros componentes del sistema
+- ✅ **Propósito único**: Campo de entrada de texto base
+- ✅ **Altamente configurable**: Múltiples tamaños, variantes y tipos
         `
       }
     }
@@ -125,7 +111,6 @@ Usa automáticamente las variables del sistema:
       description: 'Curvatura de las esquinas del input',
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl', 'full'],
-      defaultValue: 'md',
       table: {
         type: { summary: 'string' },
         defaultValue: { summary: "'md'" }
@@ -176,7 +161,7 @@ Usa automáticamente las variables del sistema:
     },
     compact: {
       name: 'Compacto',
-      description: 'Reduce el padding horizontal',
+      description: 'Padding horizontal reducido para espacios estrechos',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
@@ -184,302 +169,177 @@ Usa automáticamente las variables del sistema:
       }
     },
     autoComplete: {
-      name: 'Auto Complete',
+      name: 'Auto-completado',
       description: 'Valor para autocompletado del navegador',
       control: 'text',
       table: {
         type: { summary: 'string' }
       }
     },
+    maxLength: {
+      name: 'Longitud máxima',
+      description: 'Número máximo de caracteres permitidos',
+      control: 'number',
+      table: {
+        type: { summary: 'number' }
+      }
+    },
     ariaLabel: {
       name: 'ARIA Label',
-      description: 'Label para accesibilidad',
+      description: 'Etiqueta accesible para lectores de pantalla',
       control: 'text',
       table: {
         type: { summary: 'string' }
       }
-    },
-    className: {
-      name: 'Clases CSS',
-      description: 'Clases CSS adicionales para personalización',
-      control: 'text',
-      table: {
-        type: { summary: 'string' }
-      }
-    },
-    onChange: { 
-      name: 'Función onChange',
-      description: 'Función a ejecutar cuando cambia el valor',
-      action: 'changed',
-      table: {
-        type: { summary: 'function' }
-      }
-    },
-    onFocus: { 
-      name: 'Función onFocus',
-      description: 'Función a ejecutar al obtener foco',
-      action: 'focused',
-      table: {
-        type: { summary: 'function' }
-      }
-    },
-    onBlur: { 
-      name: 'Función onBlur',
-      description: 'Función a ejecutar al perder foco',
-      action: 'blurred',
-      table: {
-        type: { summary: 'function' }
-      }
     }
   }
 };
 
-// Template base
-const Template = (args) => <Input {...args} />;
-
-// ========== HISTORIAS PRINCIPALES ==========
-
-export const Playground = Template.bind({});
-Playground.args = {
-  placeholder: 'Personalízame en los controles...',
-  size: 'md',
-  type: 'text',
-  variant: 'default'
-};
-Playground.parameters = {
-  docs: {
-    description: {
-      story: 'Usa los controles de abajo para experimentar con todas las opciones del Input. Cambia el tamaño, tipo, variante y otros parámetros para ver los cambios en tiempo real.'
-    }
+// ========== DEFAULT STORY ==========
+export const Default = {
+  args: {
+    placeholder: 'Ingresa tu texto aquí...',
+    type: 'text',
+    size: 'md',
+    variant: 'default',
+    rounded: 'md'
   }
 };
 
-// ========== TAMAÑOS ==========
-
-export const AllSizes = () => {
-  const [values, setValues] = useState({
-    xs: '',
-    sm: '',
-    md: '',
-    lg: '',
-    xl: ''
-  });
-
-  const handleChange = (size) => (e) => {
-    setValues(prev => ({
-      ...prev,
-      [size]: e.target.value
-    }));
-  };
-
-  return (
-    <div style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: '1fr'
-    }}>
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Extra Small (xs) - 2.4rem altura mínima (4.4rem en móvil)
-        </label>
-        <Input 
-          size="xs" 
-          placeholder="Extra Small input" 
-          value={values.xs}
-          onChange={handleChange('xs')}
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Small (sm) - 3.2rem altura mínima (4.4rem en móvil)
-        </label>
-        <Input 
-          size="sm" 
-          placeholder="Small input" 
-          value={values.sm}
-          onChange={handleChange('sm')}
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Medium (md) - 4.0rem altura mínima
-        </label>
-        <Input 
-          size="md" 
-          placeholder="Medium input (default)" 
-          value={values.md}
-          onChange={handleChange('md')}
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Large (lg) - 4.8rem altura mínima
-        </label>
-        <Input 
-          size="lg" 
-          placeholder="Large input" 
-          value={values.lg}
-          onChange={handleChange('lg')}
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Extra Large (xl) - 5.6rem altura mínima
-        </label>
-        <Input 
-          size="xl" 
-          placeholder="Extra Large input" 
-          value={values.xl}
-          onChange={handleChange('xl')}
-        />
-      </div>
-    </div>
-  );
-};
-AllSizes.parameters = {
-  docs: {
-    description: {
-      story: 'Todos los tamaños disponibles. En móviles, los tamaños xs y sm mantienen un área táctil mínima de 44px para mejor usabilidad.'
-    }
-  }
-};
-
-// ========== VARIANTES SEMÁNTICAS ==========
-
-export const SemanticVariants = () => {
-  const [values, setValues] = useState({
-    default: '',
-    error: 'valor@incorrecto',
-    success: 'correo@valido.com',
-    warning: 'usuario'
-  });
-
-  const handleChange = (variant) => (e) => {
-    setValues(prev => ({
-      ...prev,
-      [variant]: e.target.value
-    }));
-  };
-
-  return (
-    <div style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: '1fr'
-    }}>
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Default - Estado normal
-        </label>
-        <Input 
-          variant="default"
-          placeholder="Estado normal del input" 
-          value={values.default}
-          onChange={handleChange('default')}
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Error - Campo con error de validación
-        </label>
-        <Input 
-          variant="error"
-          placeholder="Campo con error" 
-          value={values.error}
-          onChange={handleChange('error')}
-          ariaErrorMessage="error-message"
-        />
-        <p id="error-message" style={{ 
-          marginTop: '0.4rem', 
-          fontSize: '1.2rem', 
-          color: 'var(--color-danger)', 
-          margin: '0.4rem 0 0 0' 
-        }}>
-          El formato del correo no es válido
-        </p>
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Success - Campo validado correctamente
-        </label>
-        <Input 
-          variant="success"
-          placeholder="Campo válido" 
-          value={values.success}
-          onChange={handleChange('success')}
-        />
-        <p style={{ 
-          marginTop: '0.4rem', 
-          fontSize: '1.2rem', 
-          color: 'var(--color-success)', 
-          margin: '0.4rem 0 0 0' 
-        }}>
-          ✓ Correo válido
-        </p>
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Warning - Campo con advertencia
-        </label>
-        <Input 
-          variant="warning"
-          placeholder="Campo con advertencia" 
-          value={values.warning}
-          onChange={handleChange('warning')}
-        />
-        <p style={{ 
-          marginTop: '0.4rem', 
-          fontSize: '1.2rem', 
-          color: 'var(--color-warning)', 
-          margin: '0.4rem 0 0 0' 
-        }}>
-          ⚠️ Recomendamos usar un nombre de usuario más largo
-        </p>
-      </div>
-    </div>
-  );
-};
-SemanticVariants.parameters = {
-  docs: {
-    description: {
-      story: 'Variantes semánticas que comunican diferentes estados del input. Cada variante tiene colores y estilos específicos para transmitir su significado.'
-    }
-  }
-};
-
-// ========== RADIO DE BORDES ==========
-
-export const BorderRadius = () => (
+// ========== SIZES STORY ==========
+export const Sizes = () => (
   <div style={{
-    display: 'flex',
-    gap: '1.6rem',
+    display: 'grid',
+    gap: 'var(--space-lg)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
     alignItems: 'center',
-    flexWrap: 'wrap'
+    padding: 'var(--space-md)'
   }}>
-    <Input rounded="sm" placeholder="Pequeño" />
-    <Input rounded="md" placeholder="Mediano (default)" />
-    <Input rounded="lg" placeholder="Grande" />
-    <Input rounded="xl" placeholder="Extra Grande" />
-    <Input rounded="full" placeholder="Completo" />
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>XS</h4>
+      <Input size="xs" placeholder="Extra small" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>SM</h4>
+      <Input size="sm" placeholder="Small" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>MD</h4>
+      <Input size="md" placeholder="Medium" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>LG</h4>
+      <Input size="lg" placeholder="Large" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>XL</h4>
+      <Input size="xl" placeholder="Extra large" />
+    </div>
   </div>
 );
-BorderRadius.parameters = {
+
+Sizes.parameters = {
   docs: {
     description: {
-      story: 'Diferentes opciones de curvatura para las esquinas del input.'
+      story: 'Los 5 tamaños estándar del sistema de diseño. XS para contextos compactos, MD para uso general, XL para destacar.'
     }
   }
 };
 
-// ========== TIPOS DE INPUT ==========
+// ========== VARIANTS STORY ==========
+export const Variants = () => (
+  <div style={{
+    display: 'grid',
+    gap: 'var(--space-lg)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    alignItems: 'center',
+    padding: 'var(--space-md)'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Default</h4>
+      <Input variant="default" placeholder="Campo normal" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Success</h4>
+      <Input variant="success" placeholder="Campo válido" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Warning</h4>
+      <Input variant="warning" placeholder="Campo con advertencia" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Error</h4>
+      <Input variant="error" placeholder="Campo con error" />
+    </div>
+  </div>
+);
 
+Variants.parameters = {
+  docs: {
+    description: {
+      story: 'Variantes semánticas del sistema: Default neutral, Success para confirmaciones, Warning para advertencias, Error para errores.'
+    }
+  }
+};
+
+// ========== STATES STORY ==========
+export const States = () => (
+  <div style={{
+    display: 'grid',
+    gap: 'var(--space-lg)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    alignItems: 'center',
+    padding: 'var(--space-md)'
+  }}>
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Normal</h4>
+      <Input placeholder="Estado normal" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Hover</h4>
+      <Input className="pseudo-hover" placeholder="Estado hover" />
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        (Simulated)
+      </small>
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Focus</h4>
+      <Input className="pseudo-focus" placeholder="Estado focus" />
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        (Simulated)
+      </small>
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Disabled</h4>
+      <Input disabled placeholder="Estado deshabilitado" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Read Only</h4>
+      <Input readOnly value="Solo lectura" />
+    </div>
+  </div>
+);
+
+States.parameters = {
+  docs: {
+    description: {
+      story: 'Estados interactivos del componente. Focus y hover muestran feedback visual, disabled previene interacciones, read-only permite leer pero no editar.'
+    }
+  }
+};
+
+// ========== INPUT TYPES STORY ==========
 export const InputTypes = () => {
   const [values, setValues] = useState({
     text: '',
@@ -501,27 +361,24 @@ export const InputTypes = () => {
   };
 
   return (
-    <div style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))'
+    <div style={{
+      display: 'grid',
+      gap: 'var(--space-lg)',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+      padding: 'var(--space-md)'
     }}>
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Text
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Text</h4>
         <Input 
           type="text" 
-          placeholder="Texto general" 
+          placeholder="Texto libre" 
           value={values.text}
           onChange={handleChange('text')}
         />
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Email
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Email</h4>
         <Input 
           type="email" 
           placeholder="correo@ejemplo.com" 
@@ -532,9 +389,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Password
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Password</h4>
         <Input 
           type="password" 
           placeholder="Contraseña segura" 
@@ -545,9 +400,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Number
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Number</h4>
         <Input 
           type="number" 
           placeholder="123456" 
@@ -557,9 +410,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Tel
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Tel</h4>
         <Input 
           type="tel" 
           placeholder="+52 555 123 4567" 
@@ -570,9 +421,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          URL
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>URL</h4>
         <Input 
           type="url" 
           placeholder="https://ejemplo.com" 
@@ -583,9 +432,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Search
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Search</h4>
         <Input 
           type="search" 
           placeholder="Buscar..." 
@@ -595,9 +442,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Date
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Date</h4>
         <Input 
           type="date" 
           value={values.date}
@@ -606,9 +451,7 @@ export const InputTypes = () => {
       </div>
       
       <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Time
-        </label>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Time</h4>
         <Input 
           type="time" 
           value={values.time}
@@ -618,554 +461,117 @@ export const InputTypes = () => {
     </div>
   );
 };
+
 InputTypes.parameters = {
   docs: {
     description: {
-      story: 'Diferentes tipos de input soportados por el componente. Cada tipo proporciona diferente comportamiento del teclado y validación nativa del navegador.'
+      story: 'Diferentes tipos de input soportados. Cada tipo proporciona comportamiento específico del teclado y validación nativa del navegador.'
     }
   }
 };
 
-// ========== ESTADOS ==========
-
-export const States = () => {
-  const [controlledValue, setControlledValue] = useState('Texto controlado');
-
+// ========== INTERACTIVE STORY ==========
+export const Interactive = () => {
+  const [value, setValue] = useState('');
+  const [focusCount, setFocusCount] = useState(0);
+  
   return (
-    <div style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: '1fr'
-    }}>
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Estado normal
-        </label>
-        <Input placeholder="Escribe algo aquí..." />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Con valor controlado
-        </label>
-        <Input 
-          placeholder="Valor controlado" 
-          value={controlledValue}
-          onChange={(e) => setControlledValue(e.target.value)}
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Estado deshabilitado
-        </label>
-        <Input 
-          placeholder="Este input está deshabilitado" 
-          disabled 
-          value="No se puede editar"
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Solo lectura
-        </label>
-        <Input 
-          placeholder="Solo lectura" 
-          readOnly 
-          value="Este texto es de solo lectura"
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Campo requerido
-        </label>
-        <Input 
-          placeholder="Campo obligatorio" 
-          required 
-          ariaLabel="Campo requerido"
-        />
-      </div>
-    </div>
-  );
-};
-States.parameters = {
-  docs: {
-    description: {
-      story: 'Diferentes estados del input: normal, controlado, deshabilitado, solo lectura y requerido. Observa los estilos y comportamientos diferentes.'
-    }
-  }
-};
-
-// ========== MODIFICADORES ==========
-
-export const Modifiers = () => (
-  <div style={{
-    display: 'grid',
-    gap: '1.6rem',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))'
-  }}>
-    <div>
-      <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '1.4rem', color: 'var(--text-primary)' }}>Normal</h4>
-      <Input size="md" placeholder="Input normal" />
-    </div>
-    <div>
-      <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '1.4rem', color: 'var(--text-primary)' }}>Compacto</h4>
-      <Input size="md" compact placeholder="Input compacto" />
-    </div>
-    <div>
-      <h4 style={{ margin: '0 0 0.8rem 0', fontSize: '1.4rem', color: 'var(--text-primary)' }}>Border Radius Full</h4>
-      <Input size="md" rounded="full" placeholder="Input redondeado" />
-    </div>
-  </div>
-);
-Modifiers.parameters = {
-  docs: {
-    description: {
-      story: 'Diferentes modificadores que afectan el comportamiento y apariencia del input.'
-    }
-  }
-};
-
-// ========== VALIDACIÓN HTML5 ==========
-
-export const HTML5Validation = () => {
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    age: ''
-  });
-
-  const handleChange = (field) => (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
-
-  return (
-    <form style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: '1fr',
-      maxWidth: '400px'
-    }}>
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Usuario (3-20 caracteres)
-        </label>
-        <Input 
-          type="text"
-          placeholder="usuario123" 
-          value={formData.username}
-          onChange={handleChange('username')}
-          required
-          minLength={3}
-          maxLength={20}
-          pattern="[a-zA-Z0-9]+"
-          ariaLabel="Nombre de usuario"
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Email válido
-        </label>
-        <Input 
-          type="email"
-          placeholder="correo@ejemplo.com" 
-          value={formData.email}
-          onChange={handleChange('email')}
-          required
-          autoComplete="email"
-          ariaLabel="Correo electrónico"
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Contraseña (mín. 8 caracteres)
-        </label>
-        <Input 
-          type="password"
-          placeholder="Contraseña segura" 
-          value={formData.password}
-          onChange={handleChange('password')}
-          required
-          minLength={8}
-          autoComplete="new-password"
-          ariaLabel="Contraseña"
-        />
-      </div>
-      
-      <div>
-        <label style={{ display: 'block', marginBottom: '0.8rem', fontWeight: '500', color: 'var(--text-primary)' }}>
-          Edad (18-100 años)
-        </label>
-        <Input 
-          type="number"
-          placeholder="25" 
-          value={formData.age}
-          onChange={handleChange('age')}
-          required
-          min={18}
-          max={100}
-          ariaLabel="Edad"
-        />
-      </div>
-      
-      <button 
-        type="submit" 
-        style={{
-          padding: '1.2rem 2rem',
-          backgroundColor: 'var(--color-primary)',
-          color: 'white',
-          border: 'none',
-          borderRadius: 'var(--radius-md)',
-          fontSize: '1.6rem',
-          fontWeight: '500',
-          cursor: 'pointer',
-          marginTop: '0.8rem'
-        }}
-        onClick={(e) => e.preventDefault()}
-      >
-        Validar Formulario
-      </button>
-    </form>
-  );
-};
-HTML5Validation.parameters = {
-  docs: {
-    description: {
-      story: 'Ejemplos de validación HTML5 nativa con diferentes restricciones: required, minLength, maxLength, pattern, min, max. Intenta enviar el formulario para ver las validaciones.'
-    }
-  }
-};
-
-// ========== CASOS DE USO COMUNES ==========
-
-export const LoginForm = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
-
-  const handleChange = (field) => (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
-
-  return (
-    <div style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: '1fr',
-      maxWidth: '320px',
-      padding: '2.4rem',
-      border: '1px solid var(--border-default)',
-      borderRadius: 'var(--radius-lg)',
-      backgroundColor: 'var(--bg-primary)'
-    }}>
-      <h3 style={{ 
-        margin: '0 0 0.8rem 0', 
-        fontSize: '1.8rem',
-        fontWeight: '600',
-        color: 'var(--text-primary)'
-      }}>
-        Iniciar sesión
-      </h3>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: '0.8rem', 
-          fontWeight: '500',
-          color: 'var(--text-primary)'
-        }}>
-          Correo electrónico
-        </label>
-        <Input 
-          type="email" 
-          placeholder="tu@correo.com" 
-          size="md"
-          value={formData.email}
-          onChange={handleChange('email')}
-          autoComplete="email"
-          required
-        />
-      </div>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: '0.8rem', 
-          fontWeight: '500',
-          color: 'var(--text-primary)'
-        }}>
-          Contraseña
-        </label>
-        <Input 
-          type="password" 
-          placeholder="Tu contraseña segura" 
-          size="md"
-          value={formData.password}
-          onChange={handleChange('password')}
-          autoComplete="current-password"
-          required
-        />
-      </div>
-      
-      <button style={{
-        padding: '1.2rem 2rem',
-        backgroundColor: 'var(--color-primary)',
-        color: 'white',
-        border: 'none',
-        borderRadius: 'var(--radius-md)',
-        fontSize: '1.6rem',
-        fontWeight: '500',
-        cursor: 'pointer',
-        marginTop: '0.8rem'
-      }}>
-        Entrar
-      </button>
-    </div>
-  );
-};
-LoginForm.parameters = {
-  docs: {
-    description: {
-      story: 'Ejemplo del input usado en un contexto real de formulario de login con labels, autocompletado y validación.'
-    }
-  }
-};
-
-export const SearchBar = () => {
-  const [searchValue, setSearchValue] = useState('');
-
-  return (
-    <div style={{ 
+    <div style={{
       display: 'flex',
-      maxWidth: '500px',
-      gap: '1rem',
-      alignItems: 'center'
+      flexDirection: 'column',
+      gap: 'var(--space-lg)',
+      alignItems: 'center',
+      padding: 'var(--space-md)'
     }}>
       <Input 
-        type="search" 
-        placeholder="Buscar productos, marcas, categorías..." 
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onFocus={() => setFocusCount(prev => prev + 1)}
+        placeholder="Escribe y haz focus..."
         size="lg"
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        style={{ flex: 1 }}
-        rounded="lg"
+        ariaLabel="Campo interactivo de demostración"
       />
-      <button style={{
-        padding: '1.4rem 2rem',
-        backgroundColor: 'var(--color-primary)',
-        color: 'white',
-        border: 'none',
-        borderRadius: 'var(--radius-lg)',
-        fontSize: '1.6rem',
-        fontWeight: '500',
-        cursor: 'pointer',
-        height: '4.8rem'
-      }}>
-        🔍
-      </button>
+      
+      <small style={{ color: 'var(--text-muted)' }}>
+        Valor actual: "{value}"
+      </small>
+      
+      <small style={{ color: 'var(--text-muted)' }}>
+        Focus count: {focusCount}
+      </small>
+      
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        Prueba navegación por teclado: Tab para focus
+      </small>
     </div>
   );
 };
-SearchBar.parameters = {
+
+Interactive.parameters = {
   docs: {
     description: {
-      story: 'Ejemplo del input usado como barra de búsqueda con botón de acción y border radius coordinado.'
+      story: 'Ejemplo interactivo que demuestra onChange, onFocus y navegación por teclado. Controla el valor y cuenta los eventos de focus.'
     }
   }
 };
 
-export const ContactForm = () => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    website: '',
-    message: ''
-  });
-
-  const handleChange = (field) => (e) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
-
-  return (
-    <div style={{ 
-      display: 'grid', 
-      gap: '1.6rem',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-      maxWidth: '800px'
-    }}>
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: '0.8rem', 
-          fontWeight: '500',
-          color: 'var(--text-primary)'
-        }}>
-          Nombre completo *
-        </label>
-        <Input 
-          type="text" 
-          placeholder="Juan Pérez" 
-          value={formData.name}
-          onChange={handleChange('name')}
-          required
-          autoComplete="name"
-        />
-      </div>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: '0.8rem', 
-          fontWeight: '500',
-          color: 'var(--text-primary)'
-        }}>
-          Email *
-        </label>
-        <Input 
-          type="email" 
-          placeholder="juan@empresa.com" 
-          value={formData.email}
-          onChange={handleChange('email')}
-          required
-          autoComplete="email"
-        />
-      </div>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: '0.8rem', 
-          fontWeight: '500',
-          color: 'var(--text-primary)'
-        }}>
-          Teléfono
-        </label>
-        <Input 
-          type="tel" 
-          placeholder="+52 555 123 4567" 
-          value={formData.phone}
-          onChange={handleChange('phone')}
-          autoComplete="tel"
-        />
-      </div>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: '0.8rem', 
-          fontWeight: '500',
-          color: 'var(--text-primary)'
-        }}>
-          Sitio web
-        </label>
-        <Input 
-          type="url" 
-          placeholder="https://miempresa.com" 
-          value={formData.website}
-          onChange={handleChange('website')}
-          autoComplete="url"
-        />
-      </div>
-    </div>
-  );
-};
-ContactForm.parameters = {
-  docs: {
-    description: {
-      story: 'Ejemplo de formulario de contacto usando diferentes tipos de input en un layout responsive.'
-    }
-  }
-};
-
-// ========== MODO OSCURO ==========
-
-export const DarkModeExample = () => (
-  <div className="dark" style={{
-    padding: '2.4rem',
-    backgroundColor: 'var(--bg-primary)',
-    borderRadius: 'var(--radius-lg)',
-    border: '1px solid var(--border-default)'
-  }}>
-    <div style={{
-      display: 'grid',
-      gap: '1.6rem',
-      gridTemplateColumns: '1fr'
-    }}>
-      <Input placeholder="Input normal en modo oscuro" size="md" />
-      <Input placeholder="Input con error" variant="error" size="md" />
-      <Input placeholder="Input exitoso" variant="success" size="md" />
-      <Input placeholder="Input con advertencia" variant="warning" size="md" />
-      <Input placeholder="Input deshabilitado" disabled size="md" />
-      <Input placeholder="Input de solo lectura" readOnly value="Solo lectura" size="md" />
-    </div>
-  </div>
-);
-DarkModeExample.parameters = {
-  docs: {
-    description: {
-      story: 'Todas las variantes funcionan automáticamente en modo oscuro usando la clase `.dark` y las variables CSS del sistema.'
-    }
-  }
-};
-
-// ========== RESPONSIVE ==========
-
-export const ResponsiveExample = () => (
+// ========== ACCESSIBILITY STORY ==========
+export const Accessibility = () => (
   <div style={{
     display: 'flex',
-    gap: '1.6rem',
-    flexDirection: 'column'
+    flexDirection: 'column',
+    gap: 'var(--space-lg)',
+    padding: 'var(--space-md)',
+    maxWidth: '400px'
   }}>
-    <p style={{
-      fontSize: '1.4rem',
-      color: 'var(--text-muted)',
-      margin: 0,
-      fontFamily: 'var(--font-family-base)'
-    }}>
-      Redimensiona la ventana para ver el comportamiento responsive:
-    </p>
-    <div style={{
-      display: 'flex',
-      gap: '1.6rem',
-      flexWrap: 'wrap'
-    }}>
-      <Input size="xs" placeholder="XS - Se ajusta en móvil" />
-      <Input size="sm" placeholder="SM - Se ajusta en móvil" />
-      <Input size="lg" placeholder="LG - Se reduce en móvil" />
-      <Input size="xl" placeholder="XL - Se reduce en móvil" />
+    <div>
+      <Input 
+        ariaLabel="Campo de correo electrónico para registro"
+        type="email"
+        placeholder="correo@ejemplo.com"
+        required
+        autoComplete="email"
+      />
+      <small style={{ color: 'var(--text-muted)' }}>
+        ✅ ARIA label descriptivo
+      </small>
     </div>
-    <p style={{
-      fontSize: '1.2rem',
-      color: 'var(--text-muted)',
-      margin: 0,
-      fontStyle: 'italic'
-    }}>
-      En móviles (&lt;768px), todos los inputs mantienen un área táctil mínima de 44px y evitan el zoom en iOS
-    </p>
+    
+    <div>
+      <Input 
+        type="password"
+        placeholder="Contraseña"
+        ariaDescribedBy="password-help"
+        required
+        minLength={8}
+      />
+      <div id="password-help" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+        ✅ Mínimo 8 caracteres, vinculado con aria-describedby
+      </div>
+    </div>
+    
+    <div>
+      <Input 
+        variant="error"
+        placeholder="Campo con error"
+        ariaErrorMessage="error-message"
+        ariaLabel="Campo con error de validación"
+      />
+      <div id="error-message" style={{ fontSize: 'var(--text-xs)', color: 'var(--color-danger)' }}>
+        ✅ Error vinculado con aria-errormessage
+      </div>
+    </div>
+    
+    <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+      Prueba con lector de pantalla y navegación por teclado
+    </small>
   </div>
 );
 
-ResponsiveExample.parameters = {
+Accessibility.parameters = {
   docs: {
     description: {
-      story: 'Los inputs se ajustan automáticamente en pantallas móviles para mejor usabilidad táctil siguiendo las guías de accesibilidad.'
+      story: 'Configuración completa de accesibilidad: ARIA labels, aria-describedby para ayuda, aria-errormessage para errores, y navegación por teclado.'
     }
   }
 };
