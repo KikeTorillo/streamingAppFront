@@ -1,4 +1,4 @@
-// ===== EPISODES CREATE PAGE - SIGUIENDO PATRÓN DEL PROYECTO =====
+// ===== EPISODES CREATE PAGE - CON SISTEMA DE PROGRESO =====
 // src/Pages/Admin/Episodes/EpisodesCreatePage/EpisodesCreatePage.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -7,6 +7,8 @@ import { AdminLayout } from '../../../../components/templates/AdminLayout/AdminL
 import { Container } from '../../../../components/atoms/Container/Container';
 import { DynamicForm } from '../../../../components/molecules/DynamicForm/DynamicForm';
 import { Button } from '../../../../components/atoms/Button/Button';
+import { UploadProgress } from "../../../../components/atoms/UploadProgress/UploadProgress";
+import { useUploadProgress } from "../../../../hooks/useUploadProgress";
 import './EpisodesCreatePage.css';
 
 // Servicios
@@ -14,10 +16,11 @@ import { createEpisodeService } from '../../../../services/Episodes/createEpisod
 import { getSeriesService } from '../../../../services/Series/getSeriesService';
 
 /**
- * EpisodesCreatePage - Página para crear nuevos episodios
+ * EpisodesCreatePage - CON SISTEMA DE PROGRESO DE CARGA
  * 
  * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ PATRÓN: Sigue el mismo patrón que CategoryCreatePage y SeriesCreatePage
+ * ✅ PATRÓN: Sigue el mismo patrón que MovieCreatePage
+ * ✅ PROGRESO: Sistema completo de monitoreo de transcodificación
  * ✅ BACKEND: Homologado con createEpisodeService existente
  * ✅ CONVENCIONES: Export con función nombrada según reglas del proyecto
  * ✅ FILOSOFÍA: Solución simple y directa sin over-engineering
@@ -35,6 +38,9 @@ function EpisodesCreatePage() {
   const [series, setSeries] = useState([]);
   const [seriesLoading, setSeriesLoading] = useState(true);
   const [seriesError, setSeriesError] = useState(null);
+
+  // ===== HOOK DE PROGRESO DE UPLOAD =====
+  const { progress, status, message, error: progressError, monitorProgress, resetProgress } = useUploadProgress();
 
   // ===== CARGAR SERIES AL MONTAR COMPONENTE =====
   useEffect(() => {
@@ -215,11 +221,12 @@ function EpisodesCreatePage() {
   };
 
   /**
-   * Enviar formulario
+   * Enviar formulario con sistema de progreso
    */
   const handleSubmit = async (formData) => {
     setError(null);
     setLoading(true);
+    resetProgress(); // Resetear progreso anterior
 
     try {
       console.log('📤 Enviando datos del episodio:', formData);
@@ -238,19 +245,60 @@ function EpisodesCreatePage() {
 
       const result = await createEpisodeService(episodeData);
 
-      console.log('✅ Episodio creado exitosamente:', result);
+      console.log('✅ Respuesta del backend:', result);
 
-      // Marcar como exitoso
-      setSuccess(true);
-      setHasChanges(false);
+      // ===== MANEJO DE PROGRESO =====
+      if (result?.taskId) {
+        console.log('🔄 TaskId recibido, iniciando monitoreo:', result.taskId);
+        
+        // Iniciar monitoreo del progreso
+        const cancelMonitoring = monitorProgress(
+          result.taskId,
+          'episodes', // Tipo de contenido
+          (newStatus) => {
+            console.log('📊 Cambio de estado:', newStatus);
+          },
+          (success, error) => {
+            console.log('🏁 Proceso terminado:', { success, error });
+            setLoading(false);
+            
+            if (success) {
+              setSuccess(true);
+              setHasChanges(false);
+              
+              // Redireccionar después de 3 segundos
+              setTimeout(() => {
+                navigate('/admin/episodes');
+              }, 3000);
+            } else {
+              setError(error || 'Error en el procesamiento del video');
+            }
+          }
+        );
 
-      // Redireccionar después de 3 segundos
-      setTimeout(() => {
-        navigate('/admin/episodes');
-      }, 3000);
+        // Limpiar el monitoreo cuando el componente se desmonte
+        return () => {
+          if (cancelMonitoring) {
+            cancelMonitoring();
+          }
+        };
+
+      } else {
+        // Si no hay taskId, el episodio se creó directamente
+        console.log('✅ Episodio creado exitosamente sin transcodificación');
+        setSuccess(true);
+        setHasChanges(false);
+        setLoading(false);
+
+        // Redireccionar después de 3 segundos
+        setTimeout(() => {
+          navigate('/admin/episodes');
+        }, 3000);
+      }
 
     } catch (err) {
       console.error('❌ Error al crear episodio:', err);
+      setLoading(false);
       
       // Formatear error para el usuario
       let errorMessage = 'Error inesperado al crear el episodio';
@@ -273,8 +321,6 @@ function EpisodesCreatePage() {
       }
       
       setError(errorMessage);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -293,7 +339,7 @@ function EpisodesCreatePage() {
       <Container 
         size="lg" 
         variant="default"
-        className={`${success ? 'episodes-create--loading' : ''}`}
+        className={`${status !== 'idle' ? 'episodes-create--loading' : ''}`}
       >
         
         {/* Header Actions */}
@@ -303,7 +349,7 @@ function EpisodesCreatePage() {
             size="sm"
             leftIcon="←"
             onClick={handleGoBack}
-            disabled={loading}
+            disabled={loading || status !== 'idle'}
           >
             Volver a Episodios
           </Button>
@@ -350,20 +396,25 @@ function EpisodesCreatePage() {
           initialData={initialData}
           onSubmit={handleSubmit}
           onChange={handleFormChange}
-          loading={loading}
-          disabled={loading || success}
+          loading={loading || status !== 'idle'}
+          disabled={loading || success || status !== 'idle'}
           columnsPerRow={2}
           tabletColumns={1}
           mobileColumns={1}
           fieldSize="lg"
           fieldRounded="md"
-          submitText={loading ? "Creando Episodio..." : "Crear Episodio"}
+          submitText={
+            status === 'processing' ? "Procesando..." :
+            status === 'transcoding' ? "Transcodificando..." :
+            loading ? "Creando Episodio..." : 
+            "Crear Episodio"
+          }
           submitVariant="primary"
           submitSize="md"
           submitIcon="🎬"
           validateOnBlur={true}
           validateOnChange={false}
-          showSubmit={!success} // Ocultar botón cuando hay éxito
+          showSubmit={!success && status !== 'completed'}
           className={`episode-form ${success ? 'form--success' : ''}`}
         />
 
@@ -392,6 +443,18 @@ function EpisodesCreatePage() {
         </div>
 
       </Container>
+
+      {/* ===== BARRA DE PROGRESO FLOTANTE ===== */}
+      {status !== 'idle' && (
+        <div className="episodes-create-page__progress">
+          <UploadProgress
+            progress={progress}
+            status={status}
+            message={progressError || message}
+            size="md"
+          />
+        </div>
+      )}
     </AdminLayout>
   );
 }

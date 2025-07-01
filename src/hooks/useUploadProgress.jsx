@@ -16,7 +16,11 @@ const useUploadProgress = () => {
     let progressEndpoint;
     if (contentType === 'movies') {
       progressEndpoint = `${urlBackend}/api/v1/movies/progress/${taskId}`;
+    } else if (contentType === 'episodes') {
+      // ✅ NUEVO: Endpoint específico para episodios
+      progressEndpoint = `${urlBackend}/api/v1/episodes/progress/${taskId}`;
     } else {
+      // Para series y otros tipos
       progressEndpoint = `${urlBackend}/api/v1/series/progress/${taskId}`;
     }
 
