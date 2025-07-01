@@ -34,12 +34,38 @@ function AdminSidebar({
   className = '',
   variant = 'default', // 'default' | 'dark' | 'minimal'
   
-  // Handlers opcionales para Storybook
-  onNavigate,
+  // ✅ SEPARAR PROPS PERSONALIZADAS QUE NO VAN AL DOM
+  loading, // ← PROP PERSONALIZADA (causa el error)
+  error, // ← PROP PERSONALIZADA
+  counts, // ← PROP PERSONALIZADA
+  currentPath, // ← PROP PERSONALIZADA
+  onToggle, // ← PROP PERSONALIZADA (handler de AdminLayout)
+  onNavigate, // ← PROP PERSONALIZADA (handler para Storybook)
   
   // Props adicionales
   ...restProps
 }) {
+  
+  // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
+  const {
+    // Props personalizadas a filtrar (evitar error de React)
+    loading: _loading,
+    error: _error,
+    counts: _counts,
+    currentPath: _currentPath,
+    onToggle: _onToggle,
+    onNavigate: _onNavigate,
+    variant: _variant,
+    userCount: _userCount,
+    movieCount: _movieCount,
+    seriesCount: _seriesCount,
+    categoryCount: _categoryCount,
+    episodeCount: _episodeCount,
+    onToggleCollapse: _onToggleCollapse,
+    className: _className,
+    ...domProps // ✅ Solo props válidas para el DOM
+  } = restProps;
+
   // Hooks de router con manejo de errores
   let navigate, location;
   try {
@@ -60,107 +86,65 @@ function AdminSidebar({
       icon: '📊',
       label: 'Dashboard',
       route: '/admin',
-      exact: true,
-      description: 'Panel principal con estadísticas'
+      description: 'Panel principal con métricas generales',
+      badge: 0
     },
     {
       id: 'users',
       icon: '👥',
       label: 'Usuarios',
       route: '/admin/users',
-      badge: userCount,
-      description: 'Gestionar usuarios del sistema',
+      description: 'Gestión de usuarios registrados',
+      badge: userCount
+    },
+    {
+      id: 'content',
+      icon: '🎬',
+      label: 'Contenido',
+      description: 'Gestión de películas, series y episodios',
+      badge: movieCount + seriesCount,
       submenu: [
-        { label: 'Listar Usuarios', route: '/admin/users', icon: '📋' },
-        { label: 'Crear Usuario', route: '/admin/users/create', icon: '➕' }
+        {
+          icon: '🎭',
+          label: 'Películas',
+          route: '/admin/movies',
+          badge: movieCount
+        },
+        {
+          icon: '📺',
+          label: 'Series',
+          route: '/admin/series',
+          badge: seriesCount
+        },
+        {
+          icon: '📼',
+          label: 'Episodios',
+          route: '/admin/episodes',
+          badge: episodeCount
+        }
       ]
     },
     {
       id: 'categories',
-      icon: '📂',
+      icon: '🏷️',
       label: 'Categorías',
       route: '/admin/categories',
-      badge: categoryCount,
-      description: 'Gestionar categorías de contenido',
-      submenu: [
-        { label: 'Listar Categorías', route: '/admin/categories', icon: '📋' },
-        { label: 'Crear Categoría', route: '/admin/categories/create', icon: '➕' }
-      ]
-    },
-    {
-      id: 'movies',
-      icon: '🎬',
-      label: 'Películas',
-      route: '/admin/movies',
-      badge: movieCount,
-      description: 'Gestionar películas',
-      submenu: [
-        { label: 'Listar Películas', route: '/admin/movies', icon: '📋' },
-        { label: 'Crear Película', route: '/admin/movies/create', icon: '➕' }
-      ]
-    },
-    {
-      id: 'series',
-      icon: '📺',
-      label: 'Series',
-      route: '/admin/series',
-      badge: seriesCount,
-      description: 'Gestionar series',
-      submenu: [
-        { label: 'Listar Series', route: '/admin/series', icon: '📋' },
-        { label: 'Crear Serie', route: '/admin/series/create', icon: '➕' }
-      ]
-    },
-    {
-      id: 'episodes',
-      icon: '🎞️',
-      label: 'Episodios',
-      route: '/admin/episodes',
-      badge: episodeCount,
-      description: 'Gestionar episodios de series',
-      submenu: [
-        { label: 'Listar Episodios', route: '/admin/episodes', icon: '📋' },
-        { label: 'Crear Episodio', route: '/admin/episodes/create', icon: '➕' }
-      ]
+      description: 'Organización por géneros y categorías',
+      badge: categoryCount
     }
   ];
 
-  // ===== FUNCIONES AUXILIARES =====
-  
-  /**
-   * Verifica si una ruta está activa
-   */
+  // ===== FUNCIONES DEL COMPONENTE =====
+
+  // Verificar si una ruta está activa
   const isRouteActive = (route, exact = false) => {
-    if (!location) return false;
-    if (exact) {
-      return location.pathname === route;
-    }
-    return location.pathname.startsWith(route);
+    if (!route) return false;
+    const currentPath = location.pathname;
+    return exact ? currentPath === route : currentPath.startsWith(route);
   };
 
-  /**
-   * Verifica si un menú tiene rutas activas
-   */
-  const hasActiveSubmenu = (item) => {
-    if (!item.submenu) return false;
-    return item.submenu.some(subitem => isRouteActive(subitem.route));
-  };
-
-  /**
-   * Maneja la navegación a una ruta
-   */
-  const handleNavigation = (route, event) => {
-    event.preventDefault();
-    if (navigate) {
-      navigate(route);
-    }
-  };
-
-  /**
-   * Alterna la expansión de un menú
-   */
-  const toggleMenu = (menuId, event) => {
-    event.stopPropagation();
+  // Toggle de menús expandibles
+  const toggleSubmenu = (menuId) => {
     setExpandedMenus(prev => {
       const newSet = new Set(prev);
       if (newSet.has(menuId)) {
@@ -172,78 +156,82 @@ function AdminSidebar({
     });
   };
 
-  /**
-   * Maneja el click en un item principal
-   */
-  const handleItemClick = (item, event) => {
-    if (item.submenu) {
-      // Si tiene submenú, alternar expansión
-      toggleMenu(item.id, event);
-    } else {
-      // Si no tiene submenú, navegar directamente
-      handleNavigation(item.route, event);
-    }
-  };
-
-  /**
-   * Maneja el botón de volver al inicio
-   */
-  const handleBackToHome = () => {
-    if (navigate) {
-      navigate('/main-page');
-    }
-  };
-
-  // ===== EFECTOS =====
-  
-  // Auto-expandir menú activo
-  useEffect(() => {
-    if (!location) return;
+  // Navegación con manejo de errores
+  const handleNavigation = (route, event) => {
+    if (!route) return;
     
-    sidebarItems.forEach(item => {
-      if (hasActiveSubmenu(item) || isRouteActive(item.route)) {
-        setExpandedMenus(prev => new Set([...prev, item.id]));
+    event?.preventDefault();
+    
+    try {
+      navigate(route);
+    } catch (error) {
+      console.warn('Navigation error:', error);
+      // Fallback para Storybook
+      if (onNavigate) {
+        onNavigate(route);
       }
-    });
-  }, [location?.pathname]);
+    }
+  };
 
-  // ===== CLASES CSS =====
+  // Toggle del sidebar completo
+  const handleSidebarToggle = () => {
+    if (onToggleCollapse) {
+      onToggleCollapse();
+    } else if (onToggle) {
+      onToggle();
+    }
+  };
+
+  // Volver al home
+  const handleBackToHome = () => {
+    try {
+      navigate('/');
+    } catch (error) {
+      console.warn('Home navigation error:', error);
+      window.location.href = '/';
+    }
+  };
+
+  // ===== CLASSES CSS =====
   const sidebarClasses = [
     'admin-sidebar',
     `admin-sidebar--${variant}`,
     isCollapsed && 'admin-sidebar--collapsed',
+    loading && 'admin-sidebar--loading',
+    error && 'admin-sidebar--error',
     className
   ].filter(Boolean).join(' ');
 
-  // ===== RENDER =====
+  // ===== RENDER PRINCIPAL =====
   return (
     <aside 
       className={sidebarClasses}
       role="navigation"
-      aria-label="Panel de administración"
-      {...restProps}
+      aria-label="Navegación del panel de administración"
+      {...domProps} // ✅ Solo props válidas del DOM
     >
+      
       {/* ===== HEADER DEL SIDEBAR ===== */}
       <div className="admin-sidebar__header">
-        <div className="admin-sidebar__brand">
-          {!isCollapsed && (
-            <>
-              <span className="admin-sidebar__logo">⚙️</span>
-              <div className="admin-sidebar__brand-text">
-                <h2 className="admin-sidebar__title">Admin Panel</h2>
-                <p className="admin-sidebar__subtitle">StreamApp</p>
-              </div>
-            </>
-          )}
-        </div>
         
-        {/* Botón para colapsar/expandir */}
+        {/* Brand */}
+        {!isCollapsed && (
+          <div className="admin-sidebar__brand">
+            <span className="admin-sidebar__logo">⚙️</span>
+            <div className="admin-sidebar__brand-text">
+              <h2 className="admin-sidebar__title">Admin Panel</h2>
+              <p className="admin-sidebar__subtitle">StreamApp</p>
+            </div>
+          </div>
+        )}
+        
+        {/* Toggle Button */}
         <Button
           variant="ghost"
           size="sm"
-          onClick={onToggleCollapse}
+          onClick={handleSidebarToggle}
           className="admin-sidebar__toggle"
-          aria-label={isCollapsed ? "Expandir sidebar" : "Colapsar sidebar"}
+          aria-label={isCollapsed ? 'Expandir sidebar' : 'Contraer sidebar'}
         >
           {isCollapsed ? '→' : '←'}
         </Button>
@@ -251,29 +239,34 @@ function AdminSidebar({
 
       {/* ===== NAVEGACIÓN PRINCIPAL ===== */}
       <nav className="admin-sidebar__nav">
-        <ul className="admin-sidebar__menu" role="menubar">
+        <ul 
+          className="admin-sidebar__menu" 
+          role="menu"
+          aria-label="Menú principal de administración"
+        >
           {sidebarItems.map((item) => {
-            const isActive = item.exact 
-              ? isRouteActive(item.route, true)
-              : isRouteActive(item.route) || hasActiveSubmenu(item);
+            const hasSubmenu = item.submenu && item.submenu.length > 0;
             const isExpanded = expandedMenus.has(item.id);
-            const hasSubmenu = Boolean(item.submenu);
+            const isActive = isRouteActive(item.route, item.route === '/admin');
 
             return (
               <li 
-                key={item.id}
+                key={item.id} 
                 className="admin-sidebar__menu-item"
                 role="none"
               >
-                {/* Item principal */}
                 <button
                   className={[
                     'admin-sidebar__item',
                     isActive && 'admin-sidebar__item--active',
-                    hasSubmenu && 'admin-sidebar__item--has-submenu'
+                    hasSubmenu && 'admin-sidebar__item--expandable'
                   ].filter(Boolean).join(' ')}
-                  onClick={(e) => handleItemClick(item, e)}
+                  onClick={hasSubmenu ? 
+                    () => toggleSubmenu(item.id) : 
+                    (e) => handleNavigation(item.route, e)
+                  }
                   role="menuitem"
+                  aria-current={isActive ? 'page' : undefined}
                   aria-expanded={hasSubmenu ? isExpanded : undefined}
                   aria-describedby={!isCollapsed ? `${item.id}-desc` : undefined}
                   title={isCollapsed ? item.label : undefined}
@@ -344,6 +337,7 @@ function AdminSidebar({
                           ].filter(Boolean).join(' ')}
                           onClick={(e) => handleNavigation(subitem.route, e)}
                           role="menuitem"
+                          aria-current={isRouteActive(subitem.route, true) ? 'page' : undefined}
                         >
                           <span className="admin-sidebar__subitem-icon">
                             {subitem.icon}
@@ -351,6 +345,16 @@ function AdminSidebar({
                           <span className="admin-sidebar__subitem-label">
                             {subitem.label}
                           </span>
+                          
+                          {/* Badge para subitem */}
+                          {subitem.badge > 0 && (
+                            <span 
+                              className="admin-sidebar__badge admin-sidebar__badge--small"
+                              aria-label={`${subitem.badge} elementos`}
+                            >
+                              {subitem.badge}
+                            </span>
+                          )}
                         </button>
                       </li>
                     ))}

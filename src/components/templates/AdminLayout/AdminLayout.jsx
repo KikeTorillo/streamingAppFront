@@ -29,29 +29,29 @@ import { getCategoriesService } from '../../../services/Categories/getCategories
 function AdminLayout({
   // Contenido principal
   children,
-  
+
   // Configuración del header
   title,
   subtitle,
   breadcrumbs = [],
-  
+
   // Acciones del header
   headerActions,
-  
+
   // Props del layout
   sidebarCollapsed = false,
   onSidebarToggle,
-  
+
   // Props de customización
   className = '',
   variant = 'default', // 'default' | 'compact' | 'full'
-  
+
   // Props adicionales
   ...restProps
 }) {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // ===== ESTADOS =====
   const [isCollapsed, setIsCollapsed] = useState(sidebarCollapsed);
   const [user, setUser] = useState(null);
@@ -75,18 +75,18 @@ function AdminLayout({
 
     try {
       const userData = JSON.parse(sessionUser);
-      
+
       // Verificar que sea admin (ajustar según tu sistema de roles)
-      const isAdmin = userData.role === 'admin' || 
-                     userData.roleId === 1 || 
-                     userData.isAdmin === true;
-      
+      const isAdmin = userData.role === 'admin' ||
+        userData.roleId === 1 ||
+        userData.isAdmin === true;
+
       if (!isAdmin) {
         // Si no es admin, redirigir al inicio
         navigate('/');
         return;
       }
-      
+
       setUser(userData);
     } catch (error) {
       console.error('Error parsing user data:', error);
@@ -165,21 +165,21 @@ function AdminLayout({
   // ===== GENERAR BREADCRUMBS AUTOMÁTICOS =====
   const generateBreadcrumbs = () => {
     if (breadcrumbs.length > 0) return breadcrumbs;
-    
+
     // Generar breadcrumbs automáticos basados en la ruta
     const pathSegments = location.pathname.split('/').filter(Boolean);
     const autoBreadcrumbs = [];
-    
+
     pathSegments.forEach((segment, index) => {
       const href = '/' + pathSegments.slice(0, index + 1).join('/');
       const label = segment.charAt(0).toUpperCase() + segment.slice(1);
-      
+
       autoBreadcrumbs.push({
         label,
         href: index === pathSegments.length - 1 ? undefined : href
       });
     });
-    
+
     return autoBreadcrumbs;
   };
 
@@ -206,11 +206,11 @@ function AdminLayout({
   // ===== RENDER PRINCIPAL =====
   return (
     <div className={layoutClasses} {...restProps}>
-      
+
       {/* ===== SIDEBAR ===== */}
       <AdminSidebar
-        collapsed={isCollapsed}
-        onToggle={handleSidebarToggle}
+        isCollapsed={isCollapsed}  // Usar el prop correcto
+        onToggleCollapse={handleSidebarToggle}
         counts={counts}
         loading={loadingCounts}
         error={countsError}
@@ -219,17 +219,17 @@ function AdminLayout({
 
       {/* ===== ÁREA PRINCIPAL ===== */}
       <div className="admin-layout__main">
-        
+
         {/* ===== HEADER ===== */}
         <header className="admin-layout__header">
-          
+
           {/* Breadcrumbs */}
           {(breadcrumbs.length > 0 || location.pathname !== '/admin') && (
             <nav className="admin-layout__breadcrumbs">
               {generateBreadcrumbs().map((crumb, index) => (
                 <span key={index} className="admin-layout__breadcrumb">
                   {crumb.href ? (
-                    <button 
+                    <button
                       onClick={() => navigate(crumb.href)}
                       className="admin-layout__breadcrumb-link"
                     >
@@ -254,11 +254,11 @@ function AdminLayout({
               {title && <h1 className="admin-layout__title">{title}</h1>}
               {subtitle && <p className="admin-layout__subtitle">{subtitle}</p>}
             </div>
-            
+
             {/* Acciones del header */}
             <div className="admin-layout__header-actions">
               {headerActions}
-              
+
               {/* Info de usuario y logout */}
               <div className="admin-layout__user-menu">
                 <div className="admin-layout__user-info">

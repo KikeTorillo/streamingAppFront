@@ -74,102 +74,132 @@ function DataTable({
   emptyIcon = "📋",
   emptyAction = null,
   
+  // ✅ AGREGAR emptyMessage COMO PROP VÁLIDA
+  emptyMessage, // ← PROP PERSONALIZADA (causa el error)
+  
   // Props de customización
   className = '',
   variant = 'default', // 'default' | 'striped' | 'bordered' | 'compact'
   
+  // ✅ SEPARAR PROPS ADICIONALES PERSONALIZADAS QUE PODRÍAN CAUSAR ERRORES
+  pagination, // ← PROP PERSONALIZADA (objeto de configuración)
+  onRefresh, // ← PROP PERSONALIZADA (handler)
+  
   ...restProps
 }) {
   
-  // Filtrar props que no deben ir al DOM
+  // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
   const {
+    // Props de datos (personalizadas)
     data: _data,
     columns: _columns,
+    
+    // Props de estado (personalizadas)
     loading: _loading,
     error: _error,
     deleting: _deleting,
+    
+    // Props de acciones (personalizadas)
     showActions: _showActions,
     onEdit: _onEdit,
     onDelete: _onDelete,
     onView: _onView,
     actionsColumnHeader: _actionsColumnHeader,
+    
+    // Props de búsqueda y paginación (personalizadas)
     searchable: _searchable,
     searchPlaceholder: _searchPlaceholder,
     pageSize: _pageSize,
     pageSizeOptions: _pageSizeOptions,
     defaultPageSize: _defaultPageSize,
+    
+    // Props de estados vacíos (personalizadas)
     emptyTitle: _emptyTitle,
     emptyDescription: _emptyDescription,
     emptyIcon: _emptyIcon,
     emptyAction: _emptyAction,
+    emptyMessage: _emptyMessage, // ✅ FILTRAR ESTA PROP PROBLEMÁTICA
+    
+    // Props de customización (personalizadas)
     variant: _variant,
-    ...domProps
+    
+    // Props adicionales personalizadas
+    pagination: _pagination,
+    onRefresh: _onRefresh,
+    
+    ...domProps // ✅ Solo props válidas para el DOM
   } = restProps;
+
+  // ===== LÓGICA PARA MANEJAR emptyMessage =====
+  // Si se pasa emptyMessage, usarlo como emptyDescription
+  const finalEmptyDescription = emptyMessage || emptyDescription;
 
   // ===== ESTADOS =====
   const [globalFilter, setGlobalFilter] = useState('');
+  const [currentPageSize, setCurrentPageSize] = useState(pageSize || defaultPageSize);
+  
+  // Debounce para búsqueda
   const [debouncedGlobalFilter] = useDebounce(globalFilter, 300);
-  const [currentPageSize, setCurrentPageSize] = useState(defaultPageSize || pageSize);
 
-  // ===== COLUMNAS CON ACCIONES =====
+  // ===== COLUMNA DE ACCIONES =====
   const actionColumn = useMemo(() => {
-    if (!showActions) return null;
-    
+    if (!showActions || (!onEdit && !onDelete && !onView)) return null;
+
     return {
       id: 'actions',
       header: actionsColumnHeader,
       size: 120,
+      enableSorting: false,
       cell: ({ row }) => {
-        const isDeleting = deleting === row.original.id;
-        
-        // Crear array de acciones dinámicamente
+        const rowData = row.original;
+        const isDeleting = deleting === rowData.id;
+
         const actions = [];
         
         if (onView) {
           actions.push({
-            label: 'Ver detalle',
+            label: 'Ver',
             icon: '👁️',
-            onClick: onView,
-            description: 'Ver información completa',
-            disabled: isDeleting
+            onClick: () => onView(rowData),
+            variant: 'ghost'
           });
         }
-        
+
         if (onEdit) {
           actions.push({
             label: 'Editar',
-            icon: '✏️', 
-            onClick: onEdit,
-            description: 'Modificar este elemento',
-            disabled: isDeleting
+            icon: '✏️',
+            onClick: () => onEdit(rowData),
+            variant: 'outline'
           });
         }
-        
+
         if (onDelete) {
           actions.push({
             label: isDeleting ? 'Eliminando...' : 'Eliminar',
             icon: isDeleting ? '⏳' : '🗑️',
+            onClick: () => onDelete(rowData),
             variant: 'danger',
-            onClick: onDelete,
-            description: 'Eliminar permanentemente',
-            disabled: isDeleting
+            disabled: isDeleting,
+            loading: isDeleting
           });
         }
 
         return (
-          <ActionsDropdown
-            actions={actions}
-            data={row.original}
-            size="sm"
-            position="bottom-right"
-            disabled={loading || isDeleting}
-          />
+          <div className="data-table__actions">
+            <ActionsDropdown
+              actions={actions}
+              variant="outline"
+              size="sm"
+              disabled={loading}
+            />
+          </div>
         );
       }
     };
-  }, [showActions, onView, onEdit, onDelete, actionsColumnHeader, loading, deleting]);
+  }, [showActions, onEdit, onDelete, onView, actionsColumnHeader, deleting, loading]);
 
-  // ===== COLUMNAS MEMOIZADAS =====
+  // ===== MEMOIZED COLUMNS =====
   const memoColumns = useMemo(() => {
     const baseColumns = columns || [];
     return actionColumn ? [...baseColumns, actionColumn] : baseColumns;
@@ -202,12 +232,15 @@ function DataTable({
   // ===== RENDER DE ESTADO VACÍO =====
   if (!loading && (!data || data.length === 0) && !debouncedGlobalFilter) {
     return (
-      <div className={`data-table data-table--empty data-table--${variant} ${className}`} {...domProps}>
+      <div 
+        className={`data-table data-table--empty data-table--${variant} ${className}`}
+        {...domProps} // ✅ Solo props válidas del DOM
+      >
         <div className="data-table__empty">
           <EmptyState
             icon={emptyIcon}
             title={emptyTitle}
-            description={emptyDescription}
+            description={finalEmptyDescription} // ✅ Usar emptyMessage si está disponible
             action={emptyAction}
           />
         </div>
@@ -217,7 +250,10 @@ function DataTable({
 
   // ===== RENDER PRINCIPAL =====
   return (
-    <div className={`data-table data-table--${variant} ${className}`} {...domProps}>
+    <div 
+      className={`data-table data-table--${variant} ${className}`}
+      {...domProps} // ✅ Solo props válidas del DOM
+    >
       {/* ===== CONTROLES SUPERIORES ===== */}
       {searchable && (
         <div className="data-table__controls">
@@ -272,41 +308,18 @@ function DataTable({
                           size="sm"
                           onClick={header.column.getToggleSortingHandler()}
                           className="data-table__sort-button"
-                          style={{
-                            width: '100%',
-                            justifyContent: 'space-between',
-                            padding: 'var(--space-sm) var(--space-md)',
-                            fontWeight: 'var(--font-weight-semibold)',
-                            color: 'var(--text-secondary)',
-                            borderRadius: '0'
-                          }}
-                          rightIcon={
-                            {
-                              asc: '↑',
-                              desc: '↓'
-                            }[header.column.getIsSorted()] || '↕️'
-                          }
-                          ariaLabel={`Ordenar por ${header.column.id}`}
                           disabled={loading}
                         >
-                          <span style={{ 
-                            textAlign: 'left',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          <span className="data-table__sort-icon">
+                            {{
+                              asc: ' ▲',
+                              desc: ' ▼',
+                            }[header.column.getIsSorted()] ?? ' ↕️'}
                           </span>
                         </Button>
                       ) : (
-                        <div style={{
-                          padding: 'var(--space-sm) var(--space-md)',
-                          fontWeight: 'var(--font-weight-semibold)',
-                          color: 'var(--text-secondary)',
-                          textAlign: 'left'
-                        }}>
-                          {flexRender(header.column.columnDef.header, header.getContext())}
-                        </div>
+                        flexRender(header.column.columnDef.header, header.getContext())
                       )
                     )}
                   </th>
@@ -318,20 +331,57 @@ function DataTable({
           {/* ===== BODY ===== */}
           <tbody className="data-table__tbody">
             {loading ? (
-              // Skeleton loading
+              // Estados de loading
               Array.from({ length: currentPageSize }).map((_, index) => (
-                <tr key={`skeleton-${index}`} className="data-table__row data-table__row--skeleton">
+                <tr key={`loading-${index}`} className="data-table__row data-table__row--loading">
                   {memoColumns.map((_, colIndex) => (
-                    <td key={`skeleton-cell-${index}-${colIndex}`} className="data-table__td">
-                      <div className="data-table__skeleton" />
+                    <td key={`loading-cell-${colIndex}`} className="data-table__td">
+                      <div className="data-table__skeleton"></div>
                     </td>
                   ))}
                 </tr>
               ))
+            ) : error ? (
+              // Estado de error
+              <tr className="data-table__row data-table__row--error">
+                <td colSpan={memoColumns.length} className="data-table__td">
+                  <div className="data-table__error">
+                    <span className="data-table__error-icon">⚠️</span>
+                    <span className="data-table__error-message">{error}</span>
+                    {onRefresh && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onRefresh}
+                        className="data-table__retry-button"
+                      >
+                        Reintentar
+                      </Button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ) : table.getRowModel().rows.length === 0 ? (
+              // Sin resultados de búsqueda
+              <tr className="data-table__row data-table__row--empty">
+                <td colSpan={memoColumns.length} className="data-table__td">
+                  <div className="data-table__no-results">
+                    <span className="data-table__no-results-icon">🔍</span>
+                    <span className="data-table__no-results-message">
+                      No se encontraron resultados para "{debouncedGlobalFilter}"
+                    </span>
+                  </div>
+                </td>
+              </tr>
             ) : (
-              // Datos reales
+              // Filas normales
               table.getRowModel().rows.map(row => (
-                <tr key={row.id} className="data-table__row">
+                <tr 
+                  key={row.id} 
+                  className={`data-table__row ${
+                    deleting === row.original.id ? 'data-table__row--deleting' : ''
+                  }`}
+                >
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id} className="data-table__td">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -344,65 +394,65 @@ function DataTable({
         </table>
       </div>
 
-      {/* ===== PAGINACIÓN CON COMPONENTES BUTTON ===== */}
-      {!loading && data && data.length > 0 && (
-        <div className="data-table__footer">
-          {/* Info de resultados */}
-          <div className="data-table__info">
-            <span className="data-table__info-text">
-              Mostrando {table.getRowModel().rows.length} de {table.getFilteredRowModel().rows.length} resultados
-              {table.getFilteredRowModel().rows.length !== data.length && 
-                ` (filtrados de ${data.length} totales)`
-              }
+      {/* ===== PAGINACIÓN CON COMPONENTE BUTTON ===== */}
+      {!loading && !error && data.length > 0 && (
+        <div className="data-table__pagination">
+          <div className="data-table__pagination-info">
+            <span className="data-table__pagination-text">
+              Mostrando {table.getState().pagination.pageIndex * currentPageSize + 1} a{' '}
+              {Math.min(
+                (table.getState().pagination.pageIndex + 1) * currentPageSize,
+                table.getFilteredRowModel().rows.length
+              )}{' '}
+              de {table.getFilteredRowModel().rows.length} resultados
             </span>
           </div>
 
-          {/* ===== CONTROLES DE PAGINACIÓN CON BUTTON ===== */}
-          <div className="data-table__pagination">
-            {/* Botón Primera Página */}
+          <div className="data-table__pagination-controls">
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.setPageIndex(0)}
               disabled={!table.getCanPreviousPage()}
-              ariaLabel="Primera página"
-              icon="⏮️"
-            />
+              className="data-table__pagination-button"
+            >
+              ⏮️ Primero
+            </Button>
             
-            {/* Botón Página Anterior */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
-              ariaLabel="Página anterior"
-              icon="←"
-            />
-            
-            {/* Información de página */}
-            <span className="data-table__page-info">
-              Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
+              className="data-table__pagination-button"
+            >
+              ◀️ Anterior
+            </Button>
+
+            <span className="data-table__pagination-current">
+              Página {table.getState().pagination.pageIndex + 1} de{' '}
+              {table.getPageCount()}
             </span>
-            
-            {/* Botón Página Siguiente */}
+
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
-              ariaLabel="Página siguiente"
-              icon="→"
-            />
+              className="data-table__pagination-button"
+            >
+              Siguiente ▶️
+            </Button>
             
-            {/* Botón Última Página */}
             <Button
               variant="outline"
               size="sm"
               onClick={() => table.setPageIndex(table.getPageCount() - 1)}
               disabled={!table.getCanNextPage()}
-              ariaLabel="Última página"
-              icon="⏭️"
-            />
+              className="data-table__pagination-button"
+            >
+              Último ⏭️
+            </Button>
           </div>
         </div>
       )}
