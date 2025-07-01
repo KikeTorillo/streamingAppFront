@@ -30,7 +30,7 @@ import { SeriesCreatePage } from '../Pages/Admin/Series/SeriesCreatePage/SeriesC
 
 // ===== 🆕 RUTAS DE EPISODES - NUEVAS =====
 import { EpisodesListPage } from '../Pages/Admin/Episodes/EpisodesListPage/EpisodesListPage';
-// import { EpisodeCreatePage } from '../Pages/Admin/Episodes/EpisodeCreatePage/EpisodeCreatePage'; // Para futuro
+import { EpisodesCreatePage } from '../Pages/Admin/Episodes/EpisodesCreatePage/EpisodesCreatePage';
 // import { EpisodeEditPage } from '../Pages/Admin/Episodes/EpisodeEditPage/EpisodeEditPage'; // Para futuro
 
 import "./App.css";
@@ -213,16 +213,16 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    // 🔮 RUTAS FUTURAS - Descomenta cuando implementes las páginas
-    /*
     {
-      path: "/admin/episodes/create",
+      path: "/admin/episodes/create", // ← RUTA ACTIVADA
       element: (
         <AdminRoute>
-          <EpisodeCreatePage />
+          <EpisodesCreatePage />
         </AdminRoute>
       )
     },
+    // 🔮 RUTAS FUTURAS - Descomenta cuando implementes las páginas
+    /*
     {
       path: "/admin/episodes/edit/:id",
       element: (
