@@ -1,4 +1,6 @@
-// atoms/ContentImage/ContentImage.stories.jsx
+// ===== CONTENT IMAGE ATOM STORIES - COMPLETADO =====
+// src/components/atoms/ContentImage/ContentImage.stories.jsx
+
 import React, { useState } from 'react';
 import { ContentImage } from './ContentImage';
 import './ContentImage.css';
@@ -41,35 +43,35 @@ Como **átomo perfecto**:
 \`\`\`jsx
 import { ContentImage } from './atoms/ContentImage';
 
-// Imagen básica para carátula
+// Carátula de película (2:3)
 <ContentImage 
-  src="https://ejemplo.com/pelicula.jpg"
+  src="https://image.tmdb.org/t/p/w500/pFlaoHTZeyNkG83vxsAJiGzfSsa.jpg"
   alt="Carátula de Avatar"
   aspectRatio="2/3"
   contentType="movie"
 />
 
-// Avatar circular
+// Avatar circular (1:1)
 <ContentImage 
-  src="https://ejemplo.com/avatar.jpg"
+  src="https://randomuser.me/api/portraits/women/44.jpg"
   alt="Avatar de usuario"
   aspectRatio="1/1"
   rounded="full"
   objectFit="cover"
 />
 
-// Banner con aspect ratio widescreen
+// Banner widescreen (16:9)
 <ContentImage 
-  src="https://ejemplo.com/banner.jpg"
+  src="https://picsum.photos/1920/1080"
   alt="Banner promocional"
   aspectRatio="16/9"
   objectFit="cover"
   rounded="lg"
 />
 
-// Con manejo de estados
+// Con estados avanzados
 <ContentImage 
-  src="https://ejemplo.com/imagen.jpg"
+  src="https://picsum.photos/300/450"
   alt="Contenido"
   loading="lazy"
   onLoad={handleLoad}
@@ -124,7 +126,6 @@ Usa automáticamente las variables del sistema:
   --space-xs: 0.4rem;
   --space-sm: 0.8rem;
   --font-size-xs: 1.2rem;
-  --font-weight-medium: 500;
   /* Y todas las demás del sistema... */
 }
 \`\`\`
@@ -139,16 +140,16 @@ Usa automáticamente las variables del sistema:
       control: 'text',
       table: {
         type: { summary: 'string' },
-        defaultValue: { summary: 'undefined' }
+        category: 'Básicas'
       }
     },
     alt: {
       name: 'Texto alternativo',
-      description: 'Descripción de la imagen para accesibilidad',
+      description: 'Descripción de la imagen para accesibilidad (requerido)',
       control: 'text',
       table: {
         type: { summary: 'string' },
-        defaultValue: { summary: 'undefined' }
+        category: 'Básicas'
       }
     },
     aspectRatio: {
@@ -157,8 +158,9 @@ Usa automáticamente las variables del sistema:
       control: 'select',
       options: ['1/1', '4/3', '3/2', '16/9', '2/3', '3/4', 'auto'],
       table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'2/3'" }
+        type: { summary: "'1/1' | '4/3' | '3/2' | '16/9' | '2/3' | '3/4' | 'auto'" },
+        defaultValue: { summary: '2/3' },
+        category: 'Apariencia'
       }
     },
     objectFit: {
@@ -167,18 +169,20 @@ Usa automáticamente las variables del sistema:
       control: 'select',
       options: ['cover', 'contain', 'fill', 'scale-down', 'none'],
       table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'cover'" }
+        type: { summary: "'cover' | 'contain' | 'fill' | 'scale-down' | 'none'" },
+        defaultValue: { summary: 'cover' },
+        category: 'Apariencia'
       }
     },
     rounded: {
       name: 'Border Radius',
-      description: 'Radio de bordes',
+      description: 'Curvatura de las esquinas',
       control: 'select',
       options: ['sm', 'md', 'lg', 'xl', 'full'],
       table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'md'" }
+        type: { summary: "'sm' | 'md' | 'lg' | 'xl' | 'full'" },
+        defaultValue: { summary: 'md' },
+        category: 'Apariencia'
       }
     },
     contentType: {
@@ -187,379 +191,309 @@ Usa automáticamente las variables del sistema:
       control: 'select',
       options: ['movie', 'series', 'generic'],
       table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'generic'" }
+        type: { summary: "'movie' | 'series' | 'generic'" },
+        defaultValue: { summary: 'generic' },
+        category: 'Funcionalidad'
       }
     },
     loading: {
-      name: 'Loading strategy',
-      description: 'Estrategia de carga de la imagen',
+      name: 'Estrategia de carga',
+      description: 'Cuándo cargar la imagen',
       control: 'select',
       options: ['eager', 'lazy'],
       table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'lazy'" }
+        type: { summary: "'eager' | 'lazy'" },
+        defaultValue: { summary: 'lazy' },
+        category: 'Performance'
       }
     },
     showFallback: {
       name: 'Mostrar fallback',
-      description: 'Si mostrar imagen de fallback en caso de error',
+      description: 'Si mostrar imagen de fallback en error',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
-        defaultValue: { summary: 'true' }
+        defaultValue: { summary: 'true' },
+        category: 'Estados'
+      }
+    },
+    placeholder: {
+      name: 'Placeholder',
+      description: 'Emoji o texto para placeholder/fallback',
+      control: 'text',
+      table: {
+        type: { summary: 'string' },
+        category: 'Estados'
       }
     },
     blur: {
-      name: 'Blur effect',
-      description: 'Aplicar efecto blur durante carga',
+      name: 'Efecto blur',
+      description: 'Aplicar efecto de desenfoque',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
-        defaultValue: { summary: 'false' }
+        defaultValue: { summary: 'false' },
+        category: 'Estados'
+      }
+    },
+    onLoad: {
+      name: 'Función onLoad',
+      description: 'Callback cuando la imagen carga exitosamente',
+      action: 'loaded',
+      table: {
+        type: { summary: '(event: Event) => void' },
+        category: 'Eventos'
+      }
+    },
+    onError: {
+      name: 'Función onError',
+      description: 'Callback cuando falla la carga de imagen',
+      action: 'error',
+      table: {
+        type: { summary: '(event: Event) => void' },
+        category: 'Eventos'
+      }
+    },
+    className: {
+      name: 'Clase CSS',
+      description: 'Clases CSS adicionales',
+      control: 'text',
+      table: {
+        type: { summary: 'string' },
+        category: 'Extensibilidad'
       }
     }
   }
 };
 
-// ========== EJEMPLOS BÁSICOS ==========
+// ===== DATOS REALISTAS =====
+const sampleImages = {
+  moviePoster: "https://image.tmdb.org/t/p/w500/pFlaoHTZeyNkG83vxsAJiGzfSsa.jpg", // Avatar
+  seriesPoster: "https://image.tmdb.org/t/p/w500/1yeVJox3rjo2jBKrrihIMj7uoS9.jpg", // Stranger Things
+  avatar: "https://randomuser.me/api/portraits/women/44.jpg",
+  banner: "https://picsum.photos/1920/1080?random=1",
+  landscape: "https://picsum.photos/800/600?random=2",
+  portrait: "https://picsum.photos/600/800?random=3",
+  invalidUrl: "https://invalid-url-that-will-fail.com/image.jpg"
+};
 
+// ========== 1. DEFAULT STORY (OBLIGATORIA) ==========
 export const Default = {
   args: {
-    src: "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop",
-    alt: "Imagen de ejemplo",
-    aspectRatio: "2/3",
-    objectFit: "cover",
-    rounded: "md",
-    contentType: "generic",
-    loading: "lazy",
-    showFallback: true,
-    blur: false
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'ContentImage básico con aspect ratio 2:3, ideal para carátulas de contenido multimedia.'
-      }
-    }
-  }
-};
-
-export const MoviePoster = {
-  args: {
-    src: "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop",
-    alt: "Carátula de película",
+    src: sampleImages.moviePoster,
+    alt: "Carátula de Avatar: El Camino del Agua",
     aspectRatio: "2/3",
     contentType: "movie",
-    rounded: "lg"
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Configuración específica para carátulas de películas con fallback apropiado.'
-      }
-    }
+    rounded: "md"
   }
 };
 
-export const SeriesPoster = {
-  args: {
-    src: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=300&h=450&fit=crop",
-    alt: "Carátula de serie",
-    aspectRatio: "2/3",
-    contentType: "series",
-    rounded: "lg"
-  },
-  parameters: {
-    docs: {
-      description: {
-        story: 'Configuración específica para carátulas de series con fallback apropiado.'
-      }
-    }
-  }
-};
-
-// ========== ASPECT RATIOS ==========
-
-export const AspectRatios = () => (
+// ========== 2. SIZES STORY (OBLIGATORIA) ==========
+export const Sizes = () => (
   <div style={{
     display: 'grid',
-    gap: 'var(--space-lg)',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-    alignItems: 'start'
+    gap: 'var(--space-xl)',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+    alignItems: 'start',
+    padding: 'var(--space-md)',
+    maxWidth: '800px'
   }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>1:1 (Avatar)</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face"
-        alt="Avatar ejemplo"
-        aspectRatio="1/1"
-        rounded="full"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>4:3 (Clásico)</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=300&fit=crop"
-        alt="Imagen 4:3"
-        aspectRatio="4/3"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>16:9 (Banner)</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=480&h=270&fit=crop"
-        alt="Banner ejemplo"
-        aspectRatio="16/9"
-        rounded="lg"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>2:3 (Carátula)</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop"
-        alt="Carátula ejemplo"
-        aspectRatio="2/3"
-        contentType="movie"
-      />
-    </div>
+    {[
+      { size: '80px', label: 'XS' },
+      { size: '120px', label: 'SM' },
+      { size: '160px', label: 'MD' },
+      { size: '200px', label: 'LG' },
+      { size: '240px', label: 'XL' }
+    ].map(({ size, label }) => (
+      <div key={size} style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>
+          {label}
+        </h4>
+        <div style={{ maxWidth: size, margin: '0 auto' }}>
+          <ContentImage 
+            src={sampleImages.moviePoster}
+            alt={`Carátula tamaño ${label}`}
+            aspectRatio="2/3"
+            contentType="movie"
+          />
+        </div>
+      </div>
+    ))}
   </div>
 );
 
-AspectRatios.parameters = {
+Sizes.parameters = {
   docs: {
     description: {
-      story: 'Diferentes aspect ratios disponibles para diversos tipos de contenido.'
+      story: 'ContentImage en diferentes tamaños. Al ser un átomo, se adapta al contenedor parent, manteniendo siempre el aspect ratio especificado.'
     }
   }
 };
 
-// ========== OBJECT FIT ==========
-
-export const ObjectFitModes = () => (
+// ========== 3. VARIANTS STORY (OBLIGATORIA) ==========
+export const Variants = () => (
   <div style={{
     display: 'grid',
-    gap: 'var(--space-lg)',
+    gap: 'var(--space-xl)',
     gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    alignItems: 'start'
+    alignItems: 'start',
+    padding: 'var(--space-md)'
   }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>Cover</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop"
-        alt="Object fit cover"
-        aspectRatio="3/2"
-        objectFit="cover"
-      />
-      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-xs)' }}>
-        Recorta para llenar
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>Contain</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop"
-        alt="Object fit contain"
-        aspectRatio="3/2"
-        objectFit="contain"
-      />
-      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-xs)' }}>
-        Ajusta sin recortar
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>Fill</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=300&h=200&fit=crop"
-        alt="Object fit fill"
-        aspectRatio="3/2"
-        objectFit="fill"
-      />
-      <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--text-muted)', textAlign: 'center', marginTop: 'var(--space-xs)' }}>
-        Estira para llenar
-      </p>
-    </div>
+    {[
+      { 
+        aspectRatio: '2/3', 
+        label: 'Carátula (2:3)', 
+        src: sampleImages.moviePoster, 
+        alt: 'Carátula de película',
+        contentType: 'movie'
+      },
+      { 
+        aspectRatio: '16/9', 
+        label: 'Banner (16:9)', 
+        src: sampleImages.banner, 
+        alt: 'Banner promocional',
+        contentType: 'generic'
+      },
+      { 
+        aspectRatio: '1/1', 
+        label: 'Avatar (1:1)', 
+        src: sampleImages.avatar, 
+        alt: 'Avatar de usuario',
+        contentType: 'generic',
+        rounded: 'full'
+      },
+      { 
+        aspectRatio: '4/3', 
+        label: 'Landscape (4:3)', 
+        src: sampleImages.landscape, 
+        alt: 'Imagen landscape',
+        contentType: 'generic'
+      },
+      { 
+        aspectRatio: '3/2', 
+        label: 'Fotografía (3:2)', 
+        src: sampleImages.portrait, 
+        alt: 'Fotografía portrait',
+        contentType: 'generic'
+      }
+    ].map(({ aspectRatio, label, src, alt, contentType, rounded = 'md' }) => (
+      <div key={aspectRatio} style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>{label}</h4>
+        <ContentImage 
+          src={src}
+          alt={alt}
+          aspectRatio={aspectRatio}
+          contentType={contentType}
+          rounded={rounded}
+        />
+      </div>
+    ))}
   </div>
 );
 
-ObjectFitModes.parameters = {
+Variants.parameters = {
   docs: {
     description: {
-      story: 'Diferentes modos de object-fit para controlar cómo se ajusta la imagen dentro del contenedor.'
+      story: 'Diferentes aspect ratios para casos de uso específicos: carátulas de contenido (2:3), banners widescreen (16:9), avatares circulares (1:1), y fotografías (4:3, 3:2).'
     }
   }
 };
 
-// ========== BORDER RADIUS ==========
-
-export const BorderRadius = () => (
-  <div style={{
-    display: 'grid',
-    gap: 'var(--space-lg)',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
-    alignItems: 'start'
-  }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>SM</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-        alt="Border radius small"
-        aspectRatio="1/1"
-        rounded="sm"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>MD</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-        alt="Border radius medium"
-        aspectRatio="1/1"
-        rounded="md"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>LG</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-        alt="Border radius large"
-        aspectRatio="1/1"
-        rounded="lg"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>XL</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-        alt="Border radius extra large"
-        aspectRatio="1/1"
-        rounded="xl"
-      />
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-sm)', textAlign: 'center' }}>Full</h4>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-        alt="Border radius full"
-        aspectRatio="1/1"
-        rounded="full"
-      />
-    </div>
-  </div>
-);
-
-BorderRadius.parameters = {
-  docs: {
-    description: {
-      story: 'Diferentes opciones de border radius usando las variables del sistema de diseño.'
-    }
-  }
-};
-
-// ========== ESTADOS ==========
-
+// ========== 4. STATES STORY (OBLIGATORIA) ==========
 export const States = () => {
-  const [imageStates, setImageStates] = useState({
-    loading: true,
-    error: false,
-    success: true
-  });
+  const [imageStates, setImageStates] = useState({});
+
+  const handleLoad = (key) => (e) => {
+    setImageStates(prev => ({ ...prev, [key]: 'loaded' }));
+    console.log(`Imagen ${key} cargada`);
+  };
+
+  const handleError = (key) => (e) => {
+    setImageStates(prev => ({ ...prev, [key]: 'error' }));
+    console.log(`Error cargando imagen ${key}`);
+  };
 
   return (
     <div style={{
       display: 'grid',
       gap: 'var(--space-xl)',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      alignItems: 'start'
+      gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+      alignItems: 'start',
+      padding: 'var(--space-md)'
     }}>
-      <div>
-        <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Loading</h4>
-        <ContentImage
-          src={imageStates.loading ? "" : "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop"}
-          alt="Estado de carga"
+      <div style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Normal</h4>
+        <ContentImage 
+          src={sampleImages.moviePoster}
+          alt="Estado normal"
           aspectRatio="2/3"
           contentType="movie"
+          onLoad={handleLoad('normal')}
         />
-        <button 
-          onClick={() => setImageStates(prev => ({ ...prev, loading: !prev.loading }))}
-          style={{
-            marginTop: 'var(--space-sm)',
-            padding: 'var(--space-xs) var(--space-sm)',
-            fontSize: 'var(--font-size-xs)',
-            backgroundColor: 'var(--color-primary)',
-            color: 'white',
-            border: 'none',
-            borderRadius: 'var(--radius-sm)',
-            cursor: 'pointer',
-            width: '100%'
-          }}
-        >
-          Toggle Loading
-        </button>
+        <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+          Estado: {imageStates.normal || 'Cargando...'}
+        </small>
       </div>
-      
-      <div>
-        <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Error</h4>
-        <ContentImage
-          src="https://url-que-no-existe.jpg"
-          alt="Estado de error"
+
+      <div style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Error con Fallback</h4>
+        <ContentImage 
+          src={sampleImages.invalidUrl}
+          alt="Error con fallback"
           aspectRatio="2/3"
           contentType="movie"
           showFallback={true}
+          onError={handleError('fallback')}
         />
-        <p style={{ 
-          fontSize: 'var(--font-size-xs)', 
-          color: 'var(--text-muted)', 
-          textAlign: 'center',
-          marginTop: 'var(--space-sm)'
-        }}>
-          Fallback automático
-        </p>
+        <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+          Muestra SVG automático
+        </small>
       </div>
-      
-      <div>
-        <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Error sin fallback</h4>
-        <ContentImage
-          src="https://url-que-no-existe.jpg"
+
+      <div style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Error sin Fallback</h4>
+        <ContentImage 
+          src={sampleImages.invalidUrl}
           alt="Error sin fallback"
           aspectRatio="2/3"
           contentType="movie"
           showFallback={false}
+          onError={handleError('noFallback')}
         />
-        <p style={{ 
-          fontSize: 'var(--font-size-xs)', 
-          color: 'var(--text-muted)', 
-          textAlign: 'center',
-          marginTop: 'var(--space-sm)'
-        }}>
-          Mensaje de error
-        </p>
+        <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+          Muestra mensaje de error
+        </small>
       </div>
-      
-      <div>
-        <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Success</h4>
-        <ContentImage
-          src="https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop"
-          alt="Imagen exitosa"
+
+      <div style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Placeholder Custom</h4>
+        <ContentImage 
+          src={sampleImages.invalidUrl}
+          alt="Placeholder personalizado"
           aspectRatio="2/3"
-          contentType="movie"
+          contentType="series"
+          placeholder="📺"
+          showFallback={true}
+          onError={handleError('custom')}
         />
-        <p style={{ 
-          fontSize: 'var(--font-size-xs)', 
-          color: 'var(--text-muted)', 
-          textAlign: 'center',
-          marginTop: 'var(--space-sm)'
-        }}>
-          Carga exitosa
-        </p>
+        <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+          Emoji personalizado
+        </small>
+      </div>
+
+      <div style={{ textAlign: 'center' }}>
+        <h4 style={{ marginBottom: 'var(--space-sm)' }}>Blur Effect</h4>
+        <ContentImage 
+          src={sampleImages.seriesPoster}
+          alt="Efecto blur"
+          aspectRatio="2/3"
+          contentType="series"
+          blur={true}
+          onLoad={handleLoad('blur')}
+        />
+        <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+          Con desenfoque
+        </small>
       </div>
     </div>
   );
@@ -568,258 +502,273 @@ export const States = () => {
 States.parameters = {
   docs: {
     description: {
-      story: 'Diferentes estados del componente: loading con skeleton, error con y sin fallback, y carga exitosa.'
+      story: 'Estados del componente: normal, error con/sin fallback, placeholder personalizado y efecto blur. Observa la consola para eventos de carga.'
     }
   }
 };
 
-// ========== CONTENT TYPES ==========
+// ========== 5. INTERACTIVE STORY (OBLIGATORIA) ==========
+export const Interactive = () => {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [loadingStats, setLoadingStats] = useState({});
 
-export const ContentTypes = () => (
-  <div style={{
-    display: 'grid',
-    gap: 'var(--space-xl)',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-    alignItems: 'start'
-  }}>
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Movie</h4>
-      <ContentImage
-        src="https://url-que-no-existe.jpg"
-        alt="Fallback película"
-        aspectRatio="2/3"
-        contentType="movie"
-        showFallback={true}
-      />
-      <p style={{ 
-        fontSize: 'var(--font-size-xs)', 
-        color: 'var(--text-muted)', 
-        textAlign: 'center',
-        marginTop: 'var(--space-sm)'
-      }}>
-        Fallback con icono 🎬
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Series</h4>
-      <ContentImage
-        src="https://url-que-no-existe.jpg"
-        alt="Fallback serie"
-        aspectRatio="2/3"
-        contentType="series"
-        showFallback={true}
-      />
-      <p style={{ 
-        fontSize: 'var(--font-size-xs)', 
-        color: 'var(--text-muted)', 
-        textAlign: 'center',
-        marginTop: 'var(--space-sm)'
-      }}>
-        Fallback con icono 📺
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Generic</h4>
-      <ContentImage
-        src="https://url-que-no-existe.jpg"
-        alt="Fallback genérico"
-        aspectRatio="2/3"
-        contentType="generic"
-        showFallback={true}
-      />
-      <p style={{ 
-        fontSize: 'var(--font-size-xs)', 
-        color: 'var(--text-muted)', 
-        textAlign: 'center',
-        marginTop: 'var(--space-sm)'
-      }}>
-        Fallback con icono 🖼️
-      </p>
-    </div>
-    
-    <div>
-      <h4 style={{ marginBottom: 'var(--space-md)', textAlign: 'center' }}>Custom Placeholder</h4>
-      <ContentImage
-        src="https://url-que-no-existe.jpg"
-        alt="Placeholder personalizado"
-        aspectRatio="2/3"
-        placeholder="🌟"
-        showFallback={true}
-      />
-      <p style={{ 
-        fontSize: 'var(--font-size-xs)', 
-        color: 'var(--text-muted)', 
-        textAlign: 'center',
-        marginTop: 'var(--space-sm)'
-      }}>
-        Placeholder personalizado
-      </p>
-    </div>
-  </div>
-);
+  const handleImageLoad = (id) => (e) => {
+    const loadTime = performance.now();
+    setLoadingStats(prev => ({ 
+      ...prev, 
+      [id]: { 
+        status: 'loaded', 
+        time: loadTime.toFixed(0) + 'ms',
+        size: `${e.target.naturalWidth}x${e.target.naturalHeight}`
+      }
+    }));
+  };
 
-ContentTypes.parameters = {
-  docs: {
-    description: {
-      story: 'Diferentes tipos de contenido con fallbacks apropiados y placeholders personalizados.'
-    }
-  }
-};
+  const handleImageError = (id) => (e) => {
+    setLoadingStats(prev => ({ 
+      ...prev, 
+      [id]: { status: 'error', time: 'N/A', size: 'N/A' }
+    }));
+  };
 
-// ========== INTERACTIVE EXAMPLE ==========
-
-export const InteractiveExample = () => {
-  const [currentImage, setCurrentImage] = useState("https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop");
-  const [lastEvent, setLastEvent] = useState('');
+  const handleImageClick = (id, src) => {
+    setSelectedImage({ id, src });
+    alert(`Imagen seleccionada: ${id}`);
+  };
 
   const images = [
-    { url: "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop", name: "Imagen 1" },
-    { url: "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=300&h=450&fit=crop", name: "Imagen 2" },
-    { url: "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=300&h=450&fit=crop", name: "Imagen 3" },
-    { url: "https://url-que-no-existe.jpg", name: "Error" }
+    { 
+      id: 'movie-1', 
+      src: sampleImages.moviePoster, 
+      alt: 'Avatar: El Camino del Agua',
+      aspectRatio: '2/3',
+      contentType: 'movie'
+    },
+    { 
+      id: 'series-1', 
+      src: sampleImages.seriesPoster, 
+      alt: 'Stranger Things',
+      aspectRatio: '2/3',
+      contentType: 'series'
+    },
+    { 
+      id: 'avatar-1', 
+      src: sampleImages.avatar, 
+      alt: 'Usuario María González',
+      aspectRatio: '1/1',
+      contentType: 'generic',
+      rounded: 'full'
+    },
+    { 
+      id: 'banner-1', 
+      src: sampleImages.banner, 
+      alt: 'Banner promocional',
+      aspectRatio: '16/9',
+      contentType: 'generic'
+    }
   ];
 
   return (
-    <div style={{ maxWidth: '400px', margin: '0 auto' }}>
-      <div style={{ marginBottom: 'var(--space-lg)' }}>
-        <ContentImage
-          src={currentImage}
-          alt="Imagen interactiva"
-          aspectRatio="2/3"
-          contentType="movie"
-          onLoad={() => setLastEvent('Imagen cargada exitosamente')}
-          onError={() => setLastEvent('Error al cargar la imagen')}
-          rounded="lg"
-        />
-      </div>
-      
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(2, 1fr)', 
-        gap: 'var(--space-sm)',
-        marginBottom: 'var(--space-md)'
+    <div style={{
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 'var(--space-xl)',
+      padding: 'var(--space-md)'
+    }}>
+      <div style={{
+        display: 'grid',
+        gap: 'var(--space-lg)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'
       }}>
-        {images.map((img, index) => (
-          <button
-            key={index}
-            onClick={() => setCurrentImage(img.url)}
-            style={{
-              padding: 'var(--space-sm)',
-              backgroundColor: currentImage === img.url ? 'var(--color-primary)' : 'var(--bg-secondary)',
-              color: currentImage === img.url ? 'white' : 'var(--text-primary)',
-              border: 'none',
-              borderRadius: 'var(--radius-md)',
-              cursor: 'pointer',
-              fontSize: 'var(--font-size-sm)'
-            }}
-          >
-            {img.name}
-          </button>
+        {images.map(({ id, src, alt, aspectRatio, contentType, rounded = 'md' }) => (
+          <div key={id} style={{ textAlign: 'center' }}>
+            <h4 style={{ marginBottom: 'var(--space-sm)' }}>{alt}</h4>
+            <div 
+              style={{ cursor: 'pointer' }}
+              onClick={() => handleImageClick(id, src)}
+            >
+              <ContentImage 
+                src={src}
+                alt={alt}
+                aspectRatio={aspectRatio}
+                contentType={contentType}
+                rounded={rounded}
+                loading="eager"
+                onLoad={handleImageLoad(id)}
+                onError={handleImageError(id)}
+              />
+            </div>
+            <div style={{ marginTop: 'var(--space-sm)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+              Estado: {loadingStats[id]?.status || 'Cargando...'}<br/>
+              {loadingStats[id]?.size && `Tamaño: ${loadingStats[id].size}`}<br/>
+              {loadingStats[id]?.time && `Tiempo: ${loadingStats[id].time}`}
+            </div>
+          </div>
         ))}
       </div>
-      
-      {lastEvent && (
+
+      {selectedImage && (
         <div style={{
-          padding: 'var(--space-sm)',
-          backgroundColor: 'var(--color-success-light)',
-          color: 'var(--color-success)',
-          borderRadius: 'var(--radius-md)',
-          fontSize: 'var(--font-size-sm)',
+          padding: 'var(--space-lg)',
+          backgroundColor: 'var(--bg-secondary)',
+          borderRadius: 'var(--radius-lg)',
           textAlign: 'center'
         }}>
-          {lastEvent}
+          <strong>Imagen seleccionada:</strong> {selectedImage.id}
         </div>
       )}
     </div>
   );
 };
 
-InteractiveExample.parameters = {
+Interactive.parameters = {
   docs: {
     description: {
-      story: 'Ejemplo interactivo mostrando callbacks onLoad y onError. Prueba diferentes imágenes incluida una que falla.'
+      story: 'Ejemplos interactivos con diferentes tipos de contenido. Haz click en cualquier imagen para seleccionarla. Observa los tiempos de carga y tamaños reales.'
     }
   }
 };
 
-// ========== USE CASES ==========
-
-export const UseCases = () => (
+// ========== 6. ACCESSIBILITY STORY (OBLIGATORIA) ==========
+export const Accessibility = () => (
   <div style={{
-    display: 'grid',
-    gap: 'var(--space-2xl)',
-    padding: 'var(--space-lg)'
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 'var(--space-xl)',
+    padding: 'var(--space-md)',
+    maxWidth: '800px'
   }}>
+    {/* Ejemplo completo de accesibilidad */}
     <div>
-      <h3 style={{ marginBottom: 'var(--space-lg)', color: 'var(--text-primary)' }}>Galería de Películas</h3>
+      <h3 style={{ marginBottom: 'var(--space-lg)' }}>
+        🛡️ Accesibilidad Completa
+      </h3>
+      
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-        gap: 'var(--space-md)'
+        gap: 'var(--space-lg)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))'
       }}>
-        {[
-          "https://images.unsplash.com/photo-1489599485995-d918135f0b1f?w=300&h=450&fit=crop",
-          "https://images.unsplash.com/photo-1518929458119-e5bf444c30f4?w=300&h=450&fit=crop",
-          "https://images.unsplash.com/photo-1635805737707-575885ab0820?w=300&h=450&fit=crop",
-          "https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&h=450&fit=crop",
-          "https://images.unsplash.com/photo-1635863138275-d9864d29a8d5?w=300&h=450&fit=crop"
-        ].map((src, index) => (
-          <ContentImage
-            key={index}
-            src={src}
-            alt={`Película ${index + 1}`}
+        <div>
+          <h4>Alt text descriptivo</h4>
+          <ContentImage 
+            src={sampleImages.moviePoster}
+            alt="Carátula de Avatar: El Camino del Agua, película de ciencia ficción dirigida por James Cameron, mostrando a los personajes Na'vi en un ambiente acuático"
             aspectRatio="2/3"
             contentType="movie"
-            rounded="md"
           />
-        ))}
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-sm)' }}>
+            ✅ Descripción detallada para screen readers
+          </p>
+        </div>
+
+        <div>
+          <h4>Fallback accesible</h4>
+          <ContentImage 
+            src={sampleImages.invalidUrl}
+            alt="Imagen no disponible temporalmente"
+            aspectRatio="2/3"
+            contentType="movie"
+            showFallback={true}
+            placeholder="🎬"
+          />
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-sm)' }}>
+            ✅ Fallback con significado semántico
+          </p>
+        </div>
+
+        <div>
+          <h4>Lazy loading accesible</h4>
+          <ContentImage 
+            src={sampleImages.landscape}
+            alt="Paisaje montañoso con lago cristalino durante el atardecer"
+            aspectRatio="4/3"
+            contentType="generic"
+            loading="lazy"
+          />
+          <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-muted)', marginTop: 'var(--space-sm)' }}>
+            ✅ Carga diferida optimizada
+          </p>
+        </div>
       </div>
     </div>
-    
+
+    {/* Guía de buenas prácticas */}
+    <div style={{
+      padding: 'var(--space-lg)',
+      backgroundColor: 'var(--bg-secondary)',
+      borderRadius: 'var(--radius-lg)',
+      border: '1px solid var(--border-default)'
+    }}>
+      <h4 style={{ marginBottom: 'var(--space-md)' }}>
+        📋 Buenas Prácticas de Accesibilidad
+      </h4>
+      
+      <div style={{ fontSize: 'var(--text-sm)', lineHeight: 1.6 }}>
+        <p><strong>✅ Alt text obligatorio:</strong> Siempre proporciona descripción meaningful</p>
+        <p><strong>✅ Fallbacks informativos:</strong> Usa placeholders que indiquen el tipo de contenido</p>
+        <p><strong>✅ Loading progresivo:</strong> Lazy loading respeta reduced motion preferences</p>
+        <p><strong>✅ Estados claros:</strong> Error states son anunciados apropiadamente</p>
+        <p><strong>✅ Contrast ratio:</strong> Skeleton y fallbacks mantienen contraste adecuado</p>
+        <p><strong>✅ Content hints:</strong> contentType mejora la experiencia con AT</p>
+      </div>
+    </div>
+
+    {/* Demostración de aspectos avanzados */}
     <div>
-      <h3 style={{ marginBottom: 'var(--space-lg)', color: 'var(--text-primary)' }}>Avatares de Usuario</h3>
+      <h4 style={{ marginBottom: 'var(--space-lg)' }}>
+        🔧 Características Avanzadas
+      </h4>
+      
       <div style={{
-        display: 'flex',
-        gap: 'var(--space-md)',
-        alignItems: 'center'
+        display: 'grid',
+        gap: 'var(--space-lg)',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))'
       }}>
         {[
-          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-          "https://images.unsplash.com/photo-1494790108755-2616b612f3f7?w=100&h=100&fit=crop&crop=face",
-          "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-          "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face"
-        ].map((src, index) => (
-          <ContentImage
-            key={index}
-            src={src}
-            alt={`Usuario ${index + 1}`}
-            aspectRatio="1/1"
-            rounded="full"
-            style={{ width: '60px', height: '60px' }}
-          />
+          { 
+            label: 'Object Fit: Cover', 
+            objectFit: 'cover',
+            src: sampleImages.avatar
+          },
+          { 
+            label: 'Object Fit: Contain', 
+            objectFit: 'contain',
+            src: sampleImages.avatar
+          },
+          { 
+            label: 'Rounded: Full', 
+            rounded: 'full',
+            src: sampleImages.avatar
+          },
+          { 
+            label: 'Content: Series', 
+            contentType: 'series',
+            src: sampleImages.invalidUrl,
+            showFallback: true
+          }
+        ].map(({ label, src = sampleImages.avatar, ...props }, index) => (
+          <div key={index} style={{ textAlign: 'center' }}>
+            <h5 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>
+              {label}
+            </h5>
+            <ContentImage 
+              src={src}
+              alt={`Demostración de ${label.toLowerCase()}`}
+              aspectRatio="1/1"
+              {...props}
+            />
+          </div>
         ))}
       </div>
-    </div>
-    
-    <div>
-      <h3 style={{ marginBottom: 'var(--space-lg)', color: 'var(--text-primary)' }}>Banner Promocional</h3>
-      <ContentImage
-        src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=450&fit=crop"
-        alt="Banner promocional"
-        aspectRatio="16/9"
-        rounded="xl"
-        style={{ maxWidth: '600px' }}
-      />
     </div>
   </div>
 );
 
-UseCases.parameters = {
+Accessibility.parameters = {
   docs: {
     description: {
-      story: 'Casos de uso reales del componente: galería de películas, avatares de usuario y banners promocionales.'
+      story: 'Demostración completa de características de accesibilidad: alt text descriptivo, fallbacks semánticos, lazy loading respetuoso, y buenas prácticas para AT (Assistive Technologies).'
     }
   }
 };
