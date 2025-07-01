@@ -22,18 +22,18 @@ function AdminSidebar({
   // Estados del sidebar
   isCollapsed = false,
   onToggleCollapse,
-  
+
   // Datos dinámicos para badges
   userCount = 0,
   movieCount = 0,
   seriesCount = 0,
   categoryCount = 0,
   episodeCount = 0,
-  
+
   // Props de customización
   className = '',
   variant = 'default', // 'default' | 'dark' | 'minimal'
-  
+
   // ✅ SEPARAR PROPS PERSONALIZADAS QUE NO VAN AL DOM
   loading, // ← PROP PERSONALIZADA (causa el error)
   error, // ← PROP PERSONALIZADA
@@ -41,11 +41,11 @@ function AdminSidebar({
   currentPath, // ← PROP PERSONALIZADA
   onToggle, // ← PROP PERSONALIZADA (handler de AdminLayout)
   onNavigate, // ← PROP PERSONALIZADA (handler para Storybook)
-  
+
   // Props adicionales
   ...restProps
 }) {
-  
+
   // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
   const {
     // Props personalizadas a filtrar (evitar error de React)
@@ -121,6 +121,11 @@ function AdminSidebar({
           label: 'Episodios',
           route: '/admin/episodes',
           badge: episodeCount
+        },
+        {
+          icon: '➕',
+          label: 'Crear Episodio',
+          route: '/admin/episodes/create'
         }
       ]
     },
@@ -159,9 +164,9 @@ function AdminSidebar({
   // Navegación con manejo de errores
   const handleNavigation = (route, event) => {
     if (!route) return;
-    
+
     event?.preventDefault();
-    
+
     try {
       navigate(route);
     } catch (error) {
@@ -204,16 +209,16 @@ function AdminSidebar({
 
   // ===== RENDER PRINCIPAL =====
   return (
-    <aside 
+    <aside
       className={sidebarClasses}
       role="navigation"
       aria-label="Navegación del panel de administración"
       {...domProps} // ✅ Solo props válidas del DOM
     >
-      
+
       {/* ===== HEADER DEL SIDEBAR ===== */}
       <div className="admin-sidebar__header">
-        
+
         {/* Brand */}
         {!isCollapsed && (
           <div className="admin-sidebar__brand">
@@ -224,7 +229,7 @@ function AdminSidebar({
             </div>
           </div>
         )}
-        
+
         {/* Toggle Button */}
         <Button
           variant="ghost"
@@ -239,8 +244,8 @@ function AdminSidebar({
 
       {/* ===== NAVEGACIÓN PRINCIPAL ===== */}
       <nav className="admin-sidebar__nav">
-        <ul 
-          className="admin-sidebar__menu" 
+        <ul
+          className="admin-sidebar__menu"
           role="menu"
           aria-label="Menú principal de administración"
         >
@@ -250,8 +255,8 @@ function AdminSidebar({
             const isActive = isRouteActive(item.route, item.route === '/admin');
 
             return (
-              <li 
-                key={item.id} 
+              <li
+                key={item.id}
                 className="admin-sidebar__menu-item"
                 role="none"
               >
@@ -261,8 +266,8 @@ function AdminSidebar({
                     isActive && 'admin-sidebar__item--active',
                     hasSubmenu && 'admin-sidebar__item--expandable'
                   ].filter(Boolean).join(' ')}
-                  onClick={hasSubmenu ? 
-                    () => toggleSubmenu(item.id) : 
+                  onClick={hasSubmenu ?
+                    () => toggleSubmenu(item.id) :
                     (e) => handleNavigation(item.route, e)
                   }
                   role="menuitem"
@@ -274,26 +279,26 @@ function AdminSidebar({
                   <span className="admin-sidebar__item-icon">
                     {item.icon}
                   </span>
-                  
+
                   {!isCollapsed && (
                     <>
                       <span className="admin-sidebar__item-label">
                         {item.label}
                       </span>
-                      
+
                       {/* Badge con contador */}
                       {item.badge > 0 && (
-                        <span 
+                        <span
                           className="admin-sidebar__badge"
                           aria-label={`${item.badge} elementos`}
                         >
                           {item.badge}
                         </span>
                       )}
-                      
+
                       {/* Flecha para submenús */}
                       {hasSubmenu && (
-                        <span 
+                        <span
                           className={[
                             'admin-sidebar__arrow',
                             isExpanded && 'admin-sidebar__arrow--expanded'
@@ -309,7 +314,7 @@ function AdminSidebar({
 
                 {/* Descripción para accesibilidad */}
                 {!isCollapsed && (
-                  <span 
+                  <span
                     id={`${item.id}-desc`}
                     className="admin-sidebar__description"
                   >
@@ -319,13 +324,13 @@ function AdminSidebar({
 
                 {/* Submenú */}
                 {hasSubmenu && isExpanded && !isCollapsed && (
-                  <ul 
+                  <ul
                     className="admin-sidebar__submenu"
                     role="menu"
                     aria-label={`Submenú de ${item.label}`}
                   >
                     {item.submenu.map((subitem, index) => (
-                      <li 
+                      <li
                         key={index}
                         className="admin-sidebar__submenu-item"
                         role="none"
@@ -345,10 +350,10 @@ function AdminSidebar({
                           <span className="admin-sidebar__subitem-label">
                             {subitem.label}
                           </span>
-                          
+
                           {/* Badge para subitem */}
                           {subitem.badge > 0 && (
-                            <span 
+                            <span
                               className="admin-sidebar__badge admin-sidebar__badge--small"
                               aria-label={`${subitem.badge} elementos`}
                             >
@@ -376,7 +381,7 @@ function AdminSidebar({
               <p className="admin-sidebar__user-role">Panel de Control</p>
             </div>
           </div>
-          
+
           <Button
             variant="outline"
             size="sm"

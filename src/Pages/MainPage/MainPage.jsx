@@ -208,7 +208,7 @@ function MainPage() {
                 category: serie.category || 'Sin categoría', // Para mostrar
                 categoryId: serie.categoryId, // Para filtrar
                 year: serie.releaseYear || serie.year || new Date().getFullYear(),
-                cover: serie.cover_image || serie.cover || '/placeholder-series.jpg',
+                cover: `http://localhost:8082/covers/${serie.cover_image}/cover.jpg`,
                 type: 'series',
                 rating: serie.rating || 0,
                 seasons: serie.seasons || 1

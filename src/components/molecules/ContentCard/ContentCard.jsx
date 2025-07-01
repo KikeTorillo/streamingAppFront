@@ -70,6 +70,25 @@ const ContentCard = ({
     episodes
   } = content;
 
+  // ✅ FILTRAR PROPS PERSONALIZADAS QUE NO DEBEN IR AL DOM
+  const {
+    // Props personalizadas que causan el error
+    onFavoriteClick, // ← FILTRAR ESTA PROP
+    onPlayClick,     // ← FILTRAR ESTA PROP
+    contentType,     // ← FILTRAR ESTA PROP
+    
+    // Otros props personalizados que podrían venir del padre
+    content: _content,
+    size: _size,
+    onPlay: _onPlay,
+    onFavorite: _onFavorite,
+    showRating: _showRating,
+    showMeta: _showMeta,
+    showCategory: _showCategory,
+    
+    ...domProps // ✅ Solo props válidas para el DOM
+  } = restProps;
+
   // Construir clases CSS
   const cardClasses = [
     'content-card',
@@ -131,7 +150,7 @@ const ContentCard = ({
       role="button"
       aria-label={`${type === 'movie' ? 'Película' : 'Serie'}: ${title}`}
       aria-disabled={disabled}
-      {...restProps}
+      {...domProps} // ✅ Solo props válidas del DOM
     >
       {/* Contenedor de imagen */}
       <div className="content-card__image-container">

@@ -84,7 +84,7 @@ function DataTable({
   // ✅ SEPARAR PROPS ADICIONALES PERSONALIZADAS QUE PODRÍAN CAUSAR ERRORES
   pagination, // ← PROP PERSONALIZADA (objeto de configuración)
   onRefresh, // ← PROP PERSONALIZADA (handler)
-
+  rowClassName, // ← ✅ AGREGAR ESTA LÍNEA
   ...restProps
 }) {
 
@@ -127,7 +127,7 @@ function DataTable({
     emptyState: _emptyState,      // ← AGREGAR ESTA
     pagination: _pagination,
     onRefresh: _onRefresh,
-
+    rowClassName: _rowClassName,
     ...domProps // ✅ Solo props válidas para el DOM
   } = restProps;
 
