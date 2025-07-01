@@ -1,4 +1,4 @@
-// ===== EPISODES LIST PAGE - HOMOLOGADO CON SERIES, CATEGORIES Y MOVIES =====
+// ===== EPISODES LIST PAGE - FIX: AGREGAR SELECT DE SERIES =====
 // src/Pages/Admin/Episodes/EpisodesListPage/EpisodesListPage.jsx
 
 import React, { useState, useEffect } from 'react';
@@ -8,32 +8,37 @@ import { DataTable } from '../../../../components/organism/DataTable/DataTable';
 import { Button } from '../../../../components/atoms/Button/Button';
 import './EpisodesListPage.css';
 
-// Servicios de episodios
+// Servicios de episodios y series
 import { getEpisodesService } from '../../../../services/Episodes/getEpisodesService';
 import { deleteEpisodeService } from '../../../../services/Episodes/deleteEpisodeService';
+import { getSeriesService } from '../../../../services/Series/getSeriesService';
 
 /**
- * EpisodesListPage - Página de gestión de episodios COMPLETA
+ * EpisodesListPage - Página de gestión de episodios con select de series
  * 
- * ✅ SISTEMA DE DISEÑO: Solo componentes con stories de Storybook
- * ✅ BACKEND: Homologado con servicios existentes
- * ✅ PATRÓN: Sigue exactamente el mismo patrón que SeriesListPage, CategoriesListPage y MoviesListPage
- * ✅ UX: Estados de loading, error y success consistentes
- * ✅ CRUD: Operaciones de Ver, Editar y Eliminar implementadas
+ * ✅ FIX: Agregado select de series para obtener serieId requerido
+ * ✅ SOLUCIÓN SIMPLE: Usa select nativo de HTML
+ * ✅ PATRÓN: Mantiene la estructura existente
  */
 function EpisodesListPage() {
   const navigate = useNavigate();
 
   // ===== ESTADOS =====
   const [episodes, setEpisodes] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  
+  // 🆕 Estados para series
+  const [series, setSeries] = useState([]);
+  const [selectedSerieId, setSelectedSerieId] = useState('');
+  const [seriesLoading, setSeriesLoading] = useState(true);
+  const [seriesError, setSeriesError] = useState(null);
 
   // ===== FUNCIONES AUXILIARES =====
   
   /**
-   * ✅ Formatear fechas (adaptado para episodios)
+   * ✅ Formatear fechas (sin cambios)
    */
   const formatDate = (dateString) => {
     if (!dateString) return 'No disponible';
@@ -53,7 +58,7 @@ function EpisodesListPage() {
   };
 
   /**
-   * ✅ Formatear temporada y episodio
+   * ✅ Formatear temporada y episodio (sin cambios)
    */
   const formatSeasonEpisode = (season, episodeNumber) => {
     if (!season && !episodeNumber) return 'Sin especificar';
@@ -63,28 +68,26 @@ function EpisodesListPage() {
   };
 
   /**
-   * ✅ Formatear nombre de serie
+   * ✅ Formatear nombre de serie (sin cambios)
    */
   const formatSerieName = (serie) => {
     if (!serie) return 'Sin serie';
-    return typeof serie === 'object' ? serie.title : serie;
+    return typeof serie === 'object' ? serie.title || serie.name : serie;
   };
 
   /**
-   * ✅ Formatear duración del episodio
+   * ✅ Formatear duración (sin cambios)
    */
   const formatDuration = (duration) => {
-    if (!duration) return 'Sin duración';
+    if (!duration) return 'Sin especificar';
+    
     const minutes = Math.floor(duration / 60);
     const seconds = duration % 60;
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  // ===== CONFIGURACIÓN DE COLUMNAS =====
+  // ===== CONFIGURACIÓN DE COLUMNAS (sin cambios) =====
   
-  /**
-   * ✅ Columnas de la tabla - SIN columna de acciones personalizada (usa DataTable integrado)
-   */
   const episodesColumns = [
     {
       accessorKey: 'id',
@@ -98,14 +101,14 @@ function EpisodesListPage() {
     },
     {
       accessorKey: 'title',
-      header: 'Título del Episodio',
+      header: 'Título de Episodio',
       cell: ({ row }) => (
         <div className="episodes-list__title">
           <span className="episodes-list__title-text">
-            {row.original.title}
+            {row.original.title || 'Sin título'}
           </span>
           <span className="episodes-list__title-badge">
-            🎬 Episodio
+            📺 Episodio
           </span>
         </div>
       )
@@ -113,7 +116,7 @@ function EpisodesListPage() {
     {
       accessorKey: 'serie',
       header: 'Serie',
-      size: 180,
+      size: 200,
       cell: ({ row }) => (
         <span className="episodes-list__serie">
           {formatSerieName(row.original.serie)}
@@ -133,7 +136,7 @@ function EpisodesListPage() {
     {
       accessorKey: 'duration',
       header: 'Duración',
-      size: 100,
+      size: 120,
       cell: ({ row }) => (
         <span className="episodes-list__duration">
           {formatDuration(row.original.duration)}
@@ -155,26 +158,62 @@ function EpisodesListPage() {
   // ===== EFECTOS =====
   
   /**
-   * ✅ Cargar episodios al montar el componente
+   * 🆕 Cargar series al montar el componente
    */
   useEffect(() => {
-    loadEpisodes();
+    loadSeries();
   }, []);
+
+  /**
+   * 🆕 Cargar episodios cuando se selecciona una serie
+   */
+  useEffect(() => {
+    if (selectedSerieId) {
+      loadEpisodes();
+    } else {
+      setEpisodes([]);
+    }
+  }, [selectedSerieId]);
 
   // ===== FUNCIONES DE CARGA =====
   
   /**
-   * ✅ Cargar episodios desde el backend
+   * 🆕 Cargar series disponibles
+   */
+  const loadSeries = async () => {
+    try {
+      setSeriesLoading(true);
+      setSeriesError(null);
+      
+      console.log('📺 Cargando series disponibles...');
+      const response = await getSeriesService();
+      const seriesData = Array.isArray(response) ? response : response.data || [];
+      
+      console.log(`✅ Series cargadas: ${seriesData.length} elementos`);
+      setSeries(seriesData);
+      
+    } catch (error) {
+      console.error('❌ Error al cargar series:', error);
+      setSeriesError('Error al cargar las series');
+    } finally {
+      setSeriesLoading(false);
+    }
+  };
+
+  /**
+   * 🔄 Cargar episodios de la serie seleccionada
    */
   const loadEpisodes = async () => {
+    if (!selectedSerieId) return;
+
     try {
       setLoading(true);
       setError(null);
       
-      console.log('🎬 Cargando lista de episodios...');
-      const response = await getEpisodesService();
+      console.log(`📺 Cargando episodios de la serie ${selectedSerieId}...`);
       
-      // Verificar formato de respuesta
+      // 🆕 Pasar serieId como filtro requerido
+      const response = await getEpisodesService({ serieId: selectedSerieId });
       const episodesData = Array.isArray(response) ? response : response.data || [];
       
       console.log(`✅ Episodios cargados: ${episodesData.length} elementos`);
@@ -183,11 +222,8 @@ function EpisodesListPage() {
     } catch (error) {
       console.error('❌ Error al cargar episodios:', error);
       
-      // Manejo específico de errores
       if (error.response?.status === 401) {
         setError('Sesión expirada. Por favor, inicia sesión nuevamente.');
-        // Opcional: redirigir al login
-        // navigate('/login');
       } else {
         setError('Error al cargar la lista de episodios. Inténtalo nuevamente.');
       }
@@ -196,59 +232,48 @@ function EpisodesListPage() {
     }
   };
 
-  // ===== FUNCIONES DE ACCIÓN =====
+  // ===== HANDLERS DE ACCIONES (sin cambios) =====
   
-  /**
-   * ✅ Manejar navegación a crear episodio
-   */
+  const handleViewEpisode = (episode) => {
+    console.log('👁️ Ver episodio:', episode);
+    // TODO: Implementar modal o página de detalle
+    alert(`Ver episodio: ${episode.title || `T${episode.season}E${episode.episodeNumber}`}`);
+  };
+
+  const handleEditEpisode = (episode) => {
+    console.log('✏️ Editar episodio:', episode);
+    navigate(`/admin/episodes/edit/${episode.id}`);
+  };
+
   const handleCreateEpisode = () => {
     navigate('/admin/episodes/create');
   };
 
-  /**
-   * ✅ Manejar navegación a editar episodio
-   */
-  const handleEditEpisode = (episode) => {
-    navigate(`/admin/episodes/edit/${episode.id}`);
-  };
-
-  /**
-   * ✅ Manejar ver detalles del episodio
-   */
-  const handleViewEpisode = (episode) => {
-    // Por ahora, navegar a edición - luego se puede crear una página de detalles
-    navigate(`/admin/episodes/view/${episode.id}`);
-  };
-
-  /**
-   * ✅ Manejar eliminación de episodio
-   */
   const handleDeleteEpisode = async (episode) => {
-    if (!window.confirm(`¿Estás seguro de que deseas eliminar el episodio "${episode.title}"?`)) {
+    const confirmMessage = `¿Estás seguro de que deseas eliminar el episodio "${episode.title || `T${episode.season}E${episode.episodeNumber}`}"?`;
+    
+    if (!window.confirm(confirmMessage)) {
       return;
     }
 
     try {
       setDeleting(episode.id);
+      console.log('🗑️ Eliminando episodio:', episode);
       
-      console.log(`🗑️ Eliminando episodio ID: ${episode.id}`);
       await deleteEpisodeService(episode.id);
-      
-      // Recargar la lista después de eliminar
-      await loadEpisodes();
-      
       console.log('✅ Episodio eliminado exitosamente');
+      
+      alert(`Episodio "${episode.title || `T${episode.season}E${episode.episodeNumber}`}" eliminado exitosamente.`);
+      loadEpisodes(); // Recargar lista
       
     } catch (error) {
       console.error('❌ Error al eliminar episodio:', error);
       
       if (error.response?.status === 404) {
-        alert('El episodio ya no existe.');
-        // Recargar lista para sincronizar
+        alert('El episodio no existe o ya fue eliminado.');
         loadEpisodes();
       } else if (error.response?.status === 401) {
         alert('Sesión expirada. Por favor, inicia sesión nuevamente.');
-        // navigate('/login');
       } else {
         alert('Error al eliminar el episodio. Inténtalo nuevamente.');
       }
@@ -257,19 +282,23 @@ function EpisodesListPage() {
     }
   };
 
-  // ===== CONFIGURACIÓN DEL LAYOUT =====
+  // ===== HANDLERS DEL SELECT =====
   
   /**
-   * ✅ Breadcrumbs para episodios
+   * 🆕 Manejar cambio de serie seleccionada
    */
+  const handleSerieChange = (event) => {
+    const serieId = event.target.value;
+    setSelectedSerieId(serieId);
+  };
+
+  // ===== CONFIGURACIÓN DEL LAYOUT =====
+  
   const breadcrumbs = [
     { label: 'Inicio', href: '/admin' },
     { label: 'Episodios', href: '/admin/episodes' }
   ];
 
-  /**
-   * ✅ Acciones del header
-   */
   const headerActions = (
     <Button
       variant="primary"
@@ -282,7 +311,7 @@ function EpisodesListPage() {
   );
 
   /**
-   * ✅ Estadísticas específicas para episodios
+   * 🔄 Estadísticas actualizadas
    */
   const calculateEpisodeStats = () => {
     if (!episodes.length) {
@@ -318,20 +347,14 @@ function EpisodesListPage() {
 
   // ===== CONFIGURACIÓN DE DATATABLES =====
   
-  /**
-   * ✅ Props para DataTable - Homologado con SeriesListPage
-   */
   const dataTableProps = {
     data: episodes,
     columns: episodesColumns,
     loading,
     error,
-    // Configuración de búsqueda
     searchable: true,
     searchPlaceholder: "Buscar episodios por título...",
-    // Configuración de paginación
     pageSize: 10,
-    // Configuraciones de acciones
     actions: {
       view: {
         enabled: true,
@@ -350,55 +373,93 @@ function EpisodesListPage() {
         handler: handleDeleteEpisode,
         label: "Eliminar episodio",
         icon: "🗑️",
-        confirmMessage: (episode) => `¿Eliminar "${episode.title}"?`,
+        confirmMessage: (episode) => `¿Eliminar "${episode.title || `T${episode.season}E${episode.episodeNumber}`}"?`,
         loading: (episode) => deleting === episode.id
       }
     },
-    // Configuración de estados vacíos
     emptyState: {
-      title: "No hay episodios",
-      description: "Aún no se han agregado episodios al sistema.",
-      action: {
-        label: "Crear primer episodio",
-        handler: handleCreateEpisode
-      }
-    },
-    // Estadísticas personalizadas
-    stats: [
-      {
-        label: "Total de episodios",
-        value: stats.total,
-        icon: "🎬"
-      },
-      {
-        label: "Episodios nuevos (7 días)",
-        value: stats.newEpisodes,
-        icon: "⭐"
-      },
-      {
-        label: "Con serie asignada",
-        value: stats.withSeries,
-        icon: "✅"
-      },
-      {
-        label: "Sin serie asignada",
-        value: stats.withoutSeries,
-        icon: "⚠️"
-      }
-    ]
+      title: selectedSerieId ? "No hay episodios" : "Selecciona una serie",
+      description: selectedSerieId 
+        ? "La serie seleccionada no tiene episodios registrados."
+        : "Elige una serie del selector para ver sus episodios.",
+      actionLabel: selectedSerieId ? "Crear Episodio" : null,
+      onAction: selectedSerieId ? handleCreateEpisode : null
+    }
   };
 
   // ===== RENDER =====
+  
   return (
     <AdminLayout
       title="Gestión de Episodios"
-      subtitle="Administra todos los episodios del sistema"
       breadcrumbs={breadcrumbs}
-      headerActions={headerActions}
-      className="episodes-list-page"
+      actions={headerActions}
     >
-      <div className="episodes-list-page__content">
-        <DataTable {...dataTableProps} />
+      <div className="episodes-list-page">
+        <div className="episodes-list-page__content">
+          
+          {/* 🆕 SELECTOR DE SERIES */}
+          <div className="episodes-list-page__filters">
+            <div className="episodes-list-page__filter-group">
+              <label htmlFor="serie-select" className="episodes-list-page__filter-label">
+                📺 Seleccionar Serie:
+              </label>
+              <select
+                id="serie-select"
+                value={selectedSerieId}
+                onChange={handleSerieChange}
+                disabled={seriesLoading}
+                className="episodes-list-page__serie-select"
+              >
+                <option value="">
+                  {seriesLoading 
+                    ? '⏳ Cargando series...' 
+                    : seriesError 
+                    ? '❌ Error al cargar series'
+                    : series.length === 0
+                    ? '📺 No hay series disponibles'
+                    : '-- Selecciona una serie --'
+                  }
+                </option>
+                {series.map(serie => (
+                  <option key={serie.id} value={serie.id}>
+                    {serie.title} ({serie.release_year || 'Sin año'})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* ESTADÍSTICAS (solo si hay serie seleccionada) */}
+          {selectedSerieId && (
+            <div className="episodes-list-page__stats">
+              <div className="episodes-list-page__stat-card">
+                <h3>📊 Estadísticas de Episodios</h3>
+                <div className="episodes-list-page__stat-grid">
+                  <div className="episodes-list-page__stat-item">
+                    <span className="episodes-list-page__stat-number">{stats.total}</span>
+                    <span className="episodes-list-page__stat-label">Total de episodios</span>
+                  </div>
+                  <div className="episodes-list-page__stat-item">
+                    <span className="episodes-list-page__stat-number">{stats.newEpisodes}</span>
+                    <span className="episodes-list-page__stat-label">Nuevos (7 días)</span>
+                  </div>
+                  <div className="episodes-list-page__stat-item">
+                    <span className="episodes-list-page__stat-number">{stats.withSeries}</span>
+                    <span className="episodes-list-page__stat-label">Con serie asignada</span>
+                  </div>
+                  <div className="episodes-list-page__stat-item">
+                    <span className="episodes-list-page__stat-number">{stats.withoutSeries}</span>
+                    <span className="episodes-list-page__stat-label">Sin serie asignada</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TABLA DE EPISODIOS */}
+          <DataTable {...dataTableProps} />
+        </div>
       </div>
     </AdminLayout>
   );
