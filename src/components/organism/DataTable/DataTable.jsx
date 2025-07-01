@@ -48,85 +48,86 @@ function DataTable({
   // Props de datos
   data = [],
   columns = [],
-  
+
   // Props de estado
   loading = false,
   error = null,
   deleting = null, // ID del elemento siendo eliminado
-  
+
   // Props de acciones
   showActions = true,
   onEdit,
   onDelete,
   onView,
   actionsColumnHeader = 'Acciones',
-  
+
   // Props de búsqueda y paginación
   searchable = true,
   searchPlaceholder = 'Buscar...',
   pageSize = 25,
   pageSizeOptions = [10, 25, 50, 100],
   defaultPageSize = 25,
-  
+
   // Props de estados vacíos
   emptyTitle = 'No hay datos',
   emptyDescription = 'No se encontraron resultados',
   emptyIcon = "📋",
   emptyAction = null,
-  
+
   // ✅ AGREGAR emptyMessage COMO PROP VÁLIDA
   emptyMessage, // ← PROP PERSONALIZADA (causa el error)
-  
+
   // Props de customización
   className = '',
   variant = 'default', // 'default' | 'striped' | 'bordered' | 'compact'
-  
+
   // ✅ SEPARAR PROPS ADICIONALES PERSONALIZADAS QUE PODRÍAN CAUSAR ERRORES
   pagination, // ← PROP PERSONALIZADA (objeto de configuración)
   onRefresh, // ← PROP PERSONALIZADA (handler)
-  
+
   ...restProps
 }) {
-  
+
   // ✅ FILTRAR PROPS QUE NO DEBEN IR AL DOM
   const {
     // Props de datos (personalizadas)
     data: _data,
     columns: _columns,
-    
+
     // Props de estado (personalizadas)
     loading: _loading,
     error: _error,
     deleting: _deleting,
-    
+
     // Props de acciones (personalizadas)
     showActions: _showActions,
     onEdit: _onEdit,
     onDelete: _onDelete,
     onView: _onView,
     actionsColumnHeader: _actionsColumnHeader,
-    
+
     // Props de búsqueda y paginación (personalizadas)
     searchable: _searchable,
     searchPlaceholder: _searchPlaceholder,
     pageSize: _pageSize,
     pageSizeOptions: _pageSizeOptions,
     defaultPageSize: _defaultPageSize,
-    
+
     // Props de estados vacíos (personalizadas)
     emptyTitle: _emptyTitle,
     emptyDescription: _emptyDescription,
     emptyIcon: _emptyIcon,
     emptyAction: _emptyAction,
     emptyMessage: _emptyMessage, // ✅ FILTRAR ESTA PROP PROBLEMÁTICA
-    
+
     // Props de customización (personalizadas)
     variant: _variant,
-    
+
     // Props adicionales personalizadas
+    emptyState: _emptyState,      // ← AGREGAR ESTA
     pagination: _pagination,
     onRefresh: _onRefresh,
-    
+
     ...domProps // ✅ Solo props válidas para el DOM
   } = restProps;
 
@@ -137,7 +138,7 @@ function DataTable({
   // ===== ESTADOS =====
   const [globalFilter, setGlobalFilter] = useState('');
   const [currentPageSize, setCurrentPageSize] = useState(pageSize || defaultPageSize);
-  
+
   // Debounce para búsqueda
   const [debouncedGlobalFilter] = useDebounce(globalFilter, 300);
 
@@ -155,7 +156,7 @@ function DataTable({
         const isDeleting = deleting === rowData.id;
 
         const actions = [];
-        
+
         if (onView) {
           actions.push({
             label: 'Ver',
@@ -232,7 +233,7 @@ function DataTable({
   // ===== RENDER DE ESTADO VACÍO =====
   if (!loading && (!data || data.length === 0) && !debouncedGlobalFilter) {
     return (
-      <div 
+      <div
         className={`data-table data-table--empty data-table--${variant} ${className}`}
         {...domProps} // ✅ Solo props válidas del DOM
       >
@@ -250,7 +251,7 @@ function DataTable({
 
   // ===== RENDER PRINCIPAL =====
   return (
-    <div 
+    <div
       className={`data-table data-table--${variant} ${className}`}
       {...domProps} // ✅ Solo props válidas del DOM
     >
@@ -294,11 +295,10 @@ function DataTable({
             {table.getHeaderGroups().map(headerGroup => (
               <tr key={headerGroup.id} className="data-table__header-row">
                 {headerGroup.headers.map(header => (
-                  <th 
+                  <th
                     key={header.id}
-                    className={`data-table__th ${
-                      header.column.getCanSort() ? 'data-table__th--sortable' : ''
-                    }`}
+                    className={`data-table__th ${header.column.getCanSort() ? 'data-table__th--sortable' : ''
+                      }`}
                     style={{ width: header.getSize() }}
                   >
                     {header.isPlaceholder ? null : (
@@ -376,11 +376,10 @@ function DataTable({
             ) : (
               // Filas normales
               table.getRowModel().rows.map(row => (
-                <tr 
-                  key={row.id} 
-                  className={`data-table__row ${
-                    deleting === row.original.id ? 'data-table__row--deleting' : ''
-                  }`}
+                <tr
+                  key={row.id}
+                  className={`data-table__row ${deleting === row.original.id ? 'data-table__row--deleting' : ''
+                    }`}
                 >
                   {row.getVisibleCells().map(cell => (
                     <td key={cell.id} className="data-table__td">
@@ -418,7 +417,7 @@ function DataTable({
             >
               ⏮️ Primero
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
@@ -443,7 +442,7 @@ function DataTable({
             >
               Siguiente ▶️
             </Button>
-            
+
             <Button
               variant="outline"
               size="sm"
