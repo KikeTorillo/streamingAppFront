@@ -355,36 +355,20 @@ function EpisodesListPage() {
     searchable: true,
     searchPlaceholder: "Buscar episodios por título...",
     pageSize: 10,
-    actions: {
-      view: {
-        enabled: true,
-        handler: handleViewEpisode,
-        label: "Ver episodio",
-        icon: "👁️"
-      },
-      edit: {
-        enabled: true,
-        handler: handleEditEpisode,
-        label: "Editar episodio",
-        icon: "✏️"
-      },
-      delete: {
-        enabled: true,
-        handler: handleDeleteEpisode,
-        label: "Eliminar episodio",
-        icon: "🗑️",
-        confirmMessage: (episode) => `¿Eliminar "${episode.title || `T${episode.season}E${episode.episodeNumber}`}"?`,
-        loading: (episode) => deleting === episode.id
-      }
-    },
-    emptyState: {
-      title: selectedSerieId ? "No hay episodios" : "Selecciona una serie",
-      description: selectedSerieId 
-        ? "La serie seleccionada no tiene episodios registrados."
-        : "Elige una serie del selector para ver sus episodios.",
-      actionLabel: selectedSerieId ? "Crear Episodio" : null,
-      onAction: selectedSerieId ? handleCreateEpisode : null
-    }
+    onView: handleViewEpisode,
+    onEdit: handleEditEpisode,
+    onDelete: handleDeleteEpisode,
+    deleting,
+    emptyTitle: selectedSerieId ? "No hay episodios" : "Selecciona una serie",
+    emptyDescription: selectedSerieId
+      ? "La serie seleccionada no tiene episodios registrados."
+      : "Elige una serie del selector para ver sus episodios.",
+    emptyIcon: "📺",
+    emptyAction: selectedSerieId ? (
+      <Button variant="primary" size="sm" onClick={handleCreateEpisode}>
+        Crear Episodio
+      </Button>
+    ) : null
   };
 
   // ===== RENDER =====
