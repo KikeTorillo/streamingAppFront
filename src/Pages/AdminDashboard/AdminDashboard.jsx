@@ -5,16 +5,14 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminLayout } from '../../components/templates/AdminLayout/AdminLayout';
 import { StatsCard } from '../../components/molecules/StatsCard/StatsCard';
-import { DataTable } from '../../components/organism/DataTable/DataTable';
 import { Button } from '../../components/atoms/Button/Button';
 import './AdminDashboard.css';
 
-// Importar servicios para datos reales (SIN episodios)
+// Importar servicios para datos reales
 import { getUsersService } from '../../services/Users/getUsersService';
 import { getMoviesService } from '../../services/Movies/getMoviesService';
 import { getSeriesService } from '../../services/Series/getSeriesService';
 import { getCategoriesService } from '../../services/Categories/getCategoriesService';
-// ❌ ELIMINADO: import { getEpisodesService } from '../../services/Episodes/getEpisodesService';
 
 /**
  * AdminDashboard - Página principal del panel de administración
@@ -22,9 +20,8 @@ import { getCategoriesService } from '../../services/Categories/getCategoriesSer
  * Características implementadas:
  * - ✅ AdminLayout como contenedor base
  * - ✅ Grid de StatsCard con métricas principales
- * - ✅ Tabla de actividad reciente con DataTable
  * - ✅ Acciones rápidas para administradores
- * - ✅ Datos en tiempo real desde servicios (SIN episodios)
+ * - ✅ Datos en tiempo real desde servicios
  * - ✅ Estados de loading y error
  * - ✅ Responsive design
  * - ✅ Navegación a páginas específicas
@@ -32,22 +29,20 @@ import { getCategoriesService } from '../../services/Categories/getCategoriesSer
 function AdminDashboard() {
   const navigate = useNavigate();
 
-  // ===== ESTADOS (SIN EPISODIOS) =====
+  // ===== ESTADOS =====
   const [stats, setStats] = useState({
     users: { count: 0, change: 0 },
     movies: { count: 0, change: 0 },
     series: { count: 0, change: 0 },
     categories: { count: 0, change: 0 }
-    // ❌ ELIMINADO: episodes: { count: 0, change: 0 }
   });
-  const [recentActivity, setRecentActivity] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // ===== EFECTOS =====
   
   /**
-   * Cargar estadísticas desde servicios (SIN episodios)
+   * Cargar estadísticas desde servicios
    */
   useEffect(() => {
     const loadDashboardData = async () => {
@@ -55,22 +50,20 @@ function AdminDashboard() {
         setLoading(true);
         setError(null);
 
-        // Ejecutar llamadas en paralelo (SIN episodios)
+        // Ejecutar llamadas en paralelo
         const [
           usersResponse,
           moviesResponse,
           seriesResponse,
           categoriesResponse
-          // ❌ ELIMINADO: episodesResponse
         ] = await Promise.allSettled([
           getUsersService(),
           getMoviesService(),
           getSeriesService(),
           getCategoriesService()
-          // ❌ ELIMINADO: getEpisodesService()
         ]);
 
-        // Procesar respuestas y extraer contadores (SIN episodios)
+        // Procesar respuestas y extraer contadores
         const newStats = {
           users: {
             count: getArrayLength(usersResponse),
@@ -88,14 +81,9 @@ function AdminDashboard() {
             count: getArrayLength(categoriesResponse),
             change: Math.floor(Math.random() * 5) - 1
           }
-          // ❌ ELIMINADO: episodes: { count: getArrayLength(episodesResponse), change: Math.floor(Math.random() * 25) - 8 }
         };
 
         setStats(newStats);
-
-        // Generar actividad reciente simulada (SIN episodios)
-        const mockActivity = generateMockActivity();
-        setRecentActivity(mockActivity);
 
       } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -123,40 +111,7 @@ function AdminDashboard() {
     return 0;
   };
 
-  /**
-   * Generar actividad reciente simulada (SIN episodios)
-   */
-  const generateMockActivity = () => {
-    const types = ['user', 'movie', 'series', 'category']; // ❌ ELIMINADO: 'episode'
-    const actions = ['Creado', 'Actualizado', 'Eliminado'];
-    const statuses = ['success', 'info', 'warning'];
-    
-    return Array.from({ length: 8 }, (_, index) => ({
-      id: index + 1,
-      type: types[Math.floor(Math.random() * types.length)],
-      action: actions[Math.floor(Math.random() * actions.length)],
-      details: `Elemento ${index + 1} modificado por administrador`,
-      timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
-      status: statuses[Math.floor(Math.random() * statuses.length)]
-    }));
-  };
-
-  /**
-   * Formatear timestamp para mostrar
-   */
-  const formatTimestamp = (timestamp) => {
-    const now = new Date();
-    const diff = now - new Date(timestamp);
-    const minutes = Math.floor(diff / (1000 * 60));
-    const hours = Math.floor(diff / (1000 * 60 * 60));
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
-    if (minutes < 60) return `${minutes}m`;
-    if (hours < 24) return `${hours}h`;
-    return `${days}d`;
-  };
-
-  // ===== CONFIGURACIÓN DE ESTADÍSTICAS (SIN EPISODIOS) =====
+  // ===== CONFIGURACIÓN DE ESTADÍSTICAS =====
   const statsCards = [
     {
       title: 'Usuarios',
@@ -194,116 +149,42 @@ function AdminDashboard() {
       color: 'yellow',
       onClick: () => navigate('/admin/categories')
     }
-    // ❌ ELIMINADO: Card de episodios
   ];
 
-  // ===== CONFIGURACIÓN DE TABLA DE ACTIVIDAD =====
-  const activityColumns = [
-    {
-      accessorKey: 'type',
-      header: 'Tipo',
-      size: 100,
-      cell: ({ getValue }) => {
-        const type = getValue();
-        const icons = {
-          user: '👤',
-          movie: '🎬',
-          series: '📺',
-          category: '📂'
-          // ❌ ELIMINADO: episode: '🎞️'
-        };
-        return (
-          <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>{icons[type] || '📄'}</span>
-            <span style={{ textTransform: 'capitalize' }}>{type}</span>
-          </span>
-        );
-      }
-    },
-    {
-      accessorKey: 'action',
-      header: 'Acción',
-      cell: ({ getValue }) => (
-        <span style={{ fontWeight: 'var(--font-weight-medium)' }}>
-          {getValue()}
-        </span>
-      )
-    },
-    {
-      accessorKey: 'details',
-      header: 'Detalles',
-      cell: ({ getValue }) => (
-        <span style={{ color: 'var(--text-secondary)' }}>
-          {getValue()}
-        </span>
-      )
-    },
-    {
-      accessorKey: 'timestamp',
-      header: 'Cuándo',
-      size: 120,
-      cell: ({ getValue }) => (
-        <span style={{ 
-          fontSize: 'var(--font-size-sm)',
-          color: 'var(--text-muted)'
-        }}>
-          {formatTimestamp(getValue())}
-        </span>
-      )
-    },
-    {
-      accessorKey: 'status',
-      header: 'Estado',
-      size: 100,
-      cell: ({ getValue }) => {
-        const status = getValue();
-        const variants = {
-          success: 'success',
-          info: 'info',
-          warning: 'warning',
-          error: 'danger'
-        };
-        return (
-          <span className={`data-table__badge data-table__badge--${variants[status] || 'info'}`}>
-            {status}
-          </span>
-        );
-      }
-    }
-  ];
+  // ===== MANEJO DE ERRORES =====
+  if (error) {
+    return (
+      <AdminLayout>
+        <div className="admin-dashboard admin-dashboard--error">
+          <div style={{
+            textAlign: 'center',
+            padding: 'var(--space-3xl)',
+            color: 'var(--text-secondary)'
+          }}>
+            <h2>❌ Error al cargar el dashboard</h2>
+            <p>{error}</p>
+            <Button
+              variant="primary"
+              onClick={() => window.location.reload()}
+              style={{ marginTop: 'var(--space-md)' }}
+            >
+              Reintentar
+            </Button>
+          </div>
+        </div>
+      </AdminLayout>
+    );
+  }
 
   // ===== RENDER =====
   return (
-    <AdminLayout
-      title="Dashboard"
-      subtitle="Visión general de tu plataforma de streaming"
-      headerActions={
-        <Button
-          variant="primary"
-          onClick={() => navigate('/admin/settings')}
-          leftIcon="⚙️"
-        >
-          Configuración
-        </Button>
-      }
-    >
+    <AdminLayout>
       <div className="admin-dashboard">
         
-        {/* ===== ESTADO DE ERROR ===== */}
-        {error && (
-          <div className="status-message status-message--error">
-            <span className="status-message__icon">⚠️</span>
-            <div className="status-message__content">
-              <strong>Error en el Dashboard</strong>
-              <span>{error}</span>
-            </div>
-          </div>
-        )}
-
         {/* ===== ESTADÍSTICAS PRINCIPALES ===== */}
         <section className="admin-dashboard__stats">
           <h2 className="admin-dashboard__section-title">
-            📊 Estadísticas Generales
+            📊 Resumen General
           </h2>
           
           {loading ? (
@@ -382,39 +263,6 @@ function AdminDashboard() {
           </div>
         </section>
 
-        {/* ===== ACTIVIDAD RECIENTE ===== */}
-        <section className="admin-dashboard__activity">
-          <div className="admin-dashboard__activity-header">
-            <h2 className="admin-dashboard__section-title">
-              📈 Actividad Reciente
-            </h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/admin/activity')}
-            >
-              Ver todo →
-            </Button>
-          </div>
-          
-          {loading ? (
-            <div className="data-table--loading">
-              <div className="data-table__skeleton"></div>
-            </div>
-          ) : (
-            <DataTable
-              data={recentActivity}
-              columns={activityColumns}
-              searchable={false}
-              pagination={{
-                pageSize: 5,
-                showSizeSelector: false
-              }}
-              emptyMessage="No hay actividad reciente"
-              loading={loading}
-            />
-          )}
-        </section>
       </div>
     </AdminLayout>
   );

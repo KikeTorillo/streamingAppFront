@@ -49,20 +49,25 @@ export default {
         component: `
 # AdminDashboard Page
 
-Página principal del panel de administración que combina todos los componentes creados.
+Página principal del panel de administración simplificada sin datos mock.
 
 ## Componentes integrados
 - **AdminLayout**: Template base
 - **StatsCard**: Métricas principales  
-- **DataTable**: Actividad reciente
 - **Button**: Acciones rápidas
 
 ## Funcionalidades
-- ✅ Estadísticas en tiempo real
+- ✅ Estadísticas en tiempo real desde servicios
 - ✅ Navegación a páginas específicas
-- ✅ Tabla de actividad reciente
-- ✅ Acciones rápidas
+- ✅ Acciones rápidas para administradores
+- ✅ Estados de loading y error
 - ✅ Responsive design
+- ✅ Enfoque en datos reales solamente
+
+## Filosofía de simplicidad
+- ❌ Sin datos mock o simulados
+- ✅ Solo funcionalidades con datos reales
+- ✅ Código limpio y mantenible
         `
       }
     }
@@ -75,7 +80,7 @@ export const Default = () => <AdminDashboard />;
 Default.parameters = {
   docs: {
     description: {
-      story: 'Dashboard principal con todas las funcionalidades integradas. Las estadísticas se cargan desde los servicios reales.'
+      story: 'Dashboard principal simplificado. Muestra únicamente estadísticas reales desde los servicios y acciones rápidas para administradores.'
     }
   }
 };
