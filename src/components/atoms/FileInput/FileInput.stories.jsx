@@ -1,108 +1,76 @@
 // src/components/atoms/FileInput/FileInput.stories.jsx
 import React from 'react';
 import { FileInput } from './FileInput';
-import './FileInput.css';
 
 export default {
   title: 'Components/Atoms/FileInput',
   component: FileInput,
   tags: ['autodocs'],
   parameters: {
-    layout: 'padded',
     docs: {
       description: {
         component: `
-# FileInput - Átomo del Sistema de Diseño
+# FileInput Atom
 
-Componente **FileInput** completamente alineado con el sistema de diseño, siguiendo los mismos patrones que Button e Input.
+El átomo **FileInput** es el componente base para selección de archivos en nuestro sistema de diseño.
 
 ## 🎯 Características principales
 
-- **5 tamaños**: XS, SM, MD, LG, XL (responsive con área táctil)
-- **4 variantes**: Default, Success, Warning, Danger
-- **Estados completos**: Normal, Focus, Hover, Disabled, Has-files
-- **Accesibilidad**: ARIA completo, navegación por teclado, live regions
-- **Múltiples archivos**: Soporte para \`multiple\`
-- **Información rica**: Preview de archivos con nombre y tamaño
-- **Theming**: Variables CSS del sistema, modo oscuro automático
-- **Mobile-first**: Área táctil de 44px, optimizado para touch
+- **5 tamaños**: xs, sm, md, lg, xl
+- **4 variantes**: default, success, warning, error
+- **Estados completos**: normal, hover, focus, disabled
+- **Accesibilidad**: ARIA labels, navegación por teclado
+- **Theming**: Variables CSS del sistema
 
-## 🏗️ Consistencia con el sistema
+## 🔧 Uso básico
 
-Usa las mismas variables CSS que Button, Input y TextInput:
-- Espaciado, tipografía, colores coherentes
-- Estados focus/hover/disabled idénticos
-- Radio de bordes y transiciones uniformes
-- Mensajes de error y ayuda como TextInput
+\\\`\\\`\\\`jsx
+import { FileInput } from './atoms/FileInput';
 
-## 📱 Responsive design
-
-- Área táctil mínima de 44px en móviles
-- Ajustes automáticos de tamaño de fuente
-- Animaciones optimizadas para rendimiento
+<FileInput 
+  size="md"
+  variant="default"
+  onChange={handleChange}
+  text="Seleccionar archivo"
+/>
+\\\`\\\`\\\`
         `
       }
     }
   },
   argTypes: {
-    size: {
-      name: 'Tamaño',
-      description: 'Tamaño del componente (como Button/Input)',
-      control: 'select',
-      options: ['xs', 'sm', 'md', 'lg', 'xl'],
-      table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'md'" }
-      }
-    },
-    variant: {
-      name: 'Variante',
-      description: 'Variante visual semántica',
-      control: 'select',
-      options: ['default', 'success', 'warning', 'danger'],
-      table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'default'" }
-      }
-    },
-    rounded: {
-      name: 'Radio de bordes',
-      description: 'Curvatura de las esquinas',
-      control: 'select',
-      options: ['sm', 'md', 'lg', 'xl', 'full'],
-      table: {
-        type: { summary: 'string' },
-        defaultValue: { summary: "'md'" }
-      }
-    },
-    accept: {
-      name: 'Tipos aceptados',
-      description: 'Tipos MIME de archivos permitidos',
-      control: 'text',
-      table: {
-        type: { summary: 'string' }
-      }
-    },
     text: {
-      name: 'Texto del botón',
-      description: 'Texto descriptivo del botón de selección',
+      name: 'Texto',
+      description: 'Texto mostrado en el botón',
       control: 'text',
       table: {
         type: { summary: 'string' },
         defaultValue: { summary: "'Seleccionar archivo'" }
       }
     },
-    helperText: {
-      name: 'Texto de ayuda',
-      description: 'Mensaje informativo (como TextInput)',
-      control: 'text',
+    size: {
+      name: 'Tamaño',
+      description: 'Tamaño del componente',
+      control: 'select',
+      options: ['xs', 'sm', 'md', 'lg', 'xl'],
       table: {
-        type: { summary: 'string' }
+        type: { summary: "'xs' | 'sm' | 'md' | 'lg' | 'xl'" },
+        defaultValue: { summary: 'md' }
       }
     },
-    errorText: {
-      name: 'Mensaje de error',
-      description: 'Mensaje de error (sobrescribe variant)',
+    variant: {
+      name: 'Variante',
+      description: 'Variante de estado del componente',
+      control: 'select',
+      options: ['default', 'success', 'warning', 'error'],
+      table: {
+        type: { summary: "'default' | 'success' | 'warning' | 'error'" },
+        defaultValue: { summary: 'default' }
+      }
+    },
+    accept: {
+      name: 'Tipos aceptados',
+      description: 'Tipos de archivo permitidos',
       control: 'text',
       table: {
         type: { summary: 'string' }
@@ -119,7 +87,7 @@ Usa las mismas variables CSS que Button, Input y TextInput:
     },
     disabled: {
       name: 'Deshabilitado',
-      description: 'Deshabilita el input',
+      description: 'Si el input está deshabilitado',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
@@ -128,563 +96,325 @@ Usa las mismas variables CSS que Button, Input y TextInput:
     },
     required: {
       name: 'Requerido',
-      description: 'Marca el campo como obligatorio',
+      description: 'Si el campo es obligatorio',
       control: 'boolean',
       table: {
         type: { summary: 'boolean' },
         defaultValue: { summary: 'false' }
       }
     },
+    helperText: {
+      name: 'Texto de ayuda',
+      description: 'Texto de ayuda descriptivo',
+      control: 'text',
+      table: {
+        type: { summary: 'string' }
+      }
+    },
+    errorText: {
+      name: 'Texto de error',
+      description: 'Mensaje de error',
+      control: 'text',
+      table: {
+        type: { summary: 'string' }
+      }
+    },
     onChange: {
-      name: 'onChange',
-      description: 'Función que se ejecuta al seleccionar archivo',
-      action: 'fileSelected',
+      name: 'Función onChange',
+      description: 'Función ejecutada al seleccionar archivo',
+      action: 'changed',
       table: {
         type: { summary: 'function' }
+      }
+    },
+    className: {
+      name: 'Clases CSS',
+      description: 'Clases CSS adicionales',
+      control: 'text',
+      table: {
+        type: { summary: 'string' }
       }
     }
   }
 };
 
-// Template base para el playground
-const PlaygroundTemplate = (args) => (
-  <FileInput 
-    {...args} 
-    onChange={(e) => {
-      console.log('Archivos seleccionados:', e.target.files);
-      args.onChange?.(e);
-    }}
-  />
-);
-
-// ===== HISTORIAS PRINCIPALES =====
-
-export const Playground = PlaygroundTemplate.bind({});
-Playground.args = {
-  text: 'Seleccionar archivo',
-  size: 'md',
-  variant: 'default',
-  rounded: 'md'
+// ========== 1. DEFAULT STORY (OBLIGATORIA) ==========
+export const Default = {
+  args: {
+    text: 'Seleccionar archivo',
+    size: 'md',
+    variant: 'default'
+  }
 };
-Playground.parameters = {
+
+Default.parameters = {
   docs: {
     description: {
-      story: 'Usa los controles para experimentar con todas las opciones del FileInput. Completamente integrado con el sistema de diseño.'
+      story: 'Configuración por defecto del FileInput. Acepta cualquier tipo de archivo.'
     }
   }
 };
 
-// ===== TAMAÑOS =====
-
+// ========== 2. SIZES STORY (OBLIGATORIA) ==========
 export const Sizes = () => (
-  <div style={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
+  <div style={{
+    display: 'grid',
     gap: 'var(--space-lg)',
-    maxWidth: '500px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+    alignItems: 'center',
+    padding: 'var(--space-md)'
   }}>
-    <FileInput size="xs" text="Extra pequeño (XS)" />
-    <FileInput size="sm" text="Pequeño (SM)" />
-    <FileInput size="md" text="Mediano (MD)" />
-    <FileInput size="lg" text="Grande (LG)" />
-    <FileInput size="xl" text="Extra grande (XL)" />
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>XS</h4>
+      <FileInput size="xs" text="Extra small" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>SM</h4>
+      <FileInput size="sm" text="Small" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>MD</h4>
+      <FileInput size="md" text="Medium" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>LG</h4>
+      <FileInput size="lg" text="Large" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)', fontSize: 'var(--text-sm)' }}>XL</h4>
+      <FileInput size="xl" text="Extra large" />
+    </div>
   </div>
 );
 
 Sizes.parameters = {
   docs: {
     description: {
-      story: 'Todos los tamaños disponibles del FileInput, siguiendo el mismo patrón que Button e Input.'
+      story: 'Los 5 tamaños estándar del sistema de diseño. XS para contextos compactos, MD para uso general, XL para destacar.'
     }
   }
 };
 
-// ===== VARIANTES =====
-
+// ========== 3. VARIANTS STORY (OBLIGATORIA) ==========
 export const Variants = () => (
-  <div style={{ 
-    display: 'grid', 
-    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+  <div style={{
+    display: 'grid',
     gap: 'var(--space-lg)',
-    maxWidth: '800px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    alignItems: 'center',
+    padding: 'var(--space-md)'
   }}>
-    <FileInput variant="default" text="Default" />
-    <FileInput variant="success" text="Success" />
-    <FileInput variant="warning" text="Warning" />
-    <FileInput variant="danger" text="Danger" />
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Default</h4>
+      <FileInput variant="default" text="Campo normal" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Success</h4>
+      <FileInput variant="success" text="Campo válido" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Warning</h4>
+      <FileInput variant="warning" text="Campo advertencia" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Error</h4>
+      <FileInput variant="error" text="Campo error" />
+    </div>
   </div>
 );
 
 Variants.parameters = {
   docs: {
     description: {
-      story: 'Variantes semánticas del FileInput, consistentes con el sistema de colores.'
+      story: 'Variantes semánticas del sistema: Default neutral, Success para confirmaciones, Warning para advertencias, Error para errores.'
     }
   }
 };
 
-// ===== ESTADOS =====
-
+// ========== 4. STATES STORY (OBLIGATORIA) ==========
 export const States = () => (
-  <div style={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
+  <div style={{
+    display: 'grid',
     gap: 'var(--space-lg)',
-    maxWidth: '400px'
+    gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+    alignItems: 'center',
+    padding: 'var(--space-md)'
   }}>
-    <FileInput text="Normal" helperText="Estado normal del componente" />
-    <FileInput text="Requerido" required helperText="Campo obligatorio" />
-    <FileInput text="Deshabilitado" disabled helperText="Input deshabilitado" />
-    <FileInput text="Con error" errorText="Este campo es obligatorio" />
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Normal</h4>
+      <FileInput size="lg" text="Estado normal" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Hover</h4>
+      <FileInput className="pseudo-hover" size="lg" text="Estado hover" />
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        (Simulated)
+      </small>
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Focus</h4>
+      <FileInput className="pseudo-focus" size="lg" text="Estado focus" />
+      <small style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
+        (Simulated)
+      </small>
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Required</h4>
+      <FileInput required size="lg" text="Campo requerido" />
+    </div>
+    
+    <div style={{ textAlign: 'center' }}>
+      <h4 style={{ marginBottom: 'var(--space-sm)' }}>Disabled</h4>
+      <FileInput disabled size="lg" text="Deshabilitado" />
+    </div>
   </div>
 );
 
 States.parameters = {
   docs: {
     description: {
-      story: 'Diferentes estados del FileInput con mensajes de ayuda y error.'
+      story: 'Estados interactivos del componente. Required muestra asterisco, disabled previene interacciones.'
     }
   }
 };
 
-// ===== TIPOS DE ARCHIVO =====
-
-export const FileTypes = () => (
-  <div style={{ 
-    display: 'grid', 
-    gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+// ========== 5. INTERACTIVE STORY (OBLIGATORIA) ==========
+export const Interactive = () => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
     gap: 'var(--space-lg)',
-    maxWidth: '800px'
+    alignItems: 'center',
+    padding: 'var(--space-md)'
   }}>
-    <FileInput
+    <FileInput 
+      size="lg"
+      text="Seleccionar cualquier archivo"
+      helperText="Haz click para seleccionar un archivo"
+      onChange={(e) => console.log('Archivo seleccionado:', e.target.files[0])}
+    />
+    
+    <FileInput 
       accept="image/*"
+      size="lg"
       text="Solo imágenes"
       helperText="JPG, PNG, GIF, WebP"
-    />
-    <FileInput
-      accept="video/*"
-      text="Solo videos"
-      helperText="MP4, WebM, AVI, MOV"
-    />
-    <FileInput
-      accept=".pdf,.doc,.docx,.txt"
-      text="Documentos"
-      helperText="PDF, Word, Texto"
-    />
-    <FileInput
-      accept="audio/*"
-      text="Solo audio"
-      helperText="MP3, WAV, OGG"
-    />
-  </div>
-);
-
-FileTypes.parameters = {
-  docs: {
-    description: {
-      story: 'FileInput configurado para diferentes tipos de archivos usando el atributo accept.'
-    }
-  }
-};
-
-// ===== MÚLTIPLES ARCHIVOS =====
-
-export const MultipleFiles = () => (
-  <div style={{ 
-    display: 'flex', 
-    flexDirection: 'column', 
-    gap: 'var(--space-lg)',
-    maxWidth: '400px'
-  }}>
-    <FileInput
-      multiple
-      text="Seleccionar múltiples archivos"
-      helperText="Puedes seleccionar varios archivos a la vez"
-    />
-    <FileInput
-      multiple
-      accept="image/*"
-      text="Múltiples imágenes"
-      helperText="Selecciona todas las imágenes que necesites"
       variant="success"
+      onChange={(e) => console.log('Imagen seleccionada:', e.target.files[0])}
+    />
+    
+    <FileInput 
+      multiple
+      accept=".pdf,.doc,.docx"
+      size="lg"
+      text="Múltiples documentos"
+      helperText="Selecciona varios archivos PDF o Word"
+      onChange={(e) => console.log('Documentos seleccionados:', Array.from(e.target.files || []))}
+    />
+    
+    <FileInput 
+      accept="video/*"
+      size="lg"
+      text="Seleccionar video"
+      helperText="MP4, WebM, AVI, MOV"
+      variant="warning"
+      onChange={(e) => console.log('Video seleccionado:', e.target.files[0])}
     />
   </div>
 );
 
-MultipleFiles.parameters = {
+Interactive.parameters = {
   docs: {
     description: {
-      story: 'FileInput configurado para seleccionar múltiples archivos simultáneamente.'
+      story: 'Ejemplos interactivos del FileInput. Selecciona archivos para ver la funcionalidad en acción. Revisa la consola del navegador.'
     }
   }
 };
 
-// ===== RADIO DE BORDES =====
-
-export const BorderRadius = () => (
-  <div style={{ 
-    display: 'grid', 
-    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+// ========== 6. ACCESSIBILITY STORY (OBLIGATORIA) ==========
+export const Accessibility = () => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
     gap: 'var(--space-lg)',
-    maxWidth: '800px'
+    alignItems: 'center',
+    padding: 'var(--space-md)'
   }}>
-    <FileInput rounded="sm" text="Pequeño" />
-    <FileInput rounded="md" text="Mediano" />
-    <FileInput rounded="lg" text="Grande" />
-    <FileInput rounded="xl" text="Extra grande" />
-    <FileInput rounded="full" text="Completo" />
+    <FileInput 
+      ariaLabel="Seleccionar archivo de currículum"
+      accept=".pdf,.doc,.docx"
+      size="lg"
+      text="Subir currículum"
+      helperText="Formatos permitidos: PDF, Word"
+    />
+    
+    <FileInput 
+      ariaLabel="Seleccionar foto de perfil"
+      accept="image/*"
+      size="lg"
+      text="Foto de perfil"
+      helperText="Imagen para tu perfil público"
+      required
+    />
+    
+    <FileInput 
+      ariaLabel="Archivo no disponible actualmente"
+      disabled
+      size="lg"
+      text="No disponible"
+      helperText="Esta función está temporalmente deshabilitada"
+    />
+    
+    <FileInput 
+      ariaLabel="Campo con error de validación"
+      size="lg"
+      text="Campo con error"
+      errorText="Este campo es obligatorio"
+      variant="error"
+    />
+    
+    <div style={{ 
+      marginTop: 'var(--space-md)', 
+      padding: 'var(--space-md)', 
+      backgroundColor: 'var(--bg-secondary)', 
+      borderRadius: 'var(--radius-md)',
+      textAlign: 'center'
+    }}>
+      <h4 style={{ margin: '0 0 var(--space-sm) 0', color: 'var(--text-primary)' }}>
+        Características de accesibilidad:
+      </h4>
+      <ul style={{ 
+        margin: 0, 
+        padding: 0, 
+        listStyle: 'none', 
+        fontSize: 'var(--text-sm)', 
+        color: 'var(--text-muted)' 
+      }}>
+        <li>✅ ARIA labels para screen readers</li>
+        <li>✅ Estados aria-required y aria-invalid</li>
+        <li>✅ Navegación por teclado (Tab, Enter, Space)</li>
+        <li>✅ Focus visible con outline</li>
+        <li>✅ Mensajes de error con role="alert"</li>
+        <li>✅ Área táctil mínima de 44px</li>
+      </ul>
+    </div>
   </div>
 );
 
-BorderRadius.parameters = {
+Accessibility.parameters = {
   docs: {
     description: {
-      story: 'Diferentes opciones de radio de bordes, consistentes con el sistema de diseño.'
-    }
-  }
-};
-
-// ===== EJEMPLO COMPLETO CON FUNCIONALIDAD =====
-
-export const CompleteExample = () => {
-  const [selectedFiles, setSelectedFiles] = React.useState([]);
-  const [error, setError] = React.useState('');
-  
-  const handleFileChange = (event) => {
-    const files = Array.from(event.target.files || []);
-    setSelectedFiles(files);
-    setError('');
-    
-    // Validación de ejemplo
-    if (files.length === 0) {
-      setError('Debes seleccionar al menos un archivo');
-      return;
-    }
-    
-    // Validar tamaño (ejemplo: máximo 5MB por archivo)
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const oversizedFiles = files.filter(file => file.size > maxSize);
-    
-    if (oversizedFiles.length > 0) {
-      setError(`Algunos archivos superan los 5MB: ${oversizedFiles.map(f => f.name).join(', ')}`);
-      return;
-    }
-  };
-  
-  return (
-    <div style={{ 
-      maxWidth: '500px',
-      padding: 'var(--space-lg)',
-      border: '1px solid var(--border-default)',
-      borderRadius: 'var(--radius-lg)',
-      backgroundColor: 'var(--bg-secondary)'
-    }}>
-      <h3 style={{ 
-        margin: '0 0 var(--space-lg) 0', 
-        color: 'var(--text-primary)',
-        fontSize: 'var(--font-size-lg)'
-      }}>
-        📎 Subir archivos del proyecto
-      </h3>
-      
-      <FileInput
-        multiple
-        accept="image/*,video/*,.pdf,.doc,.docx"
-        text="Seleccionar archivos"
-        helperText="Imágenes, videos o documentos (máx. 5MB cada uno)"
-        errorText={error}
-        size="lg"
-        variant={error ? 'danger' : selectedFiles.length > 0 ? 'success' : 'default'}
-        onChange={handleFileChange}
-        required
-      />
-      
-      {selectedFiles.length > 0 && (
-        <div style={{
-          marginTop: 'var(--space-lg)',
-          padding: 'var(--space-md)',
-          backgroundColor: 'var(--color-success-light)',
-          borderRadius: 'var(--radius-md)',
-          border: '1px solid var(--color-success)'
-        }}>
-          <h4 style={{ 
-            margin: '0 0 var(--space-sm) 0',
-            color: 'var(--color-success-dark)',
-            fontSize: 'var(--font-size-base)'
-          }}>
-            ✅ {selectedFiles.length} archivo{selectedFiles.length !== 1 ? 's' : ''} seleccionado{selectedFiles.length !== 1 ? 's' : ''}
-          </h4>
-          
-          <div style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-success-dark)' }}>
-            <strong>Tamaño total:</strong> {(selectedFiles.reduce((total, file) => total + file.size, 0) / 1024 / 1024).toFixed(2)} MB
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-CompleteExample.parameters = {
-  docs: {
-    description: {
-      story: 'Ejemplo completo con validación, múltiples archivos, y feedback visual rico.'
-    }
-  }
-};
-
-// ===== INTEGRACIÓN CON FORMULARIOS =====
-
-export const FormIntegration = () => {
-  const [formData, setFormData] = React.useState({
-    name: '',
-    email: '',
-    avatar: null,
-    documents: []
-  });
-  
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Datos del formulario:', formData);
-    alert('Formulario enviado (revisa la consola)');
-  };
-  
-  return (
-    <form onSubmit={handleSubmit} style={{
-      maxWidth: '500px',
-      padding: 'var(--space-xl)',
-      border: '1px solid var(--border-default)',
-      borderRadius: 'var(--radius-lg)',
-      backgroundColor: 'var(--bg-primary)',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 'var(--space-lg)'
-    }}>
-      <h3 style={{ margin: '0', color: 'var(--text-primary)' }}>
-        📋 Formulario con FileInput
-      </h3>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: 'var(--space-xs)',
-          fontSize: 'var(--font-size-sm)',
-          fontWeight: 'var(--font-weight-medium)',
-          color: 'var(--text-primary)'
-        }}>
-          Nombre completo
-        </label>
-        <input 
-          type="text"
-          value={formData.name}
-          onChange={(e) => setFormData({...formData, name: e.target.value})}
-          style={{
-            width: '100%',
-            padding: 'var(--space-sm) var(--space-md)',
-            border: '1px solid var(--border-default)',
-            borderRadius: 'var(--radius-md)',
-            fontSize: 'var(--font-size-base)'
-          }}
-        />
-      </div>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: 'var(--space-xs)',
-          fontSize: 'var(--font-size-sm)',
-          fontWeight: 'var(--font-weight-medium)',
-          color: 'var(--text-primary)'
-        }}>
-          Foto de perfil
-        </label>
-        <FileInput
-          accept="image/*"
-          text="Seleccionar foto"
-          helperText="JPG, PNG o GIF (máx. 2MB)"
-          onChange={(e) => setFormData({...formData, avatar: e.target.files[0]})}
-        />
-      </div>
-      
-      <div>
-        <label style={{ 
-          display: 'block', 
-          marginBottom: 'var(--space-xs)',
-          fontSize: 'var(--font-size-sm)',
-          fontWeight: 'var(--font-weight-medium)',
-          color: 'var(--text-primary)'
-        }}>
-          Documentos adicionales
-        </label>
-        <FileInput
-          multiple
-          accept=".pdf,.doc,.docx"
-          text="Seleccionar documentos"
-          helperText="PDF o Word (opcional)"
-          variant="secondary"
-          onChange={(e) => setFormData({...formData, documents: Array.from(e.target.files || [])})}
-        />
-      </div>
-      
-      <button 
-        type="submit"
-        style={{
-          padding: 'var(--space-sm) var(--space-lg)',
-          backgroundColor: 'var(--color-primary)',
-          color: 'var(--text-on-primary)',
-          border: 'none',
-          borderRadius: 'var(--radius-md)',
-          fontSize: 'var(--font-size-base)',
-          fontWeight: 'var(--font-weight-medium)',
-          cursor: 'pointer',
-          transition: 'all var(--transition-normal)'
-        }}
-      >
-        📤 Enviar formulario
-      </button>
-    </form>
-  );
-};
-
-FormIntegration.parameters = {
-  docs: {
-    description: {
-      story: 'Ejemplo de integración del FileInput en un formulario completo con otros campos.'
-    }
-  }
-};
-
-// Template base
-const Template = (args) => (
-  <FileInput 
-    {...args} 
-    onChange={(e) => {
-      console.log('Archivo seleccionado:', e.target.files[0]);
-      args.onChange?.(e);
-    }}
-  />
-);
-
-// ===== STORIES =====
-
-export const Default = Template.bind({});
-Default.args = {
-  text: 'Selecciona un archivo'
-};
-Default.parameters = {
-  docs: {
-    description: {
-      story: 'FileInput básico que acepta cualquier tipo de archivo.'
-    }
-  }
-};
-
-export const ImagesOnly = Template.bind({});
-ImagesOnly.args = {
-  accept: 'image/*',
-  text: 'Selecciona una imagen'
-};
-ImagesOnly.parameters = {
-  docs: {
-    description: {
-      story: 'FileInput configurado para aceptar solo archivos de imagen.'
-    }
-  }
-};
-
-export const DocumentsOnly = Template.bind({});
-DocumentsOnly.args = {
-  accept: '.pdf,.doc,.docx,.txt',
-  text: 'Selecciona un documento'
-};
-DocumentsOnly.parameters = {
-  docs: {
-    description: {
-      story: 'FileInput configurado para documentos específicos.'
-    }
-  }
-};
-
-export const VideoFiles = Template.bind({});
-VideoFiles.args = {
-  accept: 'video/*',
-  text: 'Selecciona un video'
-};
-VideoFiles.parameters = {
-  docs: {
-    description: {
-      story: 'FileInput configurado para archivos de video.'
-    }
-  }
-};
-
-// Ejemplo interactivo con estado
-export const WithFilePreview = () => {
-  const [selectedFile, setSelectedFile] = React.useState(null);
-  
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    setSelectedFile(file);
-  };
-  
-  return (
-    <div style={{ 
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      gap: '2rem',
-      padding: '2rem' 
-    }}>
-      <FileInput
-        accept="image/*"
-        text="Selecciona una imagen"
-        onChange={handleFileChange}
-      />
-      
-      {selectedFile && (
-        <div style={{
-          padding: '1rem',
-          border: '1px solid var(--border-secondary)',
-          borderRadius: 'var(--radius-md)',
-          backgroundColor: 'var(--bg-secondary)',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>
-            Archivo seleccionado:
-          </h3>
-          <p style={{ margin: '0.5rem 0', color: 'var(--text-secondary)' }}>
-            <strong>Nombre:</strong> {selectedFile.name}
-          </p>
-          <p style={{ margin: '0.5rem 0', color: 'var(--text-secondary)' }}>
-            <strong>Tamaño:</strong> {(selectedFile.size / 1024).toFixed(1)} KB
-          </p>
-          <p style={{ margin: '0.5rem 0', color: 'var(--text-secondary)' }}>
-            <strong>Tipo:</strong> {selectedFile.type}
-          </p>
-          
-          {selectedFile.type.startsWith('image/') && (
-            <div style={{ marginTop: '1rem' }}>
-              <img
-                src={URL.createObjectURL(selectedFile)}
-                alt="Preview"
-                style={{
-                  maxWidth: '200px',
-                  maxHeight: '200px',
-                  borderRadius: 'var(--radius-md)',
-                  objectFit: 'cover'
-                }}
-              />
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  );
-};
-
-WithFilePreview.parameters = {
-  docs: {
-    description: {
-      story: 'Ejemplo completo con preview del archivo seleccionado y información detallada.'
+      story: 'Configuración de accesibilidad completa. Todos los FileInput son navegables por teclado y compatibles con screen readers.'
     }
   }
 };

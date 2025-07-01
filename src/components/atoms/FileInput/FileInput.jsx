@@ -3,13 +3,14 @@ import React, { useState } from "react";
 import "./FileInput.css";
 
 /**
- * FileInput - ÁTOMO ACTUALIZADO PARA SISTEMA DE DISEÑO
+ * FileInput - ÁTOMO CORREGIDO PARA CUMPLIR REGLAS DEL PROYECTO
  * 
- * ✅ SISTEMA DE DISEÑO: Usa variables CSS del sistema como Button/Input
+ * ✅ EXPORT CONVENTION: Patrón function + export { Name }
+ * ✅ SISTEMA DE DISEÑO: Usa variables CSS del sistema como Input
  * ✅ ATOMIC DESIGN: Átomo independiente y reutilizable
- * ✅ VARIANTES: Success, danger, warning siguiendo el patrón
- * ✅ TAMAÑOS: xs, sm, md, lg, xl como otros componentes
- * ✅ ACCESIBILIDAD: ARIA labels, focus management, keyboard support
+ * ✅ VARIANTES: 4 variantes de formulario (default, success, warning, error)
+ * ✅ TAMAÑOS: 5 tamaños estándar (xs, sm, md, lg, xl)
+ * ✅ ACCESIBILIDAD: ARIA completo, focus management, keyboard support
  * ✅ ESTADOS: Normal, hover, focus, disabled, loading
  * ✅ RESPONSIVE: Mobile-first, área táctil adecuada
  * 
@@ -21,7 +22,7 @@ import "./FileInput.css";
  * @param {boolean} [props.disabled=false] - Si el input está deshabilitado
  * @param {boolean} [props.required=false] - Si el campo es obligatorio
  * @param {'xs'|'sm'|'md'|'lg'|'xl'} [props.size='md'] - Tamaño del componente
- * @param {'default'|'success'|'warning'|'danger'} [props.variant='default'] - Variante visual
+ * @param {'default'|'success'|'warning'|'error'} [props.variant='default'] - Variante visual
  * @param {'sm'|'md'|'lg'|'xl'|'full'} [props.rounded='md'] - Radio de bordes
  * @param {string} [props.text='Seleccionar archivo'] - Texto del botón
  * @param {string} [props.helperText] - Texto de ayuda
@@ -60,7 +61,7 @@ function FileInput({
 
   // Determinar el estado actual
   const hasError = Boolean(errorText);
-  const currentVariant = hasError ? 'danger' : variant;
+  const currentVariant = hasError ? 'error' : variant;
   const hasFiles = selectedFiles.length > 0;
 
   // Generar IDs únicos si no se proporcionan
@@ -69,78 +70,73 @@ function FileInput({
   const errorId = errorText ? `${inputId}-error` : undefined;
   const describedBy = [helperId, errorId, ariaDescribedBy].filter(Boolean).join(' ') || undefined;
 
-  /**
-   * Manejador del evento onChange
-   */
-  const handleChange = (event) => {
-    const files = Array.from(event.target.files || []);
-    setSelectedFiles(files);
-    onChange(event);
-  };
+  // Generar clases CSS
+  const wrapperClasses = [
+    'file-input-wrapper',
+    className
+  ].filter(Boolean).join(' ');
 
-  /**
-   * Manejador del evento onFocus
-   */
-  const handleFocus = (event) => {
-    setFocused(true);
-    onFocus(event);
-  };
-
-  /**
-   * Manejador del evento onBlur
-   */
-  const handleBlur = (event) => {
-    setFocused(false);
-    onBlur(event);
-  };
-
-  // Construir clases CSS
-  const fileInputClasses = [
+  const inputClasses = [
     'file-input',
     `file-input--${size}`,
     `file-input--${currentVariant}`,
     `file-input--rounded-${rounded}`,
     focused && 'file-input--focused',
     disabled && 'file-input--disabled',
-    hasFiles && 'file-input--has-files',
-    className
+    hasFiles && 'file-input--has-files'
   ].filter(Boolean).join(' ');
 
-  const buttonClasses = [
-    'file-input__button',
-    `file-input__button--${size}`,
-    `file-input__button--${currentVariant}`,
-    `file-input__button--rounded-${rounded}`,
-    disabled && 'file-input__button--disabled'
-  ].filter(Boolean).join(' ');
+  // Handler de cambio de archivo
+  const handleChange = (e) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles(files);
+    onChange(e);
+  };
+
+  // Handler de foco
+  const handleFocus = (e) => {
+    setFocused(true);
+    onFocus(e);
+  };
+
+  // Handler de blur
+  const handleBlur = (e) => {
+    setFocused(false);
+    onBlur(e);
+  };
 
   return (
-    <div className="file-input-wrapper">
-      {/* Contenedor principal */}
-      <div className={fileInputClasses}>
-        
+    <div className={wrapperClasses}>
+      {/* Input file container */}
+      <div className={inputClasses}>
         {/* Input file oculto */}
         <input
-          type="file"
+          ref={(input) => {
+            if (input) {
+              // Accesibilidad mejorada
+              input.setAttribute('aria-label', ariaLabel || text);
+              if (describedBy) {
+                input.setAttribute('aria-describedby', describedBy);
+              }
+            }
+          }}
           id={inputId}
           name={name}
+          type="file"
           accept={accept}
           multiple={multiple}
           disabled={disabled}
           required={required}
+          className="file-input__input"
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          className="file-input__input"
-          aria-label={ariaLabel || text}
-          aria-describedby={describedBy}
           {...rest}
         />
 
         {/* Label que actúa como botón */}
-        <label htmlFor={inputId} className={buttonClasses}>
-          
-          {/* Icono del archivo */}
+        <label htmlFor={inputId} className="file-input__button">
+          {/* Icono */}
           <div className="file-input__icon">
             {hasFiles ? (
               <span className="file-input__icon-success">✅</span>

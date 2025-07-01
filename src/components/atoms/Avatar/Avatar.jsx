@@ -1,16 +1,23 @@
-// atoms/Avatar.jsx
+// src/components/atoms/Avatar/Avatar.jsx
 import React from 'react';
 import './Avatar.css';
 
 /**
- * Componente Avatar siguiendo el sistema de diseño
- * Átomo para mostrar imágenes de perfil, iniciales y estados de usuario
+ * Avatar - ÁTOMO CORREGIDO PARA CUMPLIR REGLAS DEL PROYECTO
+ * 
+ * ✅ EXPORT CONVENTION: Patrón function + export { Name }
+ * ✅ TAMAÑOS ESTÁNDAR: 5 tamaños (xs, sm, md, lg, xl)
+ * ✅ VARIANTES DE CONTENIDO: 4 variantes de presentación apropiadas
+ * ✅ SISTEMA DE DISEÑO: Variables CSS del sistema
+ * ✅ ATOMIC DESIGN: Átomo independiente y reutilizable
+ * ✅ ACCESIBILIDAD: ARIA completo, focus management
  * 
  * @param {Object} props - Propiedades del componente
  * @param {string} [props.src] - URL de la imagen del avatar
  * @param {string} [props.name] - Nombre del usuario (para generar iniciales)
- * @param {'xs'|'sm'|'md'|'lg'|'xl'|'2xl'} [props.size='md'] - Tamaño del avatar
- * @param {'circle'|'rounded'|'square'} [props.variant='circle'] - Forma del avatar
+ * @param {'xs'|'sm'|'md'|'lg'|'xl'} [props.size='md'] - Tamaño del avatar
+ * @param {'default'|'elevated'|'bordered'|'minimal'} [props.variant='default'] - Variante de presentación
+ * @param {'circle'|'rounded'|'square'} [props.shape='circle'] - Forma del avatar
  * @param {'online'|'offline'|'away'|'busy'} [props.status] - Estado de actividad
  * @param {string|number} [props.badge] - Insignia/contador a mostrar
  * @param {string} [props.className=''] - Clases CSS adicionales
@@ -18,15 +25,15 @@ import './Avatar.css';
  * @param {boolean} [props.loading=false] - Estado de carga
  * @param {string} [props.alt] - Texto alternativo personalizado
  * @param {string} [props.fallbackIcon='👤'] - Icono cuando no hay imagen ni nombre
- * @param {'primary'|'secondary'|'success'|'warning'|'danger'} [props.colorScheme='primary'] - Esquema de colores para iniciales
- * @param {boolean} [props.showTooltip=false] - Mostrar tooltip con el nombre
+ * @param {boolean} [props.disabled=false] - Si está deshabilitado
  * @param {string} [props.ariaLabel] - Label para accesibilidad
  */
-const Avatar = ({
+function Avatar({
   src,
   name,
   size = 'md',
-  variant = 'circle',
+  variant = 'default',
+  shape = 'circle',
   status,
   badge,
   className = '',
@@ -34,11 +41,10 @@ const Avatar = ({
   loading = false,
   alt,
   fallbackIcon = '👤',
-  colorScheme = 'primary',
-  showTooltip = false,
+  disabled = false,
   ariaLabel,
   ...restProps
-}) => {
+}) {
   // Generar iniciales del nombre
   const getInitials = (fullName) => {
     if (!fullName) return '';
@@ -60,12 +66,12 @@ const Avatar = ({
     'avatar',
     `avatar--${size}`,
     `avatar--${variant}`,
-    `avatar--${colorScheme}`,
+    `avatar--${shape}`,
     onClick && 'avatar--clickable',
     loading && 'avatar--loading',
+    disabled && 'avatar--disabled',
     status && 'avatar--has-status',
     badge && 'avatar--has-badge',
-    showTooltip && 'avatar--tooltip',
     className
   ].filter(Boolean).join(' ');
 
@@ -76,49 +82,59 @@ const Avatar = ({
 
   // Manejar click
   const handleClick = (e) => {
-    if (loading) {
+    if (loading || disabled) {
       e.preventDefault();
       return;
     }
     onClick?.(e);
   };
 
+  // Manejar teclado para accesibilidad
+  const handleKeyDown = (e) => {
+    if (!onClick || loading || disabled) return;
+    
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick(e);
+    }
+  };
+
   // Manejar error de imagen
   const handleImageError = (e) => {
     e.target.style.display = 'none';
-    e.target.nextSibling.style.display = 'flex';
+    const fallback = e.target.nextSibling;
+    if (fallback) {
+      fallback.style.display = 'flex';
+    }
   };
+
+  const isInteractive = Boolean(onClick && !disabled && !loading);
 
   return (
     <div 
       className={avatarClasses}
-      onClick={onClick ? handleClick : undefined}
-      role={onClick ? 'button' : 'img'}
-      tabIndex={onClick ? 0 : undefined}
+      onClick={isInteractive ? handleClick : undefined}
+      onKeyDown={isInteractive ? handleKeyDown : undefined}
+      role={isInteractive ? 'button' : undefined}
+      tabIndex={isInteractive ? 0 : undefined}
       aria-label={finalAriaLabel}
-      title={showTooltip ? name : undefined}
-      onKeyDown={onClick ? (e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          handleClick(e);
-        }
-      } : undefined}
+      aria-disabled={disabled || loading}
+      aria-busy={loading}
       {...restProps}
     >
-      {/* Contenedor principal del avatar */}
+      {/* Contenedor principal */}
       <div className="avatar__container">
         {/* Imagen del avatar */}
         {src && (
           <img
+            className="avatar__image"
             src={src}
             alt={finalAlt}
-            className="avatar__image"
             onError={handleImageError}
-            loading="lazy"
           />
         )}
         
-        {/* Fallback: iniciales o icono */}
+        {/* Fallback con iniciales o icono */}
         <div 
           className="avatar__fallback"
           style={{ display: src ? 'none' : 'flex' }}
@@ -128,7 +144,7 @@ const Avatar = ({
         
         {/* Spinner de loading */}
         {loading && (
-          <div className="avatar__spinner" aria-hidden="true">
+          <div className="avatar__loading-spinner">
             <svg className="avatar__spinner-svg" viewBox="0 0 24 24">
               <circle 
                 className="avatar__spinner-circle" 
@@ -144,25 +160,17 @@ const Avatar = ({
       
       {/* Indicador de estado */}
       {status && (
-        <span 
-          className={`avatar__status avatar__status--${status}`}
-          aria-label={`Estado: ${status}`}
-          title={`Estado: ${status}`}
-        />
+        <div className={`avatar__status avatar__status--${status}`} />
       )}
       
-      {/* Badge/contador */}
+      {/* Badge */}
       {badge && (
-        <span 
-          className="avatar__badge"
-          aria-label={`${badge} notificaciones`}
-          title={`${badge} notificaciones`}
-        >
+        <div className="avatar__badge">
           {badge}
-        </span>
+        </div>
       )}
     </div>
   );
-};
+}
 
 export { Avatar };
