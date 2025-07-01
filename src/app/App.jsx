@@ -19,12 +19,13 @@ import { UserEditPage } from "../Pages/Admin/Users/UserEditPage/UserEditPage";
 import { CategoryCreatePage } from "../Pages/Admin/Categories/CategoryCreatePage/CategoryCreatePage";
 import { CategoriesListPage } from "../Pages/Admin/Categories/CategoriesListPage/CategoriesListPage";
 
-// ===== NUEVAS RUTAS DE MOVIES =====
+// ===== RUTAS DE MOVIES =====
 import { MoviesListPage } from "../Pages/Admin/Movies/MoviesListPage/MoviesListPage";
 import { MovieCreatePage } from "../Pages/Admin/Movies/MovieCreatePage/MovieCreatePage";
 // import { MovieEditPage } from "../Pages/Admin/Movies/MovieEditPage/MovieEditPage"; // Para futuro
 
-//import { SeriesListPage } from '../Pages/Admin/Series/SeriesListPage/SeriesListPage';
+// ===== RUTAS DE SERIES - ACTIVADAS =====
+import { SeriesListPage } from '../Pages/Admin/Series/SeriesListPage/SeriesListPage';
 import { SeriesCreatePage } from '../Pages/Admin/Series/SeriesCreatePage/SeriesCreatePage';
 
 import "./App.css";
@@ -90,7 +91,11 @@ function AdminRoute({ children }) {
  */
 function AppRoutes() {
   const routes = useRoutes([
-    // ===== RUTAS PÚBLICAS =====
+    // ===== RUTA RAÍZ - REDIRIGE A MAIN-PAGE =====
+    {
+      path: "/",
+      element: <MainPage />
+    },
     {
       path: "/main-page",
       element: <MainPage />
@@ -158,7 +163,7 @@ function AppRoutes() {
       )
     },
 
-    // ===== GESTIÓN DE PELÍCULAS Y SERIES =====
+    // ===== GESTIÓN DE PELÍCULAS =====
     {
       path: "/admin/movies",
       element: (
@@ -175,21 +180,23 @@ function AppRoutes() {
         </AdminRoute>
       )
     },
-    // {
-    //   path: "/admin/movies/edit/:id",
-    //   element: (
-    //     <AdminRoute>
-    //       <MovieEditPage />
-    //     </AdminRoute>
-    //   )
-    // },
-    //{
-    //  path: "/admin/series",
-    //  element: <AdminRoute><SeriesListPage /></AdminRoute>
-    //},
+
+    // ===== GESTIÓN DE SERIES - ACTIVADAS ✅ =====
+    {
+      path: "/admin/series",
+      element: (
+        <AdminRoute>
+          <SeriesListPage />
+        </AdminRoute>
+      )
+    },
     {
       path: "/admin/series/create",
-      element: <AdminRoute><SeriesCreatePage /></AdminRoute>
+      element: (
+        <AdminRoute>
+          <SeriesCreatePage />
+        </AdminRoute>
+      )
     },
 
     // ===== RUTA DE FALLBACK =====
@@ -238,4 +245,4 @@ function App() {
   );
 }
 
-export default App;
+export { App };
