@@ -12,7 +12,7 @@ import { getUsersService } from '../../../services/Users/getUsersService';
 import { getMoviesService } from '../../../services/Movies/getMoviesService';
 import { getSeriesService } from '../../../services/Series/getSeriesService';
 import { getCategoriesService } from '../../../services/Categories/getCategoriesService';
-import { getEpisodesService } from '../../../services/Episodes/getEpisodesService';
+// ❌ ELIMINADO: import { getEpisodesService } from '../../../services/Episodes/getEpisodesService';
 
 /**
  * AdminLayout - Template base para el panel de administración
@@ -24,7 +24,7 @@ import { getEpisodesService } from '../../../services/Episodes/getEpisodesServic
  * - ✅ Estados de loading para contadores
  * - ✅ Manejo de autenticación admin
  * - ✅ Responsive design completo
- * - ✅ Integración con todos los servicios
+ * - ✅ Integración con servicios (SIN episodios)
  */
 function AdminLayout({
   // Contenido principal
@@ -59,8 +59,8 @@ function AdminLayout({
     users: 0,
     movies: 0,
     series: 0,
-    categories: 0,
-    episodes: 0
+    categories: 0
+    // ❌ ELIMINADO: episodes: 0
   });
   const [loadingCounts, setLoadingCounts] = useState(true);
   const [countsError, setCountsError] = useState(null);
@@ -94,7 +94,7 @@ function AdminLayout({
     }
   }, [navigate]);
 
-  // ===== CARGAR CONTADORES EN TIEMPO REAL =====
+  // ===== CARGAR CONTADORES EN TIEMPO REAL (SIN EPISODIOS) =====
   useEffect(() => {
     if (!user) return;
 
@@ -103,88 +103,51 @@ function AdminLayout({
         setLoadingCounts(true);
         setCountsError(null);
 
-        // Cargar todos los contadores en paralelo
+        // Cargar contadores en paralelo (SIN episodios)
         const [
           usersResponse,
           moviesResponse,
           seriesResponse,
-          categoriesResponse,
-          episodesResponse
+          categoriesResponse
+          // ❌ ELIMINADO: episodesResponse
         ] = await Promise.allSettled([
           getUsersService().catch(() => []),
           getMoviesService().catch(() => []),
           getSeriesService().catch(() => []),
-          getCategoriesService().catch(() => []),
-          getEpisodesService().catch(() => [])
+          getCategoriesService().catch(() => [])
+          // ❌ ELIMINADO: getEpisodesService().catch(() => [])
         ]);
 
-        // Procesar respuestas y extraer contadores
+        // Procesar respuestas y extraer contadores (SIN episodios)
         const newCounts = {
           users: getArrayLength(usersResponse),
           movies: getArrayLength(moviesResponse),
           series: getArrayLength(seriesResponse),
-          categories: getArrayLength(categoriesResponse),
-          episodes: getArrayLength(episodesResponse)
+          categories: getArrayLength(categoriesResponse)
+          // ❌ ELIMINADO: episodes: getArrayLength(episodesResponse)
         };
 
         setCounts(newCounts);
       } catch (error) {
         console.error('Error loading counts:', error);
-        setCountsError('Error al cargar estadísticas');
+        setCountsError('Error al cargar contadores');
       } finally {
         setLoadingCounts(false);
       }
     };
 
-    // Cargar inmediatamente
     loadCounts();
-
-    // Recargar cada 30 segundos para mantener datos actualizados
-    const interval = setInterval(loadCounts, 30000);
-
-    return () => clearInterval(interval);
   }, [user]);
 
-  // ===== FUNCIONES AUXILIARES =====
-  
-  /**
-   * Extrae la longitud de arrays de diferentes formatos de respuesta
-   */
-  const getArrayLength = (response) => {
-    if (response.status === 'rejected') return 0;
-    
-    const data = response.value;
-    if (Array.isArray(data)) return data.length;
-    if (data?.data && Array.isArray(data.data)) return data.data.length;
-    if (data?.items && Array.isArray(data.items)) return data.items.length;
+  // ===== FUNCIÓN AUXILIAR PARA EXTRAER LONGITUD DE ARRAYS =====
+  const getArrayLength = (promiseResult) => {
+    if (promiseResult.status === 'fulfilled' && Array.isArray(promiseResult.value)) {
+      return promiseResult.value.length;
+    }
     return 0;
   };
 
-  /**
-   * Genera breadcrumbs automáticamente basado en la ruta
-   */
-  const generateBreadcrumbs = () => {
-    if (breadcrumbs.length > 0) return breadcrumbs;
-
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    const crumbs = [{ label: 'Admin', href: '/admin' }];
-
-    let currentPath = '';
-    pathSegments.slice(1).forEach(segment => {
-      currentPath += `/${segment}`;
-      const label = segment.charAt(0).toUpperCase() + segment.slice(1);
-      crumbs.push({
-        label: label.replace('-', ' '),
-        href: `/admin${currentPath}`
-      });
-    });
-
-    return crumbs;
-  };
-
-  /**
-   * Maneja el toggle del sidebar
-   */
+  // ===== MANEJAR TOGGLE DEL SIDEBAR =====
   const handleSidebarToggle = () => {
     const newCollapsed = !isCollapsed;
     setIsCollapsed(newCollapsed);
@@ -193,30 +156,42 @@ function AdminLayout({
     }
   };
 
-  /**
-   * Genera título automático basado en la ruta
-   */
-  const getPageTitle = () => {
-    if (title) return title;
-
-    const pathSegments = location.pathname.split('/').filter(Boolean);
-    if (pathSegments.length <= 1) return 'Dashboard';
-    
-    const lastSegment = pathSegments[pathSegments.length - 1];
-    return lastSegment.charAt(0).toUpperCase() + lastSegment.slice(1).replace('-', ' ');
-  };
-
-  /**
-   * Maneja logout de admin
-   */
+  // ===== MANEJAR LOGOUT =====
   const handleLogout = () => {
     sessionStorage.removeItem('sessionUser');
     navigate('/login');
   };
 
-  // ===== RENDER =====
-  
-  // Mostrar loading mientras verifica autenticación
+  // ===== GENERAR BREADCRUMBS AUTOMÁTICOS =====
+  const generateBreadcrumbs = () => {
+    if (breadcrumbs.length > 0) return breadcrumbs;
+    
+    // Generar breadcrumbs automáticos basados en la ruta
+    const pathSegments = location.pathname.split('/').filter(Boolean);
+    const autoBreadcrumbs = [];
+    
+    pathSegments.forEach((segment, index) => {
+      const href = '/' + pathSegments.slice(0, index + 1).join('/');
+      const label = segment.charAt(0).toUpperCase() + segment.slice(1);
+      
+      autoBreadcrumbs.push({
+        label,
+        href: index === pathSegments.length - 1 ? undefined : href
+      });
+    });
+    
+    return autoBreadcrumbs;
+  };
+
+  // ===== CLASSES CSS =====
+  const layoutClasses = [
+    'admin-layout',
+    `admin-layout--${variant}`,
+    isCollapsed ? 'admin-layout--collapsed' : '',
+    className
+  ].filter(Boolean).join(' ');
+
+  // ===== SI NO HAY USUARIO, MOSTRAR LOADING =====
   if (!user) {
     return (
       <div className="admin-layout__loading">
@@ -228,111 +203,72 @@ function AdminLayout({
     );
   }
 
-  // ===== CLASES CSS =====
-  const layoutClasses = [
-    'admin-layout',
-    `admin-layout--${variant}`,
-    isCollapsed && 'admin-layout--sidebar-collapsed',
-    className
-  ].filter(Boolean).join(' ');
-
-  const currentBreadcrumbs = generateBreadcrumbs();
-  const pageTitle = getPageTitle();
-
+  // ===== RENDER PRINCIPAL =====
   return (
     <div className={layoutClasses} {...restProps}>
+      
       {/* ===== SIDEBAR ===== */}
       <AdminSidebar
-        isCollapsed={isCollapsed}
-        onToggleCollapse={handleSidebarToggle}
-        userCount={counts.users}
-        movieCount={counts.movies}
-        seriesCount={counts.series}
-        categoryCount={counts.categories}
-        episodeCount={counts.episodes}
-        variant="default"
+        collapsed={isCollapsed}
+        onToggle={handleSidebarToggle}
+        counts={counts}
+        loading={loadingCounts}
+        error={countsError}
+        currentPath={location.pathname}
       />
 
-      {/* ===== CONTENIDO PRINCIPAL ===== */}
+      {/* ===== ÁREA PRINCIPAL ===== */}
       <div className="admin-layout__main">
-        {/* ===== HEADER ADMINISTRATIVO ===== */}
+        
+        {/* ===== HEADER ===== */}
         <header className="admin-layout__header">
-          <div className="admin-layout__header-content">
-            {/* Breadcrumbs */}
-            <nav className="admin-layout__breadcrumbs" aria-label="Breadcrumb">
-              <ol className="admin-layout__breadcrumb-list">
-                {currentBreadcrumbs.map((crumb, index) => (
-                  <li key={index} className="admin-layout__breadcrumb-item">
-                    {index === currentBreadcrumbs.length - 1 ? (
-                      <span 
-                        className="admin-layout__breadcrumb-current"
-                        aria-current="page"
-                      >
-                        {crumb.label}
-                      </span>
-                    ) : (
-                      <>
-                        <button
-                          className="admin-layout__breadcrumb-link"
-                          onClick={() => navigate(crumb.href)}
-                        >
-                          {crumb.label}
-                        </button>
-                        <span className="admin-layout__breadcrumb-separator">
-                          /
-                        </span>
-                      </>
-                    )}
-                  </li>
-                ))}
-              </ol>
+          
+          {/* Breadcrumbs */}
+          {(breadcrumbs.length > 0 || location.pathname !== '/admin') && (
+            <nav className="admin-layout__breadcrumbs">
+              {generateBreadcrumbs().map((crumb, index) => (
+                <span key={index} className="admin-layout__breadcrumb">
+                  {crumb.href ? (
+                    <button 
+                      onClick={() => navigate(crumb.href)}
+                      className="admin-layout__breadcrumb-link"
+                    >
+                      {crumb.label}
+                    </button>
+                  ) : (
+                    <span className="admin-layout__breadcrumb-current">
+                      {crumb.label}
+                    </span>
+                  )}
+                  {index < generateBreadcrumbs().length - 1 && (
+                    <span className="admin-layout__breadcrumb-separator">→</span>
+                  )}
+                </span>
+              ))}
             </nav>
+          )}
 
-            {/* Título y subtítulo */}
-            <div className="admin-layout__title-section">
-              <h1 className="admin-layout__title">{pageTitle}</h1>
-              {subtitle && (
-                <p className="admin-layout__subtitle">{subtitle}</p>
-              )}
+          {/* Título de página */}
+          <div className="admin-layout__header-content">
+            <div className="admin-layout__header-text">
+              {title && <h1 className="admin-layout__title">{title}</h1>}
+              {subtitle && <p className="admin-layout__subtitle">{subtitle}</p>}
             </div>
-
+            
             {/* Acciones del header */}
             <div className="admin-layout__header-actions">
               {headerActions}
               
-              {/* Indicador de contadores */}
-              {loadingCounts && (
-                <div className="admin-layout__counts-loading">
-                  <span className="admin-layout__loading-spinner"></span>
-                  <span>Actualizando...</span>
-                </div>
-              )}
-              
-              {countsError && (
-                <div className="admin-layout__counts-error">
-                  <span>⚠️</span>
-                  <span>Error en estadísticas</span>
-                </div>
-              )}
-
-              {/* Info del usuario admin */}
-              <div className="admin-layout__user-info">
-                <div className="admin-layout__user-avatar">
-                  👤
-                </div>
-                <div className="admin-layout__user-details">
-                  <span className="admin-layout__user-name">
-                    {user.username || user.email || 'Admin'}
-                  </span>
-                  <span className="admin-layout__user-role">
-                    Administrador
-                  </span>
+              {/* Info de usuario y logout */}
+              <div className="admin-layout__user-menu">
+                <div className="admin-layout__user-info">
+                  <span className="admin-layout__user-email">{user.email}</span>
+                  <span className="admin-layout__user-role">{user.role}</span>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleLogout}
-                  className="admin-layout__logout-button"
                   title="Cerrar sesión"
                 >
                   🚪
@@ -342,39 +278,23 @@ function AdminLayout({
           </div>
         </header>
 
-        {/* ===== ÁREA DE CONTENIDO ===== */}
+        {/* ===== CONTENIDO PRINCIPAL ===== */}
         <main className="admin-layout__content">
-          <div className="admin-layout__content-wrapper">
-            {children}
-          </div>
+          {children}
         </main>
 
-        {/* ===== FOOTER OPCIONAL ===== */}
+        {/* ===== FOOTER (OPCIONAL) ===== */}
         <footer className="admin-layout__footer">
           <div className="admin-layout__footer-content">
-            <p className="admin-layout__footer-text">
-              StreamApp Admin Panel © 2024
-            </p>
+            <span>© 2024 StreamingApp Admin</span>
             <div className="admin-layout__footer-links">
-              <button
-                className="admin-layout__footer-link"
-                onClick={() => navigate('/')}
-              >
-                Volver a la aplicación
-              </button>
+              <button onClick={() => navigate('/admin')}>Dashboard</button>
+              <button onClick={() => navigate('/admin/settings')}>Configuración</button>
+              <button onClick={() => navigate('/support')}>Soporte</button>
             </div>
           </div>
         </footer>
       </div>
-
-      {/* ===== OVERLAY PARA MÓVIL ===== */}
-      {!isCollapsed && (
-        <div 
-          className="admin-layout__overlay"
-          onClick={() => setIsCollapsed(true)}
-          aria-hidden="true"
-        />
-      )}
     </div>
   );
 }
