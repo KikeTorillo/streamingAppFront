@@ -315,16 +315,6 @@ table .actions-dropdown__menu,
   max-width: calc(100vw - 2rem);
 }
 
-/* Asegurar visibilidad completa del menú */
-.actions-dropdown__menu {
-  /* CORRECCIÓN: Asegurar que el menú sea completamente visible */
-  min-height: fit-content;
-  width: max-content;
-  min-width: 16rem;
-  
-  /* Evitar que se corte por los bordes de la pantalla */
-  max-width: calc(100vw - 2rem);
-}
 
 /* ===== RESPONSIVE DESIGN ===== */
 
