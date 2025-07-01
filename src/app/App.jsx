@@ -24,6 +24,9 @@ import { MoviesListPage } from "../Pages/Admin/Movies/MoviesListPage/MoviesListP
 import { MovieCreatePage } from "../Pages/Admin/Movies/MovieCreatePage/MovieCreatePage";
 // import { MovieEditPage } from "../Pages/Admin/Movies/MovieEditPage/MovieEditPage"; // Para futuro
 
+//import { SeriesListPage } from '../Pages/Admin/Series/SeriesListPage/SeriesListPage';
+import { SeriesCreatePage } from '../Pages/Admin/Series/SeriesCreatePage/SeriesCreatePage';
+
 import "./App.css";
 
 /**
@@ -62,7 +65,7 @@ function AdminRoute({ children }) {
         }}>
           Necesitas permisos de administrador para acceder a esta área.
         </p>
-        <button 
+        <button
           onClick={() => window.location.href = '/login'}
           style={{
             padding: '1rem 2rem',
@@ -180,6 +183,14 @@ function AppRoutes() {
     //     </AdminRoute>
     //   )
     // },
+    //{
+    //  path: "/admin/series",
+    //  element: <AdminRoute><SeriesListPage /></AdminRoute>
+    //},
+    {
+      path: "/admin/series/create",
+      element: <AdminRoute><SeriesCreatePage /></AdminRoute>
+    },
 
     // ===== RUTA DE FALLBACK =====
     {
@@ -195,7 +206,7 @@ function AppRoutes() {
         }}>
           <h1>404 - Página no encontrada</h1>
           <p>La página que buscas no existe.</p>
-          <button 
+          <button
             onClick={() => window.location.href = '/main-page'}
             style={{
               padding: '1rem 2rem',
