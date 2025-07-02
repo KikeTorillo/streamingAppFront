@@ -187,41 +187,47 @@ function SeriesDetailPage() {
         return (
             <PageLayout
                 header={<AppHeader showBackButton onBackClick={handleBackToSeries} />}
-                main={
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'center', 
-                        alignItems: 'center', 
+            >
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
                         minHeight: '50vh',
                         textAlign: 'center',
                         padding: 'var(--space-xl)'
-                    }}>
-                        <div>
-                            <h2>Error al cargar la serie</h2>
-                            <p style={{ color: 'var(--text-secondary)', marginBottom: 'var(--space-lg)' }}>
-                                {serieError}
-                            </p>
-                            <Button variant="primary" onClick={handleRetry}>
-                                Reintentar
-                            </Button>
-                        </div>
+                    }}
+                >
+                    <div>
+                        <h2>Error al cargar la serie</h2>
+                        <p
+                            style={{
+                                color: 'var(--text-secondary)',
+                                marginBottom: 'var(--space-lg)'
+                            }}
+                        >
+                            {serieError}
+                        </p>
+                        <Button variant="primary" onClick={handleRetry}>
+                            Reintentar
+                        </Button>
                     </div>
-                }
-            />
+                </div>
+            </PageLayout>
         );
     }
 
     return (
         <PageLayout
             header={
-                <AppHeader 
-                    showBackButton 
+                <AppHeader
+                    showBackButton
                     onBackClick={handleBackToSeries}
                     title={serie?.title || 'Cargando...'}
                 />
             }
-            main={
-                <div style={{ padding: 'var(--space-lg)' }}>
+        >
+            <div style={{ padding: 'var(--space-lg)' }}>
                     {/* ===== INFORMACIÓN DE LA SERIE ===== */}
                     {serie && (
                         <div style={{ 
@@ -375,9 +381,8 @@ function SeriesDetailPage() {
                         })}
                     </ContentSection>
                 </div>
-            }
-        />
-    );
+            </PageLayout>
+        );
 }
 
 export { SeriesDetailPage };
