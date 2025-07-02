@@ -422,7 +422,7 @@ function MainPage() {
                         key={`movie-${movie.id}`}
                         content={movie}
                         onPlay={() => handlePlayMovie(movie)}
-                        onClick={() => handleMovieClick(movie)}
+                        onClick={() => handlePlayMovie(movie)}
                         onFavorite={() => handleFavoriteMovie(movie)}
                         size="md"
                         showRating={true}
