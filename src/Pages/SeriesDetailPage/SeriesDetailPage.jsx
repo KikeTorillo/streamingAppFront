@@ -131,20 +131,22 @@ function SeriesDetailPage() {
     const currentSeasonEpisodes = episodesBySeason[selectedSeason] || [];
 
     // ===== TRANSFORMAR EPISODIOS PARA CONTENTCARD =====
-    const transformEpisodeForCard = (episode) => ({
-        id: episode.id,
-        title: episode.title,
-        cover: episode.coverImage || serie?.cover || 'https://via.placeholder.com/300x450?text=Episodio',
-        category: `T${episode.season} E${episode.episode}`,
-        year: new Date(episode.createdAt).getFullYear(),
-        type: 'episode',
-        rating: episode.rating || serie?.rating || 0,
-        duration: episode.duration || '45 min',
-        // Campos necesarios para el reproductor
-        file_hash: episode.file_hash,
-        available_resolutions: episode.available_resolutions,
-        _original: episode
-    });
+    const transformEpisodeForCard = (episode) => {
+        return {
+            id: episode.id,
+            title: episode.title || `Episodio ${episode.episode_number}`,
+            cover: episode.cover_image || serie?.cover_image || 'https://via.placeholder.com/300x450?text=Episodio',
+            category: `T${episode.season} E${episode.episode_number}`,
+            year: new Date(episode.created_at || episode.createdAt).getFullYear(),
+            type: 'episode',
+            rating: episode.rating || serie?.rating || 0,
+            duration: episode.video_duration || episode.duration || '45 min',
+            // Campos necesarios para el reproductor
+            file_hash: episode.file_hash,
+            available_resolutions: episode.available_resolutions,
+            _original: episode
+        };
+    };
 
     // ===== VERIFICAR ERRORES =====
     if (serieError) {
@@ -196,7 +198,7 @@ function SeriesDetailPage() {
                             flexWrap: 'wrap'
                         }}>
                             <img 
-                                src={serie.cover || 'https://via.placeholder.com/300x450?text=Serie'}
+                                src={serie.cover_image ? `http://localhost:8080/covers/${serie.cover_image}` : 'https://via.placeholder.com/300x450?text=Serie'}
                                 alt={`Carátula de ${serie.title}`}
                                 style={{
                                     width: '200px',
@@ -204,6 +206,9 @@ function SeriesDetailPage() {
                                     objectFit: 'cover',
                                     borderRadius: 'var(--radius-lg)',
                                     boxShadow: 'var(--shadow-lg)'
+                                }}
+                                onError={(e) => {
+                                    e.target.src = 'https://via.placeholder.com/300x450?text=Serie';
                                 }}
                             />
                             <div style={{ flex: '1', minWidth: '300px' }}>
@@ -233,7 +238,7 @@ function SeriesDetailPage() {
                                         borderRadius: 'var(--radius-sm)',
                                         fontSize: 'var(--font-size-sm)'
                                     }}>
-                                        {serie.year}
+                                        {serie.release_year}
                                     </span>
                                     <span style={{ 
                                         background: 'var(--bg-primary-light)', 
@@ -242,7 +247,7 @@ function SeriesDetailPage() {
                                         borderRadius: 'var(--radius-sm)',
                                         fontSize: 'var(--font-size-sm)'
                                     }}>
-                                        {serie.category}
+                                        Categoría {serie.category_id}
                                     </span>
                                     {serie.rating && (
                                         <span style={{ 
