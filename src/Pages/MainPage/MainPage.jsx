@@ -3,6 +3,8 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useMovieNavigation } from '../../hooks/useMovieNavigation';
+import { transformMovieData } from '../../utils/movieDataTransformer';
 import { Button } from '../../components/atoms/Button/Button';
 import { PageLayout } from '../../components/templates/PageLayout/PageLayout';
 import { AppHeader } from '../../components/organism/AppHeader/AppHeader';
@@ -21,6 +23,7 @@ import { getCategoriesService } from '../../services/Categories/getCategoriesSer
 
 function MainPage() {
     const navigate = useNavigate();
+    const { navigateToPlayer, navigateToDetails } = useMovieNavigation();
     
     // Estados
     const [searchTerm, setSearchTerm] = useState('');
@@ -138,10 +141,18 @@ function MainPage() {
     };
 
     /**
-     * Manejar reproducción de contenido
+     * Manejar reproducción de película o serie
      */
-    const handlePlayContent = (content) => {
-        navigate(`/player/${content.id}`);
+    const handlePlayMovie = (content) => {
+        navigateToPlayer(content);
+    };
+
+    const handleMovieClick = (content) => {
+        navigateToDetails(content);
+    };
+
+    const handleFavoriteMovie = (content) => {
+        console.log('Favorito:', content.title);
     };
 
     /**
@@ -171,17 +182,9 @@ function MainPage() {
             console.log('🎬 Respuesta movies:', response); // Debug
             
             const movieData = Array.isArray(response) ? response : response?.data || [];
-            const mappedMovies = movieData.map(movie => ({
-                id: movie.id,
-                title: movie.title,
-                category: movie.category || 'Sin categoría', // Para mostrar
-                categoryId: movie.categoryId, // Para filtrar
-                year: movie.releaseYear || movie.year || new Date().getFullYear(),
-                cover: `http://localhost:8082/covers/${movie.cover_image}/cover.jpg`,
-                type: 'movie',
-                rating: movie.rating || 0,
-                duration: movie.duration || 0
-            }));
+            const mappedMovies = movieData.map((movie) =>
+                transformMovieData(movie, categories)
+            );
             
             console.log('🎬 Movies mapeadas:', mappedMovies); // Debug
             setMovies(mappedMovies);
@@ -405,8 +408,9 @@ function MainPage() {
                     <ContentCard
                         key={`movie-${movie.id}`}
                         content={movie}
-                        onClick={() => handlePlayContent(movie)}
-                        onFavoriteClick={() => console.log('Favorito:', movie.title)}
+                        onPlay={() => handlePlayMovie(movie)}
+                        onClick={() => handleMovieClick(movie)}
+                        onFavorite={() => handleFavoriteMovie(movie)}
                         size="md"
                         showRating={true}
                         variant="elevated"
@@ -461,8 +465,9 @@ function MainPage() {
                     <ContentCard
                         key={`series-${serie.id}`}
                         content={serie}
-                        onClick={() => handlePlayContent(serie)}
-                        onFavoriteClick={() => console.log('Favorito:', serie.title)}
+                        onPlay={() => handlePlayMovie(serie)}
+                        onClick={() => handleMovieClick(serie)}
+                        onFavorite={() => handleFavoriteMovie(serie)}
                         size="md"
                         showRating={true}
                         variant="elevated"

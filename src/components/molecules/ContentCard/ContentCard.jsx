@@ -72,12 +72,7 @@ const ContentCard = ({
 
   // ✅ FILTRAR PROPS PERSONALIZADAS QUE NO DEBEN IR AL DOM
   const {
-    // Props personalizadas que causan el error
-    onFavoriteClick, // ← FILTRAR ESTA PROP
-    onPlayClick,     // ← FILTRAR ESTA PROP
-    contentType,     // ← FILTRAR ESTA PROP
-    
-    // Otros props personalizados que podrían venir del padre
+    // Props personalizados que podrían venir del padre
     content: _content,
     size: _size,
     onPlay: _onPlay,
