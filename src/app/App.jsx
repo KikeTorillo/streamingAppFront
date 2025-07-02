@@ -1,6 +1,8 @@
 // App.jsx - Actualizado con rutas completas del panel de administración + Episodes
 import React from "react";
 import { useRoutes, BrowserRouter } from "react-router-dom";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { Button } from "../components/atoms/Button/Button";
 
 // Páginas existentes
 import { Login } from "../Pages/Login/Login";
@@ -279,11 +281,34 @@ function AppRoutes() {
 /**
  * Componente principal de la aplicación
  */
+function ThemeToggleButton() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <Button
+      variant="secondary"
+      size="sm"
+      onClick={toggleTheme}
+      className="theme-toggle-button"
+      style={{
+        position: 'fixed',
+        bottom: 'var(--space-md)',
+        right: 'var(--space-md)',
+        zIndex: 'var(--z-tooltip)'
+      }}
+    >
+      {theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}
+    </Button>
+  );
+}
+
 function App() {
   return (
-    <BrowserRouter>
-      <AppRoutes />
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AppRoutes />
+        <ThemeToggleButton />
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 
