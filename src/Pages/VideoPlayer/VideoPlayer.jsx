@@ -13,24 +13,53 @@ if (typeof videojs.getPlugin("hlsQualitySelector") !== "function") {
 }
 
 const VideoPlayer = () => {
-
-  const {id} = useParams();
+  const {movieId} = useParams(); // ✅ FIX: Cambiar de "id" a "movieId"
   const [searchParams] = useSearchParams();
   const resolutions = searchParams.get('resolutions');
   const videoRef = useRef(null);
   const playerRef = useRef(null);
-  const baseUrl = `http://localhost:8082:8082/hls/${id}/`;
-  const subsUrl = `http://localhost:8082:8082/subs/${id}/`;
-  const urlComplete = `${baseUrl}_,${resolutions},p.mp4.play/master.m3u8`
-  console.log("URL Completa:", urlComplete);
+
+  // ✅ FIX: URL corregida sin puerto duplicado
+  const baseUrl = `http://localhost:8082/hls/${movieId}/`;
+  const subsUrl = `http://localhost:8082/subs/${movieId}/`;
+  
+  // ✅ FIX: Validar que movieId y resolutions existen
+  if (!movieId) {
+    console.error('VideoPlayer: movieId no encontrado en la URL');
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <h2>Error: ID de video no encontrado</h2>
+        <p>Verifica que la URL sea correcta</p>
+      </div>
+    );
+  }
+
+  if (!resolutions) {
+    console.error('VideoPlayer: Resolutions no encontradas en la URL');
+    return (
+      <div style={{ textAlign: "center", marginTop: "50px" }}>
+        <h2>Error: Resoluciones no encontradas</h2>
+        <p>Verifica que la URL contenga parámetros de resolución</p>
+      </div>
+    );
+  }
+
+  const urlComplete = `${baseUrl}_,${resolutions},p.mp4.play/master.m3u8`;
+  
+  console.log("VideoPlayer - movieId:", movieId);
+  console.log("VideoPlayer - Resolutions:", resolutions);
+  console.log("VideoPlayer - URL Completa:", urlComplete);
+
   useEffect(() => {
     const initializePlayer = async () => {
       try {
         await new Promise((resolve) => setTimeout(resolve, 100));
+        
         if (!videoRef.current) {
           console.error("El elemento <video> no está disponible en el DOM.");
           return;
         }
+        
         if (playerRef.current) {
           playerRef.current.dispose();
         }
@@ -42,7 +71,7 @@ const VideoPlayer = () => {
           fluid: true,
           sources: [
             {
-              src: `${urlComplete}`,
+              src: urlComplete,
               type: "application/x-mpegURL",
             },
           ],
@@ -64,7 +93,7 @@ const VideoPlayer = () => {
               "progressControl",
               "remainingTimeDisplay",
               "audioTrackButton",
-              "subsCapsButton", // Botón de subtítulos añadido
+              "subsCapsButton",
               "pictureInPictureToggle",
               "fullscreenToggle",
             ],
@@ -84,50 +113,37 @@ const VideoPlayer = () => {
           }
         });
 
-        // Configuración de subtítulos
-        /*player.ready(() => {
-          // Añadir pistas de subtítulos
-          const subtitles = [
-            {
-              src: `${subsUrl}subtitles_track0.vtt`, // Ruta a archivo VTT
-              label: "Español",
-              srclang: "es",
-              default: true,
-            },
-            //{
-            //  src: `${subsUrl}subtitles-en.vtt`,
-            //  label: "English",
-            //  srclang: "en",
-            //},
-          ];
-
-          subtitles.forEach((trackConfig) => {
-            player.addRemoteTextTrack({
-              kind: "subtitles",
-              src: trackConfig.src,
-              label: trackConfig.label,
-              language: trackConfig.srclang,
-              default: trackConfig.default,
-            });
-          });
-        });*/
+        // ✅ FIX: Manejo de errores mejorado
+        player.on('error', (e) => {
+          console.error('VideoJS Error:', e);
+          const error = player.error();
+          if (error) {
+            console.error('Error details:', error);
+          }
+        });
 
         playerRef.current = player;
+        
       } catch (error) {
         console.error("Error al inicializar el reproductor:", error);
       }
     };
 
     initializePlayer();
+    
     return () => {
       if (playerRef.current) {
         playerRef.current.dispose();
       }
     };
-  }, []);
+  }, [urlComplete]); // ✅ FIX: Dependencia corregida
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h2>Reproduciendo video</h2>
+      <p>Movie ID: {movieId}</p>
+      <p>Resoluciones: {resolutions}</p>
+      
       <div data-vjs-player>
         <video
           ref={videoRef}
