@@ -71,6 +71,7 @@ function SeriesDetailPage() {
                 if (response.success) {
                     setEpisodes(response.data || []);
                     console.log('Episodios cargados:', response.data);
+                    console.log('🔍 Episode details:', response.data?.[0]); // Ver el primer episodio en detalle
                 } else {
                     throw new Error(response.message || 'Error al cargar episodios');
                 }
@@ -129,23 +130,56 @@ function SeriesDetailPage() {
         .sort((a, b) => a - b);
 
     const currentSeasonEpisodes = episodesBySeason[selectedSeason] || [];
+    
+    // ✅ DEBUGGING: Verificar datos antes del render
+    console.log('🐛 RENDER DEBUG:');
+    console.log('🐛 Episodes raw:', episodes);
+    console.log('🐛 Episodes by season:', episodesBySeason);
+    console.log('🐛 Available seasons:', availableSeasons);
+    console.log('🐛 Selected season:', selectedSeason);
+    console.log('🐛 Current season episodes:', currentSeasonEpisodes);
+    console.log('🐛 Loading states:', { loadingSerie, loadingEpisodes });
+    console.log('🐛 Error states:', { serieError, episodesError });
 
     // ===== TRANSFORMAR EPISODIOS PARA CONTENTCARD =====
     const transformEpisodeForCard = (episode) => {
-        return {
+        // ✅ FORMATEAR DURACIÓN correctamente
+        let durationText = '45 min';
+        if (episode.video_duration) {
+            if (typeof episode.video_duration === 'object' && episode.video_duration.seconds) {
+                const totalSeconds = episode.video_duration.seconds;
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+                durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            } else if (typeof episode.video_duration === 'string') {
+                durationText = episode.video_duration;
+            }
+        }
+
+        // ✅ FORMATEAR URL DE IMAGEN correctamente
+        const coverUrl = episode.cover_image 
+            ? `http://localhost:3000/covers/${episode.cover_image}`
+            : serie?.cover_image 
+                ? `http://localhost:3000/covers/${serie.cover_image}` 
+                : 'https://via.placeholder.com/300x450?text=Episodio';
+
+        const transformedEpisode = {
             id: episode.id,
             title: episode.title || `Episodio ${episode.episode_number}`,
-            cover: episode.cover_image || serie?.cover_image || 'https://via.placeholder.com/300x450?text=Episodio',
+            cover: coverUrl,
             category: `T${episode.season} E${episode.episode_number}`,
             year: new Date(episode.created_at || episode.createdAt).getFullYear(),
             type: 'episode',
             rating: episode.rating || serie?.rating || 0,
-            duration: episode.video_duration || episode.duration || '45 min',
+            duration: durationText,
             // Campos necesarios para el reproductor
             file_hash: episode.file_hash,
             available_resolutions: episode.available_resolutions,
             _original: episode
         };
+
+        console.log('✅ Transformed episode final:', transformedEpisode);
+        return transformedEpisode;
     };
 
     // ===== VERIFICAR ERRORES =====
@@ -323,17 +357,22 @@ function SeriesDetailPage() {
                         gridColumns="repeat(auto-fit, minmax(200px, 1fr))"
                         gridGap="var(--space-md)"
                     >
-                        {currentSeasonEpisodes.map(episode => (
-                            <ContentCard
-                                key={`episode-${episode.id}`}
-                                content={transformEpisodeForCard(episode)}
-                                onPlay={() => handlePlayEpisode(episode)}
-                                onClick={() => handleEpisodeClick(episode)}
-                                size="md"
-                                showRating={true}
-                                variant="elevated"
-                            />
-                        ))}
+                        {currentSeasonEpisodes.map(episode => {
+                            const transformedEpisode = transformEpisodeForCard(episode);
+                            console.log('🐛 Rendering episode:', transformedEpisode);
+                            
+                            return (
+                                <ContentCard
+                                    key={`episode-${episode.id}`}
+                                    content={transformedEpisode}
+                                    onPlay={() => handlePlayEpisode(episode)}
+                                    onClick={() => handleEpisodeClick(episode)}
+                                    size="md"
+                                    showRating={true}
+                                    variant="elevated"
+                                />
+                            );
+                        })}
                     </ContentSection>
                 </div>
             }
