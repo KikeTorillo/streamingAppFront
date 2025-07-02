@@ -284,35 +284,11 @@ function AppRoutes() {
   return routes;
 }
 
-/**
- * Componente principal de la aplicación
- */
-function ThemeToggleButton() {
-  const { theme, toggleTheme } = useTheme();
-  return (
-    <Button
-      variant="secondary"
-      size="sm"
-      onClick={toggleTheme}
-      className="theme-toggle-button"
-      style={{
-        position: 'fixed',
-        bottom: 'var(--space-md)',
-        right: 'var(--space-md)',
-        zIndex: 'var(--z-tooltip)'
-      }}
-    >
-      {theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}
-    </Button>
-  );
-}
-
 function App() {
   return (
     <ThemeProvider>
       <BrowserRouter>
         <AppRoutes />
-        <ThemeToggleButton />
       </BrowserRouter>
     </ThemeProvider>
   );
