@@ -2,6 +2,7 @@
 import React from 'react';
 import { Button } from '../../atoms/Button/Button';
 import { TextInput } from '../../molecules/TextInput/TextInput';
+import { ThemeSelector } from '../../atoms/ThemeSelector';
 import './AppHeader.css';
 
 /**
@@ -78,6 +79,7 @@ function AppHeader({
         >
           Cerrar Sesión
         </Button>
+        <ThemeSelector variant="compact" size={size === 'lg' ? 'lg' : 'sm'} />
       </div>
     </header>
   );
