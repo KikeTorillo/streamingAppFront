@@ -583,3 +583,67 @@ body {
     display: none;
   }
 }
+/* ===== PALETAS DE COLORES PERSONALIZADAS ===== */
+:root {
+  --ocean-primary: #0ea5e9;
+  --ocean-secondary: #10b981;
+  --forest-primary: #84cc16;
+  --forest-secondary: #ea9d47;
+  --sunset-primary: #f97316;
+  --sunset-secondary: #ec4899;
+  --purple-primary: #a855f7;
+  --purple-secondary: #6366f1;
+}
+
+.palette-ocean {
+  --color-primary: var(--ocean-primary);
+  --color-primary-hover: var(--blue-600);
+  --color-secondary: var(--ocean-secondary);
+  --color-secondary-hover: var(--green-600);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.palette-ocean.dark {
+  --color-primary-light: var(--blue-900);
+  --color-secondary-light: var(--green-900);
+}
+
+.palette-forest {
+  --color-primary: var(--forest-primary);
+  --color-primary-hover: var(--green-600);
+  --color-secondary: var(--forest-secondary);
+  --color-secondary-hover: var(--yellow-700);
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.palette-forest.dark {
+  --color-primary-light: var(--green-900);
+  --color-secondary-light: var(--yellow-900);
+}
+
+.palette-sunset {
+  --color-primary: var(--sunset-primary);
+  --color-primary-hover: var(--orange-600, var(--sunset-primary));
+  --color-secondary: var(--sunset-secondary);
+  --color-secondary-hover: var(--pink-600, var(--sunset-secondary));
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.palette-sunset.dark {
+  --color-primary-light: var(--orange-900, var(--sunset-primary));
+  --color-secondary-light: var(--pink-900, var(--sunset-secondary));
+}
+
+.palette-purple {
+  --color-primary: var(--purple-primary);
+  --color-primary-hover: var(--purple-600, var(--purple-primary));
+  --color-secondary: var(--purple-secondary);
+  --color-secondary-hover: var(--indigo-600, var(--purple-secondary));
+  transition: background-color var(--transition-normal), color var(--transition-normal);
+}
+
+.palette-purple.dark {
+  --color-primary-light: var(--purple-900, var(--purple-primary));
+  --color-secondary-light: var(--indigo-900, var(--purple-secondary));
+}
+
