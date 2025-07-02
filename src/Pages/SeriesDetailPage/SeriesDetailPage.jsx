@@ -157,10 +157,10 @@ function SeriesDetailPage() {
         }
 
         // ✅ FORMATEAR URL DE IMAGEN correctamente
-        const coverUrl = episode.cover_image 
-            ? `http://localhost:8082/covers/${episode.cover_image}`
-            : serie?.cover_image 
-                ? `http://localhost:8082/covers/${serie.cover_image}` 
+        const coverUrl = episode.cover_image
+            ? `http://localhost:8082/covers/${episode.cover_image}/cover.jpg`
+            : serie?.cover_image
+                ? `http://localhost:8082/covers/${serie.cover_image}/cover.jpg`
                 : 'https://via.placeholder.com/300x450?text=Episodio';
 
         const transformedEpisode = {
@@ -231,8 +231,8 @@ function SeriesDetailPage() {
                             alignItems: 'flex-start',
                             flexWrap: 'wrap'
                         }}>
-                            <img 
-                                src={serie.cover_image ? `http://localhost:8082/covers/${serie.cover_image}` : 'https://via.placeholder.com/300x450?text=Serie'}
+                            <img
+                                src={serie.cover_image ? `http://localhost:8082/covers/${serie.cover_image}/cover.jpg` : 'https://via.placeholder.com/300x450?text=Serie'}
                                 alt={`Carátula de ${serie.title}`}
                                 style={{
                                     width: '200px',
