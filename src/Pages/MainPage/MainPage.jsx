@@ -19,28 +19,29 @@ import { searchMoviesService } from '../../services/Movies/searchMoviesService';
 import { getSeriesService } from '../../services/Series/getSeriesService';
 import { searchSeriesService } from '../../services/Series/searchSeriesService';
 import { getCategoriesService } from '../../services/Categories/getCategoriesService';
+
 //import { logoutService } from '../../services/Auth/logoutService';
 
 function MainPage() {
     const navigate = useNavigate();
-    const { navigateToPlayer, navigateToDetails } = useMovieNavigation();
-    
+    const { handleContentCardClick, handleContentCardPlay } = useMovieNavigation();
+
     // Estados
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedCategory, setSelectedCategory] = useState('all');
     const [user, setUser] = useState(null);
-    
+
     // Estados de datos
     const [movies, setMovies] = useState([]);
     const [series, setSeries] = useState([]);
     const [categories, setCategories] = useState([]);
-    
+
     // Estados de carga
     const [loadingMovies, setLoadingMovies] = useState(true);
     const [loadingSeries, setLoadingSeries] = useState(true);
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [searching, setSearching] = useState(false);
-    
+
     // Estados de error
     const [moviesError, setMoviesError] = useState(null);
     const [seriesError, setSeriesError] = useState(null);
@@ -53,7 +54,7 @@ function MainPage() {
             navigate('/login');
             return;
         }
-        
+
         try {
             const userData = JSON.parse(sessionUser);
             setUser(userData);
@@ -68,10 +69,10 @@ function MainPage() {
      */
     const getCategoryIcon = (categoryName) => {
         if (!categoryName) return '🎞️';
-        
+
         const icons = {
             'Acción': '💥',
-            'Drama': '🎭', 
+            'Drama': '🎭',
             'Comedia': '😂',
             'Terror': '👻',
             'Horror': '👻',
@@ -87,11 +88,11 @@ function MainPage() {
             'Crimen': '🚔',
             'Familia': '👨‍👩‍👧‍👦'
         };
-        
+
         // Buscar coincidencia exacta o parcial
         const exactMatch = icons[categoryName];
         if (exactMatch) return exactMatch;
-        
+
         // Buscar coincidencia parcial (case insensitive)
         const lowerName = categoryName.toLowerCase();
         for (const [key, icon] of Object.entries(icons)) {
@@ -99,18 +100,18 @@ function MainPage() {
                 return icon;
             }
         }
-        
+
         return '🎞️'; // Icono por defecto
     };
     // ===== FUNCIONES DE MANEJO =====
-    
+
     /**
      * ✅ CORREGIDO: Función para ir al Admin Panel
      */
     const handleGoToAdmin = () => {
         // Verificar si el usuario es administrador
         const isAdmin = user?.roleId === 1 || user?.role === 'admin';
-        
+
         if (isAdmin) {
             navigate('/admin');
         } else {
@@ -123,7 +124,7 @@ function MainPage() {
      */
     //const handleLogout = async () => {
     //    await logoutService();
-        // logoutService ya maneja la redirección
+    // logoutService ya maneja la redirección
     //};
 
     /**
@@ -143,12 +144,24 @@ function MainPage() {
     /**
      * Manejar reproducción de película o serie
      */
-    const handlePlayMovie = (content) => {
-        navigateToPlayer(content);
+    const handlePlayMovie = (movie) => {
+        console.log('🎬 Play movie:', movie.title);
+        handleContentCardPlay(movie); // ✅ Usa el método inteligente
     };
 
-    const handleMovieClick = (content) => {
-        navigateToDetails(content);
+    const handleMovieClick = (movie) => {
+        console.log('🎬 Click movie:', movie.title);
+        handleContentCardClick(movie); // ✅ Usa el método inteligente
+    };
+
+    const handlePlaySeries = (series) => {
+        console.log('📺 Play series:', series.title);
+        handleContentCardPlay(series); // ✅ Usa el método inteligente
+    };
+
+    const handleSeriesClick = (series) => {
+        console.log('📺 Click series:', series.title);
+        handleContentCardClick(series); // ✅ Usa el método inteligente
     };
 
     const handleFavoriteMovie = (content) => {
@@ -172,20 +185,20 @@ function MainPage() {
     };
 
     // ===== FUNCIONES DE DATOS =====
-    
+
     const loadMovies = async () => {
         try {
             setLoadingMovies(true);
             setMoviesError(null);
             const response = await getMoviesService();
-            
+
             console.log('🎬 Respuesta movies:', response); // Debug
-            
+
             const movieData = Array.isArray(response) ? response : response?.data || [];
             const mappedMovies = movieData.map((movie) =>
                 transformMovieData(movie, categories)
             );
-            
+
             console.log('🎬 Movies mapeadas:', mappedMovies); // Debug
             setMovies(mappedMovies);
         } catch (error) {
@@ -201,9 +214,9 @@ function MainPage() {
             setLoadingSeries(true);
             setSeriesError(null);
             const response = await getSeriesService();
-            
+
             console.log('📺 Respuesta series:', response); // Debug
-            
+
             const seriesData = Array.isArray(response) ? response : response?.data || [];
             const mappedSeries = seriesData.map(serie => ({
                 id: serie.id,
@@ -216,7 +229,7 @@ function MainPage() {
                 rating: serie.rating || 0,
                 seasons: serie.seasons || 1
             }));
-            
+
             console.log('📺 Series mapeadas:', mappedSeries); // Debug
             setSeries(mappedSeries);
         } catch (error) {
@@ -232,11 +245,11 @@ function MainPage() {
             setLoadingCategories(true);
             setCategoriesError(null);
             const response = await getCategoriesService();
-            
+
             console.log('📋 Respuesta categorías:', response); // Debug
-            
+
             const categoryData = Array.isArray(response) ? response : response?.data || [];
-            
+
             // ✅ CORREGIDO: Mapear al formato que espera FilterBar
             const mappedCategories = [
                 { value: 'all', label: 'Todas', icon: '🎬' }, // Categoría por defecto
@@ -247,14 +260,14 @@ function MainPage() {
                     id: cat.id // Mantener ID original para filtros
                 }))
             ];
-            
+
             console.log('📋 Categorías mapeadas:', mappedCategories); // Debug
             setCategories(mappedCategories);
-            
+
         } catch (error) {
             console.error('Error loading categories:', error);
             setCategoriesError('Error al cargar categorías');
-            
+
             // ✅ FALLBACK: Categorías por defecto si falla
             setCategories([
                 { value: 'all', label: 'Todas', icon: '🎬' },
@@ -279,21 +292,21 @@ function MainPage() {
     // ===== FILTRADO CORREGIDO =====
     const filteredMovies = movies.filter(movie => {
         const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         // ✅ CORREGIDO: Comparar con categoryId del contenido
-        const matchesCategory = selectedCategory === 'all' || 
-                               movie.categoryId?.toString() === selectedCategory;
-        
+        const matchesCategory = selectedCategory === 'all' ||
+            movie.categoryId?.toString() === selectedCategory;
+
         return matchesSearch && matchesCategory;
     });
 
     const filteredSeries = series.filter(serie => {
         const matchesSearch = serie.title.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         // ✅ CORREGIDO: Comparar con categoryId del contenido  
-        const matchesCategory = selectedCategory === 'all' || 
-                               serie.categoryId?.toString() === selectedCategory;
-        
+        const matchesCategory = selectedCategory === 'all' ||
+            serie.categoryId?.toString() === selectedCategory;
+
         return matchesSearch && matchesCategory;
     });
 
@@ -369,8 +382,8 @@ function MainPage() {
                 error={moviesError}
                 empty={filteredMovies.length === 0 && !loadingMovies}
                 emptyTitle={
-                    searchTerm 
-                        ? `Sin películas para "${searchTerm}"` 
+                    searchTerm
+                        ? `Sin películas para "${searchTerm}"`
                         : selectedCategory !== 'all'
                             ? "No hay películas en esta categoría"
                             : "No hay películas disponibles"
@@ -426,8 +439,8 @@ function MainPage() {
                 error={seriesError}
                 empty={filteredSeries.length === 0 && !loadingSeries}
                 emptyTitle={
-                    searchTerm 
-                        ? `Sin series para "${searchTerm}"` 
+                    searchTerm
+                        ? `Sin series para "${searchTerm}"`
                         : selectedCategory !== 'all'
                             ? "No hay series en esta categoría"
                             : "No hay series disponibles"
@@ -477,30 +490,30 @@ function MainPage() {
 
             {/* ===== ESTADO VACÍO GLOBAL ===== */}
             {!loadingMovies && !loadingSeries && !searching &&
-             filteredMovies.length === 0 && 
-             filteredSeries.length === 0 && 
-             !searchTerm && 
-             selectedCategory === 'all' && (
-                <EmptyState
-                    icon="🚀"
-                    title="¡Bienvenido a StreamApp!"
-                    description="Tu plataforma de streaming está lista. El contenido se está cargando o será agregado pronto."
-                    action={
-                        <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
-                            <Button variant="outline" size="md" onClick={() => window.location.reload()}>
-                                Recargar contenido
-                            </Button>
-                            {isAdmin && (
-                                <Button variant="primary" size="md" onClick={handleGoToAdmin}>
-                                    Ir al Admin Panel
+                filteredMovies.length === 0 &&
+                filteredSeries.length === 0 &&
+                !searchTerm &&
+                selectedCategory === 'all' && (
+                    <EmptyState
+                        icon="🚀"
+                        title="¡Bienvenido a StreamApp!"
+                        description="Tu plataforma de streaming está lista. El contenido se está cargando o será agregado pronto."
+                        action={
+                            <div style={{ display: 'flex', gap: 'var(--space-sm)' }}>
+                                <Button variant="outline" size="md" onClick={() => window.location.reload()}>
+                                    Recargar contenido
                                 </Button>
-                            )}
-                        </div>
-                    }
-                    variant="info"
-                    size="lg"
-                />
-            )}
+                                {isAdmin && (
+                                    <Button variant="primary" size="md" onClick={handleGoToAdmin}>
+                                        Ir al Admin Panel
+                                    </Button>
+                                )}
+                            </div>
+                        }
+                        variant="info"
+                        size="lg"
+                    />
+                )}
         </PageLayout>
     );
 }

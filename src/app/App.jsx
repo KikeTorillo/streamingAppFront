@@ -33,6 +33,8 @@ import { SeriesCreatePage } from '../Pages/Admin/Series/SeriesCreatePage/SeriesC
 // ===== 🆕 RUTAS DE EPISODES - NUEVAS =====
 import { EpisodesListPage } from '../Pages/Admin/Episodes/EpisodesListPage/EpisodesListPage';
 import { EpisodesCreatePage } from '../Pages/Admin/Episodes/EpisodesCreatePage/EpisodesCreatePage';
+
+import { SeriesDetailPage } from "../Pages/SeriesDetailPage/SeriesDetailPage";
 // import { EpisodeEditPage } from '../Pages/Admin/Episodes/EpisodeEditPage/EpisodeEditPage'; // Para futuro
 
 import "./App.css";
@@ -114,6 +116,10 @@ function AppRoutes() {
     {
       path: "/player/:movieId",
       element: <VideoPlayer />
+    },
+    {
+      path: "/series/:id",
+      element: <SeriesDetailPage />
     },
 
     // ===== RUTAS ADMIN PROTEGIDAS =====
